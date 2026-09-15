@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -36,6 +36,7 @@ export function MoodCheckinScreen() {
   const [note, setNote] = useState('');
   const [period, setPeriod] = useState<7 | 30>(7);
   const [saved, setSaved] = useState(false);
+  const hydratedCheckinIdRef = useRef<string | null>(null);
 
   const userId = user?.id ?? '';
   const historyQuery = useQuery({
@@ -48,7 +49,8 @@ export function MoodCheckinScreen() {
   const todayCheckin = historyQuery.data?.find((checkin) => checkin.clientId === todayClientId);
 
   useEffect(() => {
-    if (!todayCheckin) return;
+    if (!todayCheckin || hydratedCheckinIdRef.current === todayCheckin.id) return;
+    hydratedCheckinIdRef.current = todayCheckin.id;
     setSelectedMood(todayCheckin.mood);
     setNote(todayCheckin.note ?? '');
   }, [todayCheckin]);
@@ -64,6 +66,7 @@ export function MoodCheckinScreen() {
       return saveDailyCheckin({ userId, mood: selectedMood, note });
     },
     onSuccess: async (checkin) => {
+      hydratedCheckinIdRef.current = checkin.id;
       setSaved(true);
       await queryClient.invalidateQueries({ queryKey: checkinKeys.history(userId) });
       if (checkin.mood === 'craving') router.push('/(app)/craving');
