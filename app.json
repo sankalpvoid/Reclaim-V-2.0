@@ -19,7 +19,7 @@
     "web": {
       "bundler": "metro"
     },
-    "plugins": ["expo-router", "expo-splash-screen"],
+    "plugins": ["expo-router", "expo-splash-screen", "expo-secure-store"],
     "experiments": {
       "typedRoutes": true
     }

@@ -5,6 +5,8 @@ web-build/
 .env
 .env.local
 .env.*.local
+expo-env.d.ts
+Expo-Go-*.tar.app/
 *.log
 .DS_Store
 coverage/

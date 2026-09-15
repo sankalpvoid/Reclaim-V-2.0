@@ -1,5 +1,9 @@
+import 'react-native-url-polyfill/auto';
+
 import { createClient } from '@supabase/supabase-js';
 import { z } from 'zod';
+
+import { authStorage } from '@/core/supabase/authStorage';
 
 const envSchema = z.object({
   EXPO_PUBLIC_SUPABASE_URL: z.string().url(),
@@ -17,13 +21,10 @@ export const supabase = createClient(
   env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
   {
     auth: {
+      storage: authStorage,
       autoRefreshToken: true,
-      persistSession: false,
+      persistSession: true,
       detectSessionInUrl: false,
     },
   },
 );
-
-// Auth persistence is intentionally deferred until the auth migration phase.
-// V2 will use a React Native-compatible storage adapter rather than copying
-// V1's manual localStorage token lifecycle.
