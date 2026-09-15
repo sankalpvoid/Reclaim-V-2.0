@@ -1,3 +1,4 @@
+import { calculateNextTarget } from '../../domain/smoking/reduction';
 import type { Profile } from '@/features/profile/profile';
 
 export const DEFAULT_REDUCTION_RATE = 0.1;
@@ -7,12 +8,7 @@ export function calculateInitialReductionTarget(
   cigarettesPerDay: number,
   reductionRate = DEFAULT_REDUCTION_RATE,
 ): number {
-  const baseline = Math.max(1, Math.round(cigarettesPerDay));
-  if (baseline <= MINIMUM_REDUCTION_TARGET) return MINIMUM_REDUCTION_TARGET;
-
-  const safeRate = Number.isFinite(reductionRate) ? Math.max(0, reductionRate) : DEFAULT_REDUCTION_RATE;
-  const drop = Math.max(1, Math.round(baseline * safeRate));
-  return Math.max(MINIMUM_REDUCTION_TARGET, baseline - drop);
+  return calculateNextTarget(cigarettesPerDay, { reductionRate });
 }
 
 export function calculatePricePerCigarette(pricePerPack: number, cigarettesPerPack: number): number {
