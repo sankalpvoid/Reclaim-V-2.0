@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { signInSchema, signUpSchema } from '@/features/auth/authSchemas';
 import {
   signInWithPassword,
   signUpWithPassword,
 } from '@/features/auth/authService';
-import { signInSchema, signUpSchema } from '@/features/auth/authSchemas';
 import { spacing } from '@/theme/tokens';
 import { AppText } from '@/ui/AppText';
 import { Button } from '@/ui/Button';
@@ -16,6 +16,7 @@ type AuthMode = 'signIn' | 'signUp';
 
 export default function AuthScreen() {
   const [mode, setMode] = useState<AuthMode>('signIn');
+  const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -27,20 +28,22 @@ export default function AuthScreen() {
   async function submit() {
     setFormError(null);
     setNotice(null);
-
-    const schema = isSignIn ? signInSchema : signUpSchema;
-    const parsed = schema.safeParse({ email, password });
-
-    if (!parsed.success) {
-      setFormError(parsed.error.issues[0]?.message ?? 'Check your details and try again.');
-      return;
-    }
-
     setIsSubmitting(true);
+
     try {
       if (isSignIn) {
+        const parsed = signInSchema.safeParse({ email, password });
+        if (!parsed.success) {
+          setFormError(parsed.error.issues[0]?.message ?? 'Check your details and try again.');
+          return;
+        }
         await signInWithPassword(parsed.data);
       } else {
+        const parsed = signUpSchema.safeParse({ displayName, email, password });
+        if (!parsed.success) {
+          setFormError(parsed.error.issues[0]?.message ?? 'Check your details and try again.');
+          return;
+        }
         const result = await signUpWithPassword(parsed.data);
         if (!result.session) {
           setNotice('Account created. Check your email to confirm it, then sign in.');
@@ -64,18 +67,28 @@ export default function AuthScreen() {
     <Screen>
       <View style={styles.container}>
         <View style={styles.header}>
-          <AppText variant="caption" tone="secondary">
-            RECLAIM
-          </AppText>
-          <AppText variant="display">{isSignIn ? 'Welcome back.' : 'Begin again.'}</AppText>
+          <AppText variant="caption" tone="secondary">RECLAIM</AppText>
+          <AppText variant="display">{isSignIn ? 'Welcome back.' : 'Your next chapter.'}</AppText>
           <AppText tone="secondary">
             {isSignIn
               ? 'Sign in to restore your Reclaim journey.'
-              : 'Create your account. Your journey details come next.'}
+              : 'A private place to reclaim your time, health and money.'}
           </AppText>
         </View>
 
         <View style={styles.form}>
+          {!isSignIn ? (
+            <Input
+              label="Name"
+              value={displayName}
+              onChangeText={setDisplayName}
+              autoCapitalize="words"
+              autoComplete="name"
+              textContentType="name"
+              editable={!isSubmitting}
+              placeholder="Your name"
+            />
+          ) : null}
           <Input
             label="Email"
             value={email}

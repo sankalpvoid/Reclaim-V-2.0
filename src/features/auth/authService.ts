@@ -15,8 +15,16 @@ export async function signInWithPassword(input: SignInInput) {
 }
 
 export async function signUpWithPassword(input: SignUpInput) {
-  const credentials = signUpSchema.parse(input);
-  const { data, error } = await supabase.auth.signUp(credentials);
+  const { displayName, email, password } = signUpSchema.parse(input);
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        display_name: displayName,
+      },
+    },
+  });
 
   if (error) throw error;
   return data;
