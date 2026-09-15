@@ -1,0 +1,111 @@
+import { useState } from 'react';
+import DateTimePicker from '@expo/ui/community/datetime-picker';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
+
+import { colors, radius, spacing } from '@/theme/tokens';
+import { AppText } from '@/ui/AppText';
+
+type QuitDatePickerProps = {
+  value: Date;
+  onChange: (value: Date) => void;
+  disabled?: boolean;
+};
+
+function formatDateTime(value: Date) {
+  return new Intl.DateTimeFormat(undefined, {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(value);
+}
+
+export function QuitDatePicker({ value, onChange, disabled = false }: QuitDatePickerProps) {
+  const [showAndroidPicker, setShowAndroidPicker] = useState(false);
+
+  if (Platform.OS === 'ios') {
+    return (
+      <View style={styles.field}>
+        <AppText variant="caption">Your quit date and time</AppText>
+        <View style={styles.iosPicker}>
+          <DateTimePicker
+            value={value}
+            disabled={disabled}
+            display="compact"
+            maximumDate={new Date()}
+            mode="datetime"
+            themeVariant="dark"
+            onValueChange={(_event, selectedDate) => onChange(selectedDate)}
+          />
+        </View>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.field}>
+      <AppText variant="caption">Your quit date and time</AppText>
+      <Pressable
+        accessibilityRole="button"
+        disabled={disabled}
+        onPress={() => setShowAndroidPicker(true)}
+        style={({ pressed }) => [styles.trigger, pressed && styles.pressed, disabled && styles.disabled]}
+      >
+        <View style={styles.copy}>
+          <AppText variant="caption" tone="secondary">QUIT STARTED</AppText>
+          <AppText>{formatDateTime(value)}</AppText>
+        </View>
+        <AppText tone="secondary">›</AppText>
+      </Pressable>
+      {showAndroidPicker ? (
+        <DateTimePicker
+          value={value}
+          maximumDate={new Date()}
+          mode="datetime"
+          presentation="dialog"
+          onDismiss={() => setShowAndroidPicker(false)}
+          onValueChange={(_event, selectedDate) => {
+            setShowAndroidPicker(false);
+            onChange(selectedDate);
+          }}
+        />
+      ) : null}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  field: {
+    gap: spacing.sm,
+  },
+  iosPicker: {
+    minHeight: 58,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    paddingHorizontal: spacing.sm,
+    justifyContent: 'center',
+  },
+  trigger: {
+    minHeight: 58,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.md,
+  },
+  copy: {
+    flex: 1,
+    gap: spacing.xs,
+  },
+  pressed: {
+    opacity: 0.82,
+  },
+  disabled: {
+    opacity: 0.5,
+  },
+});

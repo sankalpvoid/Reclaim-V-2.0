@@ -18,9 +18,21 @@ describe('auth schemas', () => {
     ).toBe(false);
   });
 
-  it('requires a stronger password for new accounts', () => {
+  it('requires a display name and stronger password for new accounts', () => {
     expect(
-      signUpSchema.safeParse({ email: 'user@example.com', password: 'short' }).success,
+      signUpSchema.safeParse({ displayName: '', email: 'user@example.com', password: 'password123' }).success,
     ).toBe(false);
+    expect(
+      signUpSchema.safeParse({ displayName: 'Sankalp', email: 'user@example.com', password: 'short' }).success,
+    ).toBe(false);
+  });
+
+  it('trims the display name for new accounts', () => {
+    const result = signUpSchema.parse({
+      displayName: '  Sankalp  ',
+      email: 'user@example.com',
+      password: 'password123',
+    });
+    expect(result.displayName).toBe('Sankalp');
   });
 });

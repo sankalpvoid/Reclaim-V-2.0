@@ -6,6 +6,7 @@ export const signInSchema = z.object({
 });
 
 export const signUpSchema = z.object({
+  displayName: z.string().trim().min(1, 'Enter your name').max(80, 'Keep your name under 80 characters'),
   email: z.string().trim().toLowerCase().email('Enter a valid email address'),
   password: z.string().min(8, 'Use at least 8 characters'),
 });
