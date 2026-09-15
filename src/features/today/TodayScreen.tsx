@@ -247,6 +247,15 @@ export function TodayScreen() {
         ) : null}
 
         <Card style={styles.supportCard}>
+          <AppText variant="caption" tone="secondary">DAILY CHECK-IN</AppText>
+          <AppText variant="title">How are you today?</AppText>
+          <AppText tone="secondary">
+            Track how the day feels and build a mood history Reclaim can use for later insights.
+          </AppText>
+          <Button label="Check in" onPress={() => router.push('/(app)/check-in')} />
+        </Card>
+
+        <Card style={styles.supportCard}>
           <AppText variant="caption" tone="secondary">CRAVING SUPPORT</AppText>
           <AppText variant="title">Need help with an urge?</AppText>
           <AppText tone="secondary">

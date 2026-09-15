@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { moodSchema, type Mood } from '../checkins/checkinModel';
 import { journeyModeSchema } from '../profile/profile';
 
 export const onboardingPlanSchema = z
@@ -41,7 +42,7 @@ export const onboardingPlanSchema = z
     }
   });
 
-export const onboardingMoodSchema = z.enum(['great', 'okay', 'struggling', 'craving']);
+export const onboardingMoodSchema = moodSchema;
 
 export type OnboardingPlanInput = z.infer<typeof onboardingPlanSchema>;
-export type OnboardingMood = z.infer<typeof onboardingMoodSchema>;
+export type OnboardingMood = Mood;
