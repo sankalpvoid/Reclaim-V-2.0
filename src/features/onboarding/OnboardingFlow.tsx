@@ -37,6 +37,8 @@ export function OnboardingFlow() {
     );
   }
 
+  const userId = user.id;
+
   async function handlePlanSaved() {
     await refreshProfile();
     setStep('mood');
@@ -46,7 +48,7 @@ export function OnboardingFlow() {
     setCompletionError(null);
     setIsCompleting(true);
     try {
-      await completeOnboarding(user.id, mood);
+      await completeOnboarding(userId, mood);
       await refreshProfile();
       router.replace('/(app)');
     } catch (error) {
@@ -70,7 +72,7 @@ export function OnboardingFlow() {
 
       {step === 'plan' ? (
         <PlanStep
-          userId={user.id}
+          userId={userId}
           mode={mode}
           profile={profile}
           defaultDisplayName={defaultDisplayName}
