@@ -1,3 +1,5 @@
+grant update on table public.daily_checkins to authenticated;
+
 create policy "daily checkins update own"
 on public.daily_checkins
 for update
