@@ -6,7 +6,6 @@
     "orientation": "portrait",
     "scheme": "reclaim",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "app.reclaim.mobile"
