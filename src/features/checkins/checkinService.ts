@@ -72,7 +72,7 @@ export function saveDailyCheckin(input: {
   return saveCheckin({
     userId: input.userId,
     mood: input.mood,
-    note: input.note,
+    ...(input.note !== undefined ? { note: input.note } : {}),
     clientId: dailyCheckinClientId(input.date ?? new Date()),
   });
 }
