@@ -163,7 +163,6 @@ export function CravingSupportScreen() {
               label={recordMutation.isPending ? 'Logging…' : 'Log without exercise'}
               disabled={recordMutation.isPending}
               onPress={() => void logWithoutExercise()}
-              variant="secondary"
             />
           </>
         ) : null}
@@ -172,7 +171,7 @@ export function CravingSupportScreen() {
           <ToolStage
             tool={activeTool}
             timerSeconds={timerSeconds}
-            breathStep={breatheSteps[breathIndex]}
+            breathStep={breatheSteps[breathIndex] ?? 'INHALE'}
             isSaving={recordMutation.isPending}
             onComplete={() => void finishTool()}
           />
@@ -184,8 +183,8 @@ export function CravingSupportScreen() {
             <AppText variant="display">Did that help?</AppText>
             <AppText tone="secondary">One tap helps Reclaim learn which support works for you.</AppText>
             <Button label="Yes" onPress={() => void submitFeedback('yes')} />
-            <Button label="A little" variant="secondary" onPress={() => void submitFeedback('a_little')} />
-            <Button label="Not really" variant="secondary" onPress={() => void submitFeedback('not_really')} />
+            <Button label="A little" onPress={() => void submitFeedback('a_little')} />
+            <Button label="Not really" onPress={() => void submitFeedback('not_really')} />
             <Pressable onPress={() => router.replace('/(app)')} style={styles.skipButton}>
               <AppText tone="secondary">Skip</AppText>
             </Pressable>
