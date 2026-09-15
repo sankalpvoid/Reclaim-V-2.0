@@ -4,6 +4,7 @@ import type { Profile } from '../profile/profile';
 import {
   buildQuitTodaySummary,
   buildSmokingTodaySummary,
+  formatAvoidedCigarettes,
   formatSmokeFreeDuration,
 } from './todayModel';
 
@@ -31,6 +32,12 @@ describe('Today model', () => {
   it('formats a smoke-free duration without overstating partial days', () => {
     expect(formatSmokeFreeDuration(90 * 60_000)).toBe('1h 30m');
     expect(formatSmokeFreeDuration(26 * 60 * 60_000)).toBe('1d 2h');
+  });
+
+  it('keeps very early cigarettes-avoided progress visible', () => {
+    expect(formatAvoidedCigarettes(0)).toBe('0');
+    expect(formatAvoidedCigarettes(0.22)).toBe('0.2');
+    expect(formatAvoidedCigarettes(20.8)).toBe('20');
   });
 
   it('builds quit-mode labels from the shared progress domain', () => {
