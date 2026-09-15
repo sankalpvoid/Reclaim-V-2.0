@@ -1,7 +1,5 @@
 import { z } from 'zod';
 
-import { supabase } from '@/core/supabase/client';
-
 export const journeyModeSchema = z.enum(['quit', 'reduce', 'track']);
 
 export const profileSchema = z.object({
@@ -25,39 +23,3 @@ export const profileSchema = z.object({
 });
 
 export type Profile = z.infer<typeof profileSchema>;
-
-export const profileKeys = {
-  all: ['profile'] as const,
-  byUser: (userId: string) => ['profile', userId] as const,
-};
-
-const profileColumns = `
-  id,
-  quit_date,
-  cigarettes_per_day,
-  price_per_cigarette,
-  created_at,
-  updated_at,
-  price_per_pack,
-  cigarettes_per_pack,
-  minutes_per_cigarette,
-  currency_symbol,
-  country,
-  attempt_number,
-  best_streak_seconds,
-  journey_mode,
-  daily_target,
-  display_name,
-  onboarding_completed
-`;
-
-export async function getProfile(userId: string): Promise<Profile | null> {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select(profileColumns)
-    .eq('id', userId)
-    .maybeSingle();
-
-  if (error) throw error;
-  return data ? profileSchema.parse(data) : null;
-}
