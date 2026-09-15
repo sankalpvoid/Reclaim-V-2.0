@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { router } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import type { SmokingEvent } from '@/domain/smoking/smokingEvents';
@@ -16,7 +17,7 @@ import {
   logCigarette,
   todayKeys,
 } from '@/features/today/todayService';
-import { colors, radius, spacing, typography } from '@/theme/tokens';
+import { colors, radius, spacing } from '@/theme/tokens';
 import { AppText } from '@/ui/AppText';
 import { Button } from '@/ui/Button';
 import { Card } from '@/ui/Card';
@@ -179,14 +180,6 @@ export function TodayScreen() {
               <StatCard label="MONEY RECLAIMED" value={quitSummary.moneyLabel} />
               <StatCard label="TIME RECLAIMED" value={quitSummary.timeLabel} />
             </View>
-
-            <Card style={styles.nextCard}>
-              <AppText variant="caption" tone="secondary">AT YOUR PACE</AppText>
-              <AppText variant="title">One small shift.</AppText>
-              <AppText tone="secondary">
-                Keep the next decision small. Craving support and personalized next steps migrate in the next product phase.
-              </AppText>
-            </Card>
           </>
         ) : null}
 
@@ -252,6 +245,15 @@ export function TodayScreen() {
             ) : null}
           </>
         ) : null}
+
+        <Card style={styles.supportCard}>
+          <AppText variant="caption" tone="secondary">CRAVING SUPPORT</AppText>
+          <AppText variant="title">Need help with an urge?</AppText>
+          <AppText tone="secondary">
+            Open a short support tool, or simply log the craving without judgment.
+          </AppText>
+          <Button label="Get craving support" onPress={() => router.push('/(app)/craving')} />
+        </Card>
 
         {dataError ? (
           <Card style={styles.errorCard}>
@@ -335,9 +337,6 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     gap: spacing.xs,
   },
-  nextCard: {
-    gap: spacing.sm,
-  },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -368,6 +367,9 @@ const styles = StyleSheet.create({
   },
   barUnknown: {
     backgroundColor: colors.border,
+  },
+  supportCard: {
+    gap: spacing.sm,
   },
   errorCard: {
     borderColor: colors.danger,
