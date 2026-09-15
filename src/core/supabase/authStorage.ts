@@ -14,8 +14,17 @@ type WebStorageLike = {
   removeItem: (key: string) => void;
 };
 
-const manifestKey = (key: string) => `${key}.__reclaim_chunks`;
-const chunkKey = (key: string, index: number) => `${key}.__reclaim_${index}`;
+type StorageSlot = 'a' | 'b';
+
+type StorageManifest = {
+  active: StorageSlot;
+  a: number;
+  b: number;
+};
+
+const manifestKey = (key: string) => `${key}.__reclaim_manifest`;
+const chunkKey = (key: string, slot: StorageSlot, index: number) =>
+  `${key}.__reclaim_${slot}_${index}`;
 
 function getWebStorage(): WebStorageLike | null {
   const storage = (globalThis as typeof globalThis & { localStorage?: WebStorageLike })
@@ -39,24 +48,50 @@ async function getSecureStore() {
   return import('expo-secure-store');
 }
 
-function parseChunkCount(value: string | null): number {
-  if (!value) return 0;
-  const parsed = Number.parseInt(value, 10);
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : 0;
+function isValidChunkCount(value: unknown): value is number {
+  return Number.isInteger(value) && Number(value) >= 0;
+}
+
+function parseManifest(value: string | null): StorageManifest | null {
+  if (!value) return null;
+
+  try {
+    const parsed = JSON.parse(value) as Partial<StorageManifest>;
+    if (
+      (parsed.active === 'a' || parsed.active === 'b') &&
+      isValidChunkCount(parsed.a) &&
+      isValidChunkCount(parsed.b)
+    ) {
+      return {
+        active: parsed.active,
+        a: parsed.a,
+        b: parsed.b,
+      };
+    }
+  } catch {
+    // Corrupt metadata is treated as a signed-out session rather than guessed at.
+  }
+
+  return null;
 }
 
 const nativeStorage: StorageAdapter = {
   async getItem(key) {
     const SecureStore = await getSecureStore();
-    const count = parseChunkCount(await SecureStore.getItemAsync(manifestKey(key)));
+    const rawManifest = await SecureStore.getItemAsync(manifestKey(key));
+    const manifest = parseManifest(rawManifest);
 
-    if (count === 0) {
+    if (!manifest) {
+      // Supports the direct-key format if a development build predates chunking.
       return SecureStore.getItemAsync(key);
     }
 
+    const count = manifest[manifest.active];
+    if (count === 0) return null;
+
     const chunks = await Promise.all(
       Array.from({ length: count }, (_, index) =>
-        SecureStore.getItemAsync(chunkKey(key, index)),
+        SecureStore.getItemAsync(chunkKey(key, manifest.active, index)),
       ),
     );
 
@@ -69,38 +104,61 @@ const nativeStorage: StorageAdapter = {
 
   async setItem(key, value) {
     const SecureStore = await getSecureStore();
-    const oldCount = parseChunkCount(
+    const manifest = parseManifest(
       await SecureStore.getItemAsync(manifestKey(key)),
     );
+    const nextSlot: StorageSlot = manifest?.active === 'a' ? 'b' : 'a';
+    const previousCountInNextSlot = manifest?.[nextSlot] ?? 0;
     const chunks = splitStorageValue(value);
 
+    // Write the inactive slot first. The old active slot remains valid until the
+    // manifest flip below, so an interrupted write cannot produce a partial session.
     await Promise.all(
       chunks.map((chunk, index) =>
-        SecureStore.setItemAsync(chunkKey(key, index), chunk),
+        SecureStore.setItemAsync(chunkKey(key, nextSlot, index), chunk),
       ),
     );
-    await SecureStore.setItemAsync(manifestKey(key), String(chunks.length));
-    await SecureStore.deleteItemAsync(key);
 
-    if (oldCount > chunks.length) {
+    if (previousCountInNextSlot > chunks.length) {
       await Promise.all(
-        Array.from({ length: oldCount - chunks.length }, (_, offset) =>
-          SecureStore.deleteItemAsync(chunkKey(key, chunks.length + offset)),
+        Array.from(
+          { length: previousCountInNextSlot - chunks.length },
+          (_, offset) =>
+            SecureStore.deleteItemAsync(
+              chunkKey(key, nextSlot, chunks.length + offset),
+            ),
         ),
       );
     }
+
+    const nextManifest: StorageManifest = {
+      active: nextSlot,
+      a: nextSlot === 'a' ? chunks.length : (manifest?.a ?? 0),
+      b: nextSlot === 'b' ? chunks.length : (manifest?.b ?? 0),
+    };
+
+    await SecureStore.setItemAsync(manifestKey(key), JSON.stringify(nextManifest));
+    await SecureStore.deleteItemAsync(key);
   },
 
   async removeItem(key) {
     const SecureStore = await getSecureStore();
-    const count = parseChunkCount(await SecureStore.getItemAsync(manifestKey(key)));
+    const manifest = parseManifest(
+      await SecureStore.getItemAsync(manifestKey(key)),
+    );
+
+    const chunkDeletes = manifest
+      ? (['a', 'b'] as const).flatMap((slot) =>
+          Array.from({ length: manifest[slot] }, (_, index) =>
+            SecureStore.deleteItemAsync(chunkKey(key, slot, index)),
+          ),
+        )
+      : [];
 
     await Promise.all([
       SecureStore.deleteItemAsync(key),
       SecureStore.deleteItemAsync(manifestKey(key)),
-      ...Array.from({ length: count }, (_, index) =>
-        SecureStore.deleteItemAsync(chunkKey(key, index)),
-      ),
+      ...chunkDeletes,
     ]);
   },
 };
