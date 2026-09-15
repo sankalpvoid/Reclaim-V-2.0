@@ -247,6 +247,15 @@ export function TodayScreen() {
         ) : null}
 
         <Card style={styles.supportCard}>
+          <AppText variant="caption" tone="secondary">HEALTH RECOVERY</AppText>
+          <AppText variant="title">Recovery milestones</AppText>
+          <AppText tone="secondary">
+            View the source-backed recovery timeline calculated from your quit date.
+          </AppText>
+          <Button label="View milestones" onPress={() => router.push('/(app)/health')} />
+        </Card>
+
+        <Card style={styles.supportCard}>
           <AppText variant="caption" tone="secondary">DAILY CHECK-IN</AppText>
           <AppText variant="title">How are you today?</AppText>
           <AppText tone="secondary">
