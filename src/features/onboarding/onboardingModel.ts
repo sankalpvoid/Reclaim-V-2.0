@@ -1,4 +1,4 @@
-import { calculateNextTarget } from '@/domain/smoking/reduction';
+import { calculateNextTarget } from '../../domain/smoking/reduction';
 import type { Profile } from '@/features/profile/profile';
 
 export const DEFAULT_REDUCTION_RATE = 0.1;
