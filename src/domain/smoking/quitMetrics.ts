@@ -1,3 +1,5 @@
+import { calculateMoneyReclaimed } from '@/domain/progress/calculateMoneyReclaimed';
+
 export type QuitMetricInput = {
   quitDate: Date | string;
   cigarettesPerDay: number;
@@ -33,14 +35,17 @@ export function calculateQuitMetrics(
   const cigarettesAvoided = elapsedDays * cigarettesPerDay;
   const cigarettesPerPack = nonNegativeFinite(input.cigarettesPerPack);
   const pricePerPack = nonNegativeFinite(input.pricePerPack);
-  const pricePerCigarette = cigarettesPerPack > 0 ? pricePerPack / cigarettesPerPack : 0;
   const minutesPerCigarette = nonNegativeFinite(input.minutesPerCigarette);
 
   return {
     elapsedMilliseconds,
     elapsedDays,
     cigarettesAvoided,
-    moneyReclaimed: cigarettesAvoided * pricePerCigarette,
+    moneyReclaimed: calculateMoneyReclaimed({
+      cigarettesAvoided,
+      cigarettesPerPack,
+      packPrice: pricePerPack,
+    }),
     minutesReclaimed: cigarettesAvoided * minutesPerCigarette,
   };
 }
