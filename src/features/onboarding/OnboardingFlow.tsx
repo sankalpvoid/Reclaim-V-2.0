@@ -50,7 +50,7 @@ export function OnboardingFlow() {
     try {
       await completeOnboarding(userId, mood);
       await refreshProfile();
-      router.replace('/(app)');
+      router.replace(mood === 'craving' ? '/(app)/craving' : '/(app)');
     } catch (error) {
       setCompletionError(error instanceof Error ? error.message : 'Could not finish onboarding.');
     } finally {
