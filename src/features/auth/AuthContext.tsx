@@ -5,11 +5,11 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AppState, Platform } from 'react-native';
 
 import { supabase } from '@/core/supabase/client';
+import type { Profile } from '@/features/profile/profile';
 import {
   getProfile,
   profileKeys,
-  type Profile,
-} from '@/features/profile/profile';
+} from '@/features/profile/profileService';
 
 type AuthContextValue = {
   session: Session | null;
@@ -95,8 +95,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     };
   }, []);
 
-  const isReady =
-    isInitialized && (!user || !profileQuery.isPending);
+  const isReady = isInitialized && (!user || !profileQuery.isPending);
 
   const value = useMemo<AuthContextValue>(
     () => ({
