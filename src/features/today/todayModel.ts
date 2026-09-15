@@ -33,6 +33,12 @@ export function formatMoney(currencySymbol: string, value: number): string {
   return `${currencySymbol}${Math.round(safeValue).toLocaleString()}`;
 }
 
+export function formatAvoidedCigarettes(value: number): string {
+  const safeValue = Number.isFinite(value) ? Math.max(0, value) : 0;
+  if (safeValue > 0 && safeValue < 1) return safeValue.toFixed(1);
+  return Math.floor(safeValue).toLocaleString();
+}
+
 export function buildQuitTodaySummary(profile: Profile, now: Date = new Date()) {
   if (!profile.quit_date) return null;
 
@@ -50,7 +56,7 @@ export function buildQuitTodaySummary(profile: Profile, now: Date = new Date()) 
   return {
     ...metrics,
     durationLabel: formatSmokeFreeDuration(metrics.elapsedMilliseconds),
-    avoidedLabel: Math.floor(metrics.cigarettesAvoided).toLocaleString(),
+    avoidedLabel: formatAvoidedCigarettes(metrics.cigarettesAvoided),
     moneyLabel: formatMoney(profile.currency_symbol, metrics.moneyReclaimed),
     timeLabel: formatReclaimedMinutes(metrics.minutesReclaimed),
   };
