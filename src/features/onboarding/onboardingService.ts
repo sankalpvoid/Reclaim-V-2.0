@@ -1,4 +1,8 @@
 import { supabase } from '@/core/supabase/client';
+import {
+  ONBOARDING_CHECKIN_CLIENT_ID,
+  saveCheckin,
+} from '@/features/checkins/checkinService';
 import { getCurrencySymbol } from '@/features/onboarding/countries';
 import {
   DEFAULT_REDUCTION_RATE,
@@ -13,7 +17,6 @@ import {
   type OnboardingPlanInput,
 } from '@/features/onboarding/onboardingSchemas';
 
-const ONBOARDING_CHECKIN_CLIENT_ID = '00000000-0000-4000-8000-000000000002';
 const REDUCTION_REVIEW_WINDOW_DAYS = 7;
 
 function localDateKey(value = new Date()): string {
@@ -103,15 +106,11 @@ export async function saveOnboardingPlan(userId: string, input: OnboardingPlanIn
 export async function completeOnboarding(userId: string, mood: OnboardingMood) {
   const parsedMood = onboardingMoodSchema.parse(mood);
 
-  const { error: checkinError } = await supabase.from('daily_checkins').insert({
-    user_id: userId,
-    client_id: ONBOARDING_CHECKIN_CLIENT_ID,
+  await saveCheckin({
+    userId,
+    clientId: ONBOARDING_CHECKIN_CLIENT_ID,
     mood: parsedMood,
   });
-
-  // The stable UUID makes retries idempotent. A duplicate means the onboarding
-  // check-in already reached Supabase on an earlier attempt.
-  if (checkinError && checkinError.code !== '23505') throw checkinError;
 
   const { error: profileError } = await supabase
     .from('profiles')
