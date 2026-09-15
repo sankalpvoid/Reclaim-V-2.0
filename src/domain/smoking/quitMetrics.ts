@@ -1,4 +1,4 @@
-import { calculateMoneyReclaimed } from '@/domain/progress/calculateMoneyReclaimed';
+import { calculateMoneyReclaimed } from '../progress/calculateMoneyReclaimed';
 
 export type QuitMetricInput = {
   quitDate: Date | string;
