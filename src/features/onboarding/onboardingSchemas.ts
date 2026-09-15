@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { journeyModeSchema } from '@/features/profile/profile';
+import { journeyModeSchema } from '../profile/profile';
 
 export const onboardingPlanSchema = z
   .object({
