@@ -9,14 +9,24 @@ export default function MainAppRoute() {
   return (
     <View style={styles.root}>
       <TodayScreen />
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="View personalized insights"
-        onPress={() => router.push('/(app)/insights')}
-        style={styles.insightsEntry}
-      >
-        <AppText variant="caption">INSIGHTS</AppText>
-      </Pressable>
+      <View style={styles.quickEntries}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="View savings goals"
+          onPress={() => router.push('/(app)/goals')}
+          style={styles.quickEntry}
+        >
+          <AppText variant="caption">GOALS</AppText>
+        </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="View personalized insights"
+          onPress={() => router.push('/(app)/insights')}
+          style={styles.quickEntry}
+        >
+          <AppText variant="caption">INSIGHTS</AppText>
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -25,10 +35,14 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
   },
-  insightsEntry: {
+  quickEntries: {
     position: 'absolute',
     right: spacing.lg,
     bottom: spacing.lg,
+    alignItems: 'flex-end',
+    gap: spacing.sm,
+  },
+  quickEntry: {
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderRadius: radius.pill,
