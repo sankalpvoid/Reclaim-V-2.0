@@ -33,7 +33,7 @@ describe('buildInsights', () => {
       [
         { smoked_at: '2026-09-13T18:00:00Z', event_type: 'craving', toolkit: 'timer', tool_feedback: 'yes' },
         { smoked_at: '2026-09-14T18:00:00Z', event_type: 'craving', toolkit: 'timer', tool_feedback: 'a_little' },
-        { smoked_at: '2026-09-15T18:00:00Z', event_type: 'craving', toolkit: 'breathing', tool_feedback: 'no' },
+        { smoked_at: '2026-09-15T18:00:00Z', event_type: 'craving', toolkit: 'breathe', tool_feedback: 'not_really' },
       ],
       [],
       new Date('2026-09-16T12:00:00Z'),
@@ -58,5 +58,19 @@ describe('buildInsights', () => {
     );
 
     expect(insights.some((insight) => insight.id === 'smoking-trend')).toBe(true);
+  });
+
+  it('uses cigarette quantities rather than event row counts', () => {
+    const insights = buildInsights(
+      [
+        { smoked_at: '2026-09-03T12:00:00Z', event_type: 'smoked', cigarettes: 2 },
+        { smoked_at: '2026-09-04T12:00:00Z', event_type: 'smoked', cigarettes: 3 },
+        { smoked_at: '2026-09-14T12:00:00Z', event_type: 'smoked', cigarettes: 2 },
+      ],
+      [],
+      new Date('2026-09-16T12:00:00Z'),
+    );
+
+    expect(insights.find((insight) => insight.id === 'smoking-trend')?.evidence).toContain('5 → 2');
   });
 });
