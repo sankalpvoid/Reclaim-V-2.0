@@ -395,8 +395,9 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xxl,
   },
   backButton: {
+    minHeight: 44,
     alignSelf: 'flex-start',
-    paddingVertical: spacing.sm,
+    justifyContent: 'center',
     paddingRight: spacing.md,
   },
   heading: {
@@ -450,7 +451,8 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   textAction: {
-    paddingVertical: spacing.sm,
+    minHeight: 44,
+    justifyContent: 'center',
     paddingRight: spacing.sm,
   },
   emptyCard: {

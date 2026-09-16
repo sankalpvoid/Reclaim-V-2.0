@@ -320,6 +320,8 @@ export function CommunityScreen() {
               {reportReasons.map((reason) => (
                 <Pressable
                   key={reason}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: reportReason === reason }}
                   onPress={() => setReportReason(reason)}
                   style={[styles.chip, reportReason === reason ? styles.chipActive : null]}
                 >
@@ -508,7 +510,7 @@ function MiniAction({
   danger?: boolean;
 }) {
   return (
-    <Pressable disabled={disabled} onPress={onPress} style={styles.smallAction}>
+    <Pressable accessibilityRole="button" accessibilityState={{ disabled }} disabled={disabled} onPress={onPress} style={styles.smallAction}>
       <AppText variant="caption" tone={danger ? 'danger' : 'secondary'}>{label}</AppText>
     </Pressable>
   );
@@ -529,6 +531,8 @@ const styles = StyleSheet.create({
   composer: { gap: spacing.md },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   chip: {
+    minHeight: 44,
+    justifyContent: 'center',
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.border,
     borderRadius: radius.pill,
@@ -539,7 +543,7 @@ const styles = StyleSheet.create({
   textarea: { minHeight: 112, textAlignVertical: 'top' },
   reportInput: { minHeight: 80, textAlignVertical: 'top' },
   replyInput: { minHeight: 72, textAlignVertical: 'top' },
-  checkboxRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  checkboxRow: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   checkbox: { width: 18, height: 18, borderRadius: 5, borderWidth: 1, borderColor: colors.border },
   checkboxActive: { backgroundColor: colors.textPrimary },
   feedHeader: { gap: spacing.xs },
@@ -547,7 +551,7 @@ const styles = StyleSheet.create({
   postHeader: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing.md },
   postHeaderCopy: { flex: 1, gap: spacing.xs },
   actionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
-  smallAction: { paddingVertical: spacing.xs, paddingRight: spacing.sm },
+  smallAction: { minHeight: 44, justifyContent: 'center', paddingRight: spacing.sm },
   replies: {
     gap: spacing.sm,
     borderTopWidth: StyleSheet.hairlineWidth,
