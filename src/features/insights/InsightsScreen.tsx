@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { router } from 'expo-router';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 
 import { useAuth } from '@/features/auth/AuthContext';
@@ -28,10 +27,6 @@ export function InsightsScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Pressable accessibilityRole="button" onPress={() => router.back()} style={styles.backButton}>
-          <AppText tone="secondary">‹ Back</AppText>
-        </Pressable>
-
         <View style={styles.heading}>
           <AppText variant="caption" tone="secondary">INSIGHTS</AppText>
           <AppText variant="display">What your data is showing.</AppText>
@@ -78,7 +73,7 @@ export function InsightsScreen() {
         <Card style={styles.methodCard}>
           <AppText variant="caption" tone="secondary">HOW THIS WORKS</AppText>
           <AppText tone="secondary">
-            Phase 8 insights are deterministic and explainable. They are calculated from your recent Reclaim data; no language model is deciding what happened or inventing missing context.
+            Reclaim insights are deterministic and explainable. They are calculated from your recent Reclaim data; no language model is deciding what happened or inventing missing context.
           </AppText>
         </Card>
       </ScrollView>
@@ -93,11 +88,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     gap: spacing.lg,
     paddingBottom: spacing.xxl,
-  },
-  backButton: {
-    alignSelf: 'flex-start',
-    paddingVertical: spacing.sm,
-    paddingRight: spacing.md,
   },
   heading: {
     gap: spacing.sm,
