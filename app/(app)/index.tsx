@@ -12,6 +12,14 @@ export default function MainAppRoute() {
       <View style={styles.quickEntries}>
         <Pressable
           accessibilityRole="button"
+          accessibilityLabel="Open reminder settings"
+          onPress={() => router.push('/(app)/notifications')}
+          style={styles.quickEntry}
+        >
+          <AppText variant="caption">REMINDERS</AppText>
+        </Pressable>
+        <Pressable
+          accessibilityRole="button"
           accessibilityLabel="Open community circles"
           onPress={() => router.push('/(app)/community')}
           style={styles.quickEntry}
