@@ -39,7 +39,7 @@ describe('buildInsights', () => {
       new Date('2026-09-16T12:00:00Z'),
     );
 
-    expect(insights.find((insight) => insight.id === 'tool-effectiveness')?.title).toContain('timer');
+    expect(insights.find((insight) => insight.id === 'tool-effectiveness')?.title).toContain('Ride the wave');
   });
 
   it('compares the last seven days with the previous seven days', () => {
