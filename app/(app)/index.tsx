@@ -12,6 +12,14 @@ export default function MainAppRoute() {
       <View style={styles.quickEntries}>
         <Pressable
           accessibilityRole="button"
+          accessibilityLabel="Open community circles"
+          onPress={() => router.push('/(app)/community')}
+          style={styles.quickEntry}
+        >
+          <AppText variant="caption">COMMUNITY</AppText>
+        </Pressable>
+        <Pressable
+          accessibilityRole="button"
           accessibilityLabel="View savings goals"
           onPress={() => router.push('/(app)/goals')}
           style={styles.quickEntry}
