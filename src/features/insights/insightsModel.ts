@@ -9,6 +9,7 @@ export type Insight = {
 type SmokingEvent = {
   smoked_at: string;
   event_type: string;
+  cigarettes?: number | null;
   toolkit?: string | null;
   tool_feedback?: string | null;
 };
@@ -16,6 +17,12 @@ type SmokingEvent = {
 type Checkin = { mood: string; created_at: string };
 
 const helpfulFeedback = new Set(['yes', 'a_little']);
+const toolLabels: Record<string, string> = {
+  timer: 'Ride the wave',
+  breathing: 'Box breathing',
+  walk: 'Take a walk',
+  water: 'Drink water',
+};
 
 function periodForHour(hour: number) {
   if (hour < 6) return 'overnight';
@@ -23,6 +30,10 @@ function periodForHour(hour: number) {
   if (hour < 17) return 'afternoon';
   if (hour < 22) return 'evening';
   return 'late night';
+}
+
+function sumCigarettes(events: SmokingEvent[]) {
+  return events.reduce((total, event) => total + Math.max(0, event.cigarettes ?? 1), 0);
 }
 
 export function buildInsights(events: SmokingEvent[], checkins: Checkin[], now = new Date()): Insight[] {
@@ -63,7 +74,7 @@ export function buildInsights(events: SmokingEvent[], checkins: Checkin[], now =
     if (best && best[1].helpful / best[1].total >= 0.67) {
       insights.push({
         id: 'tool-effectiveness',
-        title: `${best[0]} is helping`,
+        title: `${toolLabels[best[0]] ?? best[0]} is helping`,
         body: 'Your own feedback suggests this coping tool is worth trying first during a craving.',
         evidence: `${best[1].helpful} helpful ratings from ${best[1].total} uses`,
         confidence: best[1].total >= 4 ? 'established' : 'emerging',
@@ -88,18 +99,20 @@ export function buildInsights(events: SmokingEvent[], checkins: Checkin[], now =
   const day = 86_400_000;
   const currentStart = now.getTime() - 7 * day;
   const previousStart = now.getTime() - 14 * day;
-  const current = smoked.filter((event) => new Date(event.smoked_at).getTime() >= currentStart).length;
-  const previous = smoked.filter((event) => {
+  const currentRows = smoked.filter((event) => new Date(event.smoked_at).getTime() >= currentStart);
+  const previousRows = smoked.filter((event) => {
     const time = new Date(event.smoked_at).getTime();
     return time >= previousStart && time < currentStart;
-  }).length;
+  });
+  const current = sumCigarettes(currentRows);
+  const previous = sumCigarettes(previousRows);
   if (previous >= 3 && current < previous) {
     const drop = Math.round(((previous - current) / previous) * 100);
     insights.push({
       id: 'smoking-trend',
       title: 'Your logged smoking is trending down',
       body: 'The last seven days contain fewer logged cigarettes than the seven days before them.',
-      evidence: `${previous} → ${current} logged events · ${drop}% lower`,
+      evidence: `${previous} → ${current} logged cigarettes · ${drop}% lower`,
       confidence: previous + current >= 10 ? 'established' : 'emerging',
     });
   }
