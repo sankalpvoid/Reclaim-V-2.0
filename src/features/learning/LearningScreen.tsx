@@ -101,7 +101,12 @@ export function LearningScreen() {
                     <AppText key={`${article.id}-${index}`}>{paragraph}</AppText>
                   ))}
                   {article.sourceName && article.sourceUrl ? (
-                    <Pressable onPress={() => Linking.openURL(article.sourceUrl!)}>
+                    <Pressable
+                      accessibilityRole="link"
+                      accessibilityLabel={`Open source: ${article.sourceName}`}
+                      onPress={() => Linking.openURL(article.sourceUrl!)}
+                      style={styles.textAction}
+                    >
                       <AppText tone="secondary">Source: {article.sourceName} ↗</AppText>
                     </Pressable>
                   ) : null}
@@ -111,9 +116,13 @@ export function LearningScreen() {
               <View style={styles.actions}>
                 <Button
                   label={open ? 'Close' : 'Read'}
+                  accessibilityHint={open ? 'Collapses this article' : 'Expands this article'}
                   onPress={() => setOpenArticleId((value) => (value === article.id ? null : article.id))}
                 />
                 <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={article.saved ? 'Remove from saved articles' : 'Save article for later'}
+                  accessibilityState={{ disabled: updateMutation.isPending, selected: article.saved }}
                   disabled={updateMutation.isPending}
                   onPress={() => updateMutation.mutate({ articleId: article.id, action: 'save', next: !article.saved })}
                   style={styles.textAction}
@@ -121,6 +130,9 @@ export function LearningScreen() {
                   <AppText tone="secondary">{article.saved ? 'Remove saved' : 'Save for later'}</AppText>
                 </Pressable>
                 <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={article.completed ? 'Mark article unread' : 'Mark article complete'}
+                  accessibilityState={{ disabled: updateMutation.isPending, selected: article.completed }}
                   disabled={updateMutation.isPending}
                   onPress={() => updateMutation.mutate({ articleId: article.id, action: 'complete', next: !article.completed })}
                   style={styles.textAction}
@@ -134,7 +146,7 @@ export function LearningScreen() {
 
         {error ? (
           <Card>
-            <AppText tone="danger">
+            <AppText accessibilityLiveRegion="polite" accessibilityRole="alert" tone="danger">
               {error instanceof Error ? error.message : 'Learning library could not load.'}
             </AppText>
           </Card>
@@ -158,5 +170,10 @@ const styles = StyleSheet.create({
   articleMeta: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing.md },
   reader: { gap: spacing.md },
   actions: { gap: spacing.sm },
-  textAction: { paddingVertical: spacing.xs, alignSelf: 'flex-start' },
+  textAction: {
+    minHeight: 44,
+    justifyContent: 'center',
+    alignSelf: 'flex-start',
+    paddingRight: spacing.sm,
+  },
 });
