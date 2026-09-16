@@ -19,6 +19,8 @@ jobs:
         with:
           node-version: 22.14.0
           cache: npm
+      - name: Install current project dependencies
+        run: npm ci
       - name: Install widget and development build dependencies
         run: npx expo install expo-dev-client expo-widgets
       - name: Commit dependency metadata when needed
