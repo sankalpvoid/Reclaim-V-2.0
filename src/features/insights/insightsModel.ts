@@ -19,9 +19,9 @@ type Checkin = { mood: string; created_at: string };
 const helpfulFeedback = new Set(['yes', 'a_little']);
 const toolLabels: Record<string, string> = {
   timer: 'Ride the wave',
-  breathing: 'Box breathing',
-  walk: 'Take a walk',
-  water: 'Drink water',
+  breathe: 'Box breathing',
+  walk: 'Take a short walk',
+  water: 'Water reset',
 };
 
 function periodForHour(hour: number) {
