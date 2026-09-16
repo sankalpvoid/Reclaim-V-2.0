@@ -1,0 +1,76 @@
+name: Phase 15 touch target patch
+
+on:
+  push:
+    branches:
+      - phase-15-accessibility-polish
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: phase-15-accessibility-polish
+      - name: Harden compact actions
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          community = Path('src/features/community/CommunityScreen.tsx')
+          text = community.read_text()
+          old = """                <Pressable\n                  key={reason}\n                  onPress={() => setReportReason(reason)}\n                  style={[styles.chip, reportReason === reason ? styles.chipActive : null]}\n                >"""
+          new = """                <Pressable\n                  key={reason}\n                  accessibilityRole=\"button\"\n                  accessibilityState={{ selected: reportReason === reason }}\n                  onPress={() => setReportReason(reason)}\n                  style={[styles.chip, reportReason === reason ? styles.chipActive : null]}\n                >"""
+          if old not in text:
+            raise SystemExit('community report chip block not found')
+          text = text.replace(old, new)
+          old = "<Pressable disabled={disabled} onPress={onPress} style={styles.smallAction}>"
+          new = "<Pressable accessibilityRole=\"button\" accessibilityState={{ disabled }} disabled={disabled} onPress={onPress} style={styles.smallAction}>"
+          if old not in text:
+            raise SystemExit('community mini action not found')
+          text = text.replace(old, new)
+          old = """  chip: {\n    borderWidth: StyleSheet.hairlineWidth,\n    borderColor: colors.border,\n    borderRadius: radius.pill,\n    paddingHorizontal: spacing.md,\n    paddingVertical: spacing.sm,\n  },"""
+          new = """  chip: {\n    minHeight: 44,\n    justifyContent: 'center',\n    borderWidth: StyleSheet.hairlineWidth,\n    borderColor: colors.border,\n    borderRadius: radius.pill,\n    paddingHorizontal: spacing.md,\n    paddingVertical: spacing.sm,\n  },"""
+          if old not in text:
+            raise SystemExit('community chip style not found')
+          text = text.replace(old, new)
+          old = "  checkboxRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },"
+          new = "  checkboxRow: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: spacing.sm },"
+          if old not in text:
+            raise SystemExit('community checkbox row not found')
+          text = text.replace(old, new)
+          old = "  smallAction: { paddingVertical: spacing.xs, paddingRight: spacing.sm },"
+          new = "  smallAction: { minHeight: 44, justifyContent: 'center', paddingRight: spacing.sm },"
+          if old not in text:
+            raise SystemExit('community small action style not found')
+          text = text.replace(old, new)
+          community.write_text(text)
+
+          goals = Path('src/features/goals/GoalsScreen.tsx')
+          text = goals.read_text()
+          old = """  backButton: {\n    alignSelf: 'flex-start',\n    paddingVertical: spacing.sm,\n    paddingRight: spacing.md,\n  },"""
+          new = """  backButton: {\n    minHeight: 44,\n    alignSelf: 'flex-start',\n    justifyContent: 'center',\n    paddingRight: spacing.md,\n  },"""
+          if old not in text:
+            raise SystemExit('goals back style not found')
+          text = text.replace(old, new)
+          old = """  textAction: {\n    paddingVertical: spacing.sm,\n    paddingRight: spacing.sm,\n  },"""
+          new = """  textAction: {\n    minHeight: 44,\n    justifyContent: 'center',\n    paddingRight: spacing.sm,\n  },"""
+          if old not in text:
+            raise SystemExit('goals text action style not found')
+          text = text.replace(old, new)
+          goals.write_text(text)
+          PY
+      - name: Commit patch when needed
+        run: |
+          if git diff --quiet; then
+            echo "Accessibility touch targets already applied."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/features/community/CommunityScreen.tsx src/features/goals/GoalsScreen.tsx
+          git commit -m "feat: harden compact accessibility targets"
+          git push
