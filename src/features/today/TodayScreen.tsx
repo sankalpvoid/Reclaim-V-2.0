@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import type { SmokingEvent } from '@/domain/smoking/smokingEvents';
 import { useAuth } from '@/features/auth/AuthContext';
-import { signOut } from '@/features/auth/authService';
 import {
   buildQuitTodaySummary,
   buildSmokingTodaySummary,
@@ -73,8 +72,6 @@ export function TodayScreen() {
   const { user, profile } = useAuth();
   const queryClient = useQueryClient();
   const [now, setNow] = useState(() => new Date());
-  const [signOutError, setSignOutError] = useState<string | null>(null);
-  const [isSigningOut, setIsSigningOut] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 60_000);
@@ -135,18 +132,6 @@ export function TodayScreen() {
   const smokingSummary =
     mode === 'quit' ? null : buildSmokingTodaySummary(profile, smokingEvents, target, now);
   const dataError = smokingEventsQuery.error ?? reductionPlanQuery.error ?? logMutation.error;
-
-  async function handleSignOut() {
-    setSignOutError(null);
-    setIsSigningOut(true);
-    try {
-      await signOut();
-    } catch (error) {
-      setSignOutError(error instanceof Error ? error.message : 'Could not sign out.');
-    } finally {
-      setIsSigningOut(false);
-    }
-  }
 
   return (
     <Screen>
@@ -281,17 +266,6 @@ export function TodayScreen() {
           </Card>
         ) : null}
 
-        <View style={styles.footer}>
-          {signOutError ? <AppText tone="danger">{signOutError}</AppText> : null}
-          <Pressable
-            accessibilityRole="button"
-            disabled={isSigningOut}
-            onPress={() => void handleSignOut()}
-            style={styles.signOutButton}
-          >
-            <AppText tone="secondary">{isSigningOut ? 'Signing out…' : 'Sign out'}</AppText>
-          </Pressable>
-        </View>
       </ScrollView>
     </Screen>
   );
@@ -391,14 +365,5 @@ const styles = StyleSheet.create({
   },
   errorCard: {
     borderColor: colors.danger,
-  },
-  footer: {
-    alignItems: 'flex-start',
-    gap: spacing.sm,
-    paddingTop: spacing.md,
-  },
-  signOutButton: {
-    paddingVertical: spacing.sm,
-    paddingRight: spacing.md,
   },
 });

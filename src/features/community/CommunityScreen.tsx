@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { router } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useAuth } from '@/features/auth/AuthContext';
@@ -178,7 +177,6 @@ export function CommunityScreen() {
     return (
       <Screen>
         <ScrollView contentContainerStyle={styles.content}>
-          <BackButton />
           <Card style={styles.stack}>
             <AppText variant="caption" tone="secondary">COMMUNITY CIRCLES</AppText>
             <AppText variant="title">Stage circles currently follow smoke-free time.</AppText>
@@ -197,8 +195,6 @@ export function CommunityScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <BackButton />
-
         <View style={styles.heading}>
           <AppText variant="caption" tone="secondary">COMMUNITY</AppText>
           <AppText variant="display">People near your stage.</AppText>
@@ -377,14 +373,6 @@ export function CommunityScreen() {
   );
 }
 
-function BackButton() {
-  return (
-    <Pressable accessibilityRole="button" onPress={() => router.back()} style={styles.backButton}>
-      <AppText tone="secondary">‹ Back</AppText>
-    </Pressable>
-  );
-}
-
 function PostCard({
   post,
   myUserId,
@@ -535,7 +523,6 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xxl,
   },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  backButton: { alignSelf: 'flex-start', paddingVertical: spacing.sm, paddingRight: spacing.md },
   heading: { gap: spacing.sm },
   stack: { gap: spacing.md },
   stageCard: { gap: spacing.sm },
