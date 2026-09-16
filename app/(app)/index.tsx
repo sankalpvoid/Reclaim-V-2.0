@@ -1,13 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
-import { router } from 'expo-router';
 
 import { useAuth } from '@/features/auth/AuthContext';
 import { TodayScreen } from '@/features/today/TodayScreen';
 import { buildReclaimWidgetSnapshot } from '@/features/widgets/widgetModel';
 import { syncReclaimGlanceWidget } from '@/features/widgets/widgetSync';
-import { colors, radius, spacing } from '@/theme/tokens';
-import { AppText } from '@/ui/AppText';
 
 export default function MainAppRoute() {
   const { profile } = useAuth();
@@ -23,72 +19,5 @@ export default function MainAppRoute() {
     syncReclaimGlanceWidget(buildReclaimWidgetSnapshot(profile, now));
   }, [now, profile]);
 
-  return (
-    <View style={styles.root}>
-      <TodayScreen />
-      <View style={styles.quickEntries}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Open learning library"
-          onPress={() => router.push('/(app)/learning')}
-          style={styles.quickEntry}
-        >
-          <AppText variant="caption">LEARN</AppText>
-        </Pressable>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Open reminder settings"
-          onPress={() => router.push('/(app)/notifications')}
-          style={styles.quickEntry}
-        >
-          <AppText variant="caption">REMINDERS</AppText>
-        </Pressable>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Open community circles"
-          onPress={() => router.push('/(app)/community')}
-          style={styles.quickEntry}
-        >
-          <AppText variant="caption">COMMUNITY</AppText>
-        </Pressable>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="View savings goals"
-          onPress={() => router.push('/(app)/goals')}
-          style={styles.quickEntry}
-        >
-          <AppText variant="caption">GOALS</AppText>
-        </Pressable>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="View personalized insights"
-          onPress={() => router.push('/(app)/insights')}
-          style={styles.quickEntry}
-        >
-          <AppText variant="caption">INSIGHTS</AppText>
-        </Pressable>
-      </View>
-    </View>
-  );
+  return <TodayScreen />;
 }
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-  quickEntries: {
-    position: 'absolute',
-    right: spacing.lg,
-    bottom: spacing.lg,
-    alignItems: 'flex-end',
-    gap: spacing.sm,
-  },
-  quickEntry: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.pill,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-  },
-});

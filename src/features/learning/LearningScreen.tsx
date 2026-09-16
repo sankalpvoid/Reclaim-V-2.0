@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { router } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useAuth } from '@/features/auth/AuthContext';
@@ -65,10 +64,6 @@ export function LearningScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Pressable accessibilityRole="button" onPress={() => router.back()} style={styles.backButton}>
-          <AppText tone="secondary">‹ Back</AppText>
-        </Pressable>
-
         <View style={styles.heading}>
           <AppText variant="caption" tone="secondary">LEARNING</AppText>
           <AppText variant="display">Useful context, when you want it.</AppText>
@@ -157,7 +152,6 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
     paddingBottom: spacing.xxl,
   },
-  backButton: { alignSelf: 'flex-start', paddingVertical: spacing.sm, paddingRight: spacing.md },
   heading: { gap: spacing.sm },
   summaryCard: { gap: spacing.sm },
   articleCard: { gap: spacing.md },
