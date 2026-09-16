@@ -5,6 +5,7 @@ import { supabase } from '@/core/supabase/client';
 const insightEventSchema = z.object({
   smoked_at: z.string(),
   event_type: z.string(),
+  cigarettes: z.coerce.number().nullable().optional(),
   toolkit: z.string().nullable().optional(),
   tool_feedback: z.string().nullable().optional(),
 });
@@ -27,7 +28,7 @@ export async function getInsightSourceData(userId: string) {
   const [eventsResult, checkinsResult] = await Promise.all([
     supabase
       .from('smoking_events')
-      .select('smoked_at, event_type, toolkit, tool_feedback')
+      .select('smoked_at, event_type, cigarettes, toolkit, tool_feedback')
       .eq('user_id', userId)
       .gte('smoked_at', since)
       .order('smoked_at', { ascending: true })
