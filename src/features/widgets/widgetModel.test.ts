@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { Profile } from '@/features/profile/profile';
+import type { Profile } from '../profile/profile';
 import { buildReclaimWidgetSnapshot } from './widgetModel';
 
 const profile: Profile = {
