@@ -1,5 +1,5 @@
-import type { Profile } from '@/features/profile/profile';
-import { buildQuitTodaySummary } from '@/features/today/todayModel';
+import type { Profile } from '../profile/profile';
+import { buildQuitTodaySummary } from '../today/todayModel';
 
 export type ReclaimWidgetSnapshot = {
   mode: 'quit' | 'reduce' | 'track';
