@@ -25,6 +25,14 @@
       "expo-secure-store",
       "expo-notifications",
       [
+        "expo-build-properties",
+        {
+          "ios": {
+            "enableSceneSupport": true
+          }
+        }
+      ],
+      [
         "expo-dev-client",
         {
           "launchMode": "most-recent"
