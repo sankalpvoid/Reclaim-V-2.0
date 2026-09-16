@@ -14,6 +14,7 @@ export function Input({
   error,
   style,
   accessibilityLabel,
+  accessibilityHint,
   value,
   defaultValue,
   onChangeText,
@@ -32,6 +33,10 @@ export function Input({
     lastEmittedValueRef.current = value;
   }, [value]);
 
+  const resolvedHint = error
+    ? [accessibilityHint, `Error: ${error}`].filter(Boolean).join('. ')
+    : accessibilityHint;
+
   return (
     <View style={styles.field}>
       {label ? <AppText variant="caption">{label}</AppText> : null}
@@ -44,11 +49,17 @@ export function Input({
           onChangeText?.(text);
         }}
         accessibilityLabel={accessibilityLabel ?? label}
+        accessibilityHint={resolvedHint || undefined}
         placeholderTextColor={colors.textSecondary}
         style={[styles.input, error ? styles.inputError : null, style]}
       />
       {error ? (
-        <AppText variant="caption" tone="danger">
+        <AppText
+          accessibilityLiveRegion="polite"
+          accessibilityRole="alert"
+          variant="caption"
+          tone="danger"
+        >
           {error}
         </AppText>
       ) : null}
