@@ -2,6 +2,8 @@ import { Tabs } from 'expo-router';
 
 import { colors, spacing } from '@/theme/tokens';
 
+const noIcon = () => null;
+
 export default function AppTabsLayout() {
   return (
     <Tabs
@@ -10,6 +12,10 @@ export default function AppTabsLayout() {
         tabBarActiveTintColor: colors.textPrimary,
         tabBarInactiveTintColor: colors.textSecondary,
         tabBarHideOnKeyboard: true,
+        tabBarIcon: noIcon,
+        tabBarIconStyle: {
+          display: 'none',
+        },
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: '600',
@@ -22,11 +28,11 @@ export default function AppTabsLayout() {
         },
       }}
     >
-      <Tabs.Screen name="index" options={{ title: 'Today' }} />
-      <Tabs.Screen name="insights" options={{ title: 'Insights' }} />
-      <Tabs.Screen name="community" options={{ title: 'Community' }} />
-      <Tabs.Screen name="learning" options={{ title: 'Learn' }} />
-      <Tabs.Screen name="more" options={{ title: 'More' }} />
+      <Tabs.Screen name="index" options={{ title: 'Today', tabBarAccessibilityLabel: 'Today tab' }} />
+      <Tabs.Screen name="insights" options={{ title: 'Insights', tabBarAccessibilityLabel: 'Insights tab' }} />
+      <Tabs.Screen name="community" options={{ title: 'Community', tabBarAccessibilityLabel: 'Community tab' }} />
+      <Tabs.Screen name="learning" options={{ title: 'Learn', tabBarAccessibilityLabel: 'Learn tab' }} />
+      <Tabs.Screen name="more" options={{ title: 'More', tabBarAccessibilityLabel: 'More tab' }} />
 
       <Tabs.Screen name="check-in" options={{ href: null }} />
       <Tabs.Screen name="craving" options={{ href: null }} />
