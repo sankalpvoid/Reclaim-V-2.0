@@ -18,11 +18,13 @@ export function AppText({
   variant = 'body',
   tone = 'primary',
   style,
+  accessibilityRole,
   ...props
 }: AppTextProps) {
   return (
     <Text
       {...props}
+      accessibilityRole={accessibilityRole ?? (variant === 'display' ? 'header' : undefined)}
       style={[styles.base, variantStyles[variant], toneStyles[tone], style]}
     >
       {children}
