@@ -13,8 +13,17 @@ import {
   type CommunityTopic,
 } from './communityModel';
 
+// PostgreSQL's uuid type accepts the seeded stage-circle IDs used by Reclaim,
+// including values whose version/variant bits do not satisfy Zod's strict
+// RFC UUID validator. Keep structural UUID validation without rejecting valid
+// database identifiers such as 00000000-0000-0000-0000-000000000010.
+const databaseUuidSchema = z.string().regex(
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+  'Invalid database UUID',
+);
+
 const circleRowSchema = z.object({
-  id: z.string().uuid(),
+  id: databaseUuidSchema,
   name: z.string(),
   min_smoke_free_days: z.number().int(),
   max_smoke_free_days: z.number().int().nullable(),
@@ -22,9 +31,9 @@ const circleRowSchema = z.object({
 });
 
 const postRowSchema = z.object({
-  id: z.string().uuid(),
-  circle_id: z.string().uuid(),
-  user_id: z.string().uuid(),
+  id: databaseUuidSchema,
+  circle_id: databaseUuidSchema,
+  user_id: databaseUuidSchema,
   body: z.string(),
   topic: communityTopicSchema,
   author_name: z.string(),
@@ -34,30 +43,30 @@ const postRowSchema = z.object({
 });
 
 const replyRowSchema = z.object({
-  id: z.string().uuid(),
-  post_id: z.string().uuid(),
-  user_id: z.string().uuid(),
+  id: databaseUuidSchema,
+  post_id: databaseUuidSchema,
+  user_id: databaseUuidSchema,
   body: z.string(),
   author_name: z.string(),
   created_at: z.string(),
 });
 
 const cheerRowSchema = z.object({
-  post_id: z.string().uuid(),
-  user_id: z.string().uuid(),
+  post_id: databaseUuidSchema,
+  user_id: databaseUuidSchema,
 });
 
 const savedRowSchema = z.object({
-  post_id: z.string().uuid(),
+  post_id: databaseUuidSchema,
 });
 
 const blockRowSchema = z.object({
-  blocked_id: z.string().uuid(),
+  blocked_id: databaseUuidSchema,
   blocked_name: z.string(),
 });
 
 const challengeRowSchema = z.object({
-  id: z.string().uuid(),
+  id: databaseUuidSchema,
   week_start: z.string(),
   title: z.string(),
   description: z.string(),
@@ -66,8 +75,8 @@ const challengeRowSchema = z.object({
 });
 
 const completionRowSchema = z.object({
-  challenge_id: z.string().uuid(),
-  user_id: z.string().uuid(),
+  challenge_id: databaseUuidSchema,
+  user_id: databaseUuidSchema,
 });
 
 export type CommunityReply = {
