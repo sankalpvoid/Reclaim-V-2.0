@@ -111,8 +111,9 @@ export function MoodCheckinScreen() {
         </View>
 
         <Input
+          key={todayCheckin ? `checkin-note-${todayCheckin.id}` : 'checkin-note-new'}
           label="Optional note"
-          value={note}
+          defaultValue={todayCheckin?.note ?? ''}
           onChangeText={(value) => {
             setNote(value);
             setSaved(false);
