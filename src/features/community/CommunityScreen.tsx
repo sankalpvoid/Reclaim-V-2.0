@@ -52,6 +52,7 @@ export function CommunityScreen() {
   const { user, profile } = useAuth();
   const queryClient = useQueryClient();
   const [postBody, setPostBody] = useState('');
+  const [postInputVersion, setPostInputVersion] = useState(0);
   const [topic, setTopic] = useState<CommunityTopic>('reflection');
   const [anonymous, setAnonymous] = useState(false);
   const [replyPostId, setReplyPostId] = useState<string | null>(null);
@@ -92,6 +93,7 @@ export function CommunityScreen() {
     },
     onSuccess: async () => {
       setPostBody('');
+      setPostInputVersion((version) => version + 1);
       setAnonymous(false);
       setTopic('reflection');
       await refresh();
@@ -254,8 +256,9 @@ export function CommunityScreen() {
               ))}
             </View>
             <Input
+              key={`community-post-${postInputVersion}`}
               label="Your experience"
-              value={postBody}
+              defaultValue=""
               onChangeText={setPostBody}
               multiline
               maxLength={1000}
@@ -330,7 +333,7 @@ export function CommunityScreen() {
             </View>
             <Input
               label="Optional details"
-              value={reportDetails}
+              defaultValue=""
               onChangeText={setReportDetails}
               maxLength={500}
               multiline
@@ -423,14 +426,32 @@ function PostCard({
           disabled={pending}
           onPress={() => onAction({ type: 'cheer', postId: post.id, next: !post.cheeredByMe })}
         />
-        <MiniAction label={post.savedByMe ? 'Saved' : 'Save'} disabled={pending} onPress={() => onAction({ type: 'save', postId: post.id, next: !post.savedByMe })} />
+        <MiniAction
+          label={post.savedByMe ? 'Saved' : 'Save'}
+          disabled={pending}
+          onPress={() => onAction({ type: 'save', postId: post.id, next: !post.savedByMe })}
+        />
         <MiniAction label={`Reply · ${post.replies.length}`} disabled={pending} onPress={onToggleReply} />
         {mine ? (
-          <MiniAction label="Delete" danger disabled={pending} onPress={() => onAction({ type: 'delete-post', postId: post.id })} />
+          <MiniAction
+            label="Delete"
+            danger
+            disabled={pending}
+            onPress={() => onAction({ type: 'delete-post', postId: post.id })}
+          />
         ) : (
           <>
-            <MiniAction label="Report" disabled={pending} onPress={() => onReport({ postId: post.id, replyId: null })} />
-            <MiniAction label="Block" danger disabled={pending} onPress={() => onAction({ type: 'block', userId: post.userId, name: post.authorName })} />
+            <MiniAction
+              label="Report"
+              disabled={pending}
+              onPress={() => onReport({ postId: post.id, replyId: null })}
+            />
+            <MiniAction
+              label="Block"
+              danger
+              disabled={pending}
+              onPress={() => onAction({ type: 'block', userId: post.userId, name: post.authorName })}
+            />
           </>
         )}
       </View>
@@ -446,9 +467,18 @@ function PostCard({
                   <AppText tone="secondary">{reply.body}</AppText>
                 </View>
                 {replyMine ? (
-                  <MiniAction label="Delete" danger disabled={pending} onPress={() => onAction({ type: 'delete-reply', replyId: reply.id })} />
+                  <MiniAction
+                    label="Delete"
+                    danger
+                    disabled={pending}
+                    onPress={() => onAction({ type: 'delete-reply', replyId: reply.id })}
+                  />
                 ) : (
-                  <MiniAction label="Report" disabled={pending} onPress={() => onReport({ postId: null, replyId: reply.id })} />
+                  <MiniAction
+                    label="Report"
+                    disabled={pending}
+                    onPress={() => onReport({ postId: null, replyId: reply.id })}
+                  />
                 )}
               </View>
             );
@@ -460,7 +490,7 @@ function PostCard({
         <View style={styles.replyComposer}>
           <Input
             label="Reply"
-            value={replyBody}
+            defaultValue=""
             onChangeText={onReplyBodyChange}
             maxLength={500}
             multiline
@@ -478,7 +508,17 @@ function PostCard({
   );
 }
 
-function MiniAction({ label, onPress, disabled = false, danger = false }: { label: string; onPress: () => void; disabled?: boolean; danger?: boolean }) {
+function MiniAction({
+  label,
+  onPress,
+  disabled = false,
+  danger = false,
+}: {
+  label: string;
+  onPress: () => void;
+  disabled?: boolean;
+  danger?: boolean;
+}) {
   return (
     <Pressable disabled={disabled} onPress={onPress} style={styles.smallAction}>
       <AppText variant="caption" tone={danger ? 'danger' : 'secondary'}>{label}</AppText>
@@ -521,10 +561,25 @@ const styles = StyleSheet.create({
   postHeaderCopy: { flex: 1, gap: spacing.xs },
   actionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
   smallAction: { paddingVertical: spacing.xs, paddingRight: spacing.sm },
-  replies: { gap: spacing.sm, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border, paddingTop: spacing.md },
-  replyRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: spacing.md },
+  replies: {
+    gap: spacing.sm,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.border,
+    paddingTop: spacing.md,
+  },
+  replyRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: spacing.md,
+  },
   replyCopy: { flex: 1, gap: spacing.xs },
   replyComposer: { gap: spacing.sm },
-  blockedRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: spacing.md },
+  blockedRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
   errorCard: { borderColor: colors.danger },
 });
