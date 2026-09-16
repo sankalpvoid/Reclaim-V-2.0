@@ -19,7 +19,46 @@
     "web": {
       "bundler": "metro"
     },
-    "plugins": ["expo-router", "expo-splash-screen", "expo-secure-store", "expo-notifications"],
+    "plugins": [
+      "expo-router",
+      "expo-splash-screen",
+      "expo-secure-store",
+      "expo-notifications",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "enableSceneSupport": true
+          }
+        }
+      ],
+      [
+        "expo-dev-client",
+        {
+          "launchMode": "most-recent"
+        }
+      ],
+      [
+        "expo-widgets",
+        {
+          "bundleIdentifier": "app.reclaim.mobile.widgets",
+          "groupIdentifier": "group.app.reclaim.mobile",
+          "widgets": [
+            {
+              "name": "ReclaimGlance",
+              "displayName": "Reclaim",
+              "description": "See your Reclaim journey at a glance.",
+              "supportedFamilies": [
+                "systemSmall",
+                "systemMedium",
+                "accessoryRectangular",
+                "accessoryInline"
+              ]
+            }
+          ]
+        }
+      ]
+    ],
     "experiments": {
       "typedRoutes": true
     }
