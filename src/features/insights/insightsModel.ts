@@ -9,9 +9,9 @@ export type Insight = {
 type SmokingEvent = {
   smoked_at: string;
   event_type: string;
-  cigarettes?: number | null;
-  toolkit?: string | null;
-  tool_feedback?: string | null;
+  cigarettes?: number | null | undefined;
+  toolkit?: string | null | undefined;
+  tool_feedback?: string | null | undefined;
 };
 
 type Checkin = { mood: string; created_at: string };
