@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { router } from 'expo-router';
 
+import { trackAnalyticsEvent } from '@/core/observability/analyticsService';
 import { useAuth } from '@/features/auth/AuthContext';
 import { JourneyStep } from '@/features/onboarding/JourneyStep';
 import { MoodStep } from '@/features/onboarding/MoodStep';
@@ -41,6 +42,11 @@ export function OnboardingFlow() {
 
   async function handlePlanSaved() {
     await refreshProfile();
+    void trackAnalyticsEvent({
+      eventName: 'plan_saved',
+      userId,
+      journeyMode: mode,
+    });
     setStep('mood');
   }
 
@@ -50,6 +56,11 @@ export function OnboardingFlow() {
     try {
       await completeOnboarding(userId, mood);
       await refreshProfile();
+      void trackAnalyticsEvent({
+        eventName: 'onboarding_completed',
+        userId,
+        journeyMode: mode,
+      });
       router.replace(mood === 'craving' ? '/(app)/craving' : '/(app)');
     } catch (error) {
       setCompletionError(error instanceof Error ? error.message : 'Could not finish onboarding.');
@@ -65,6 +76,11 @@ export function OnboardingFlow() {
           value={mode}
           onSelect={(nextMode) => {
             setMode(nextMode);
+            void trackAnalyticsEvent({
+              eventName: 'journey_mode_selected',
+              userId,
+              journeyMode: nextMode,
+            });
             setStep('plan');
           }}
         />
