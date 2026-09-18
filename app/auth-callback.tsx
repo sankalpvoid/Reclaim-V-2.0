@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import * as Linking from 'expo-linking';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 
 import { createSessionFromAuthUrl } from '@/features/auth/authDeepLink';
 import { spacing } from '@/theme/tokens';
@@ -9,15 +9,41 @@ import { AppText } from '@/ui/AppText';
 import { Button } from '@/ui/Button';
 import { Screen } from '@/ui/Screen';
 
+type AuthRouteParams = {
+  '#': string;
+  code: string;
+  error_description: string;
+};
+
 export default function AuthCallbackScreen() {
-  const url = Linking.useURL();
+  const linkingUrl = Linking.useLinkingURL();
+  const params = useLocalSearchParams<AuthRouteParams>();
   const [error, setError] = useState<string | null>(null);
 
+  const routeAuthUrl = useMemo(() => {
+    const query = new URLSearchParams();
+
+    if (typeof params.code === 'string' && params.code) {
+      query.set('code', params.code);
+    }
+    if (typeof params.error_description === 'string' && params.error_description) {
+      query.set('error_description', params.error_description);
+    }
+
+    const hash = typeof params['#'] === 'string' && params['#'] ? `#${params['#']}` : '';
+    if (!hash && query.size === 0) return null;
+
+    const search = query.size > 0 ? `?${query.toString()}` : '';
+    return `reclaim://auth-callback${search}${hash}`;
+  }, [params]);
+
+  const authUrl = routeAuthUrl ?? linkingUrl;
+
   useEffect(() => {
-    if (!url) return;
+    if (!authUrl) return;
 
     let active = true;
-    void createSessionFromAuthUrl(url)
+    void createSessionFromAuthUrl(authUrl)
       .then((result) => {
         if (!active) return;
         if (result.kind === 'invalid') {
@@ -33,7 +59,7 @@ export default function AuthCallbackScreen() {
     return () => {
       active = false;
     };
-  }, [url]);
+  }, [authUrl]);
 
   return (
     <Screen>
