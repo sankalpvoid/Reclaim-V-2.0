@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { parseAuthDeepLink } from './authDeepLink';
+import { parseAuthDeepLink } from './authDeepLinkModel';
 
 describe('auth deep links', () => {
   it('reads implicit-flow tokens from the URL fragment', () => {
