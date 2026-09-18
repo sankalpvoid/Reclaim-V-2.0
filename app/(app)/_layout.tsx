@@ -7,6 +7,7 @@ const noIcon = () => null;
 export default function AppTabsLayout() {
   return (
     <Tabs
+      implementation="custom"
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.textPrimary,
