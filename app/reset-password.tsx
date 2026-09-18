@@ -47,31 +47,61 @@ export default function ResetPasswordScreen() {
     return `reclaim://reset-password${search}${hash}`;
   }, [params]);
 
-  const authUrl = routeAuthUrl ?? linkingUrl;
-
   useEffect(() => {
-    if (!authUrl) return;
-
     let active = true;
-    void createSessionFromAuthUrl(authUrl)
-      .then((result) => {
-        if (!active) return;
-        if (result.kind === 'invalid') {
-          setLinkError('This recovery link is invalid or incomplete. Request a new one.');
-          return;
+    let invalidTimer: ReturnType<typeof setTimeout> | null = null;
+    const attempted = new Set<string>();
+
+    const verify = async (candidate: string | null | undefined) => {
+      if (!candidate || attempted.has(candidate) || !active) return false;
+      attempted.add(candidate);
+
+      const result = await createSessionFromAuthUrl(candidate);
+      if (!active) return false;
+      if (result.kind !== 'session') return false;
+
+      if (invalidTimer) clearTimeout(invalidTimer);
+      setLinkError(null);
+      setIsReady(true);
+      return true;
+    };
+
+    const fail = () => {
+      if (!active || isReady) return;
+      setLinkError('This recovery link is invalid or incomplete. Request a new one.');
+    };
+
+    const run = async () => {
+      try {
+        if (await verify(routeAuthUrl)) return;
+        if (await verify(linkingUrl)) return;
+        if (await verify(Linking.getLinkingURL())) return;
+        if (await verify(await Linking.getInitialURL())) return;
+
+        invalidTimer = setTimeout(fail, 1200);
+      } catch {
+        if (active) {
+          setLinkError('This recovery link could not be verified. Request a new one.');
         }
-        setIsReady(true);
-      })
-      .catch(() => {
+      }
+    };
+
+    void run();
+
+    const subscription = Linking.addEventListener('url', ({ url }) => {
+      void verify(url).catch(() => {
         if (active) {
           setLinkError('This recovery link could not be verified. Request a new one.');
         }
       });
+    });
 
     return () => {
       active = false;
+      if (invalidTimer) clearTimeout(invalidTimer);
+      subscription.remove();
     };
-  }, [authUrl]);
+  }, [isReady, linkingUrl, routeAuthUrl]);
 
   async function submit() {
     setFormError(null);
