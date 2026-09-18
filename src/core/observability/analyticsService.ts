@@ -1,5 +1,5 @@
 import Constants from 'expo-constants';
-import { Observe } from 'expo-observe';
+import { Observe } from '@/core/observability/observe';
 import { Platform } from 'react-native';
 
 import { supabase } from '@/core/supabase/client';
