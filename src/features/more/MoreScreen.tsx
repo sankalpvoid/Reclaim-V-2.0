@@ -50,7 +50,11 @@ export function MoreScreen() {
           <AppText tone="secondary">
             Turn money reclaimed from smoking into visible targets without spending or resetting progress.
           </AppText>
-          <Button label="Open goals" onPress={() => router.push('/(app)/goals')} />
+          <Button
+            label="Open goals"
+            accessibilityHint="Opens your savings goals"
+            onPress={() => router.push('/(app)/goals')}
+          />
         </Card>
 
         <Card style={styles.card}>
@@ -59,7 +63,11 @@ export function MoreScreen() {
           <AppText tone="secondary">
             Manage the local daily check-in and weekly reflection reminders on this device.
           </AppText>
-          <Button label="Reminder settings" onPress={() => router.push('/(app)/notifications')} />
+          <Button
+            label="Reminder settings"
+            accessibilityHint="Opens local reminder settings"
+            onPress={() => router.push('/(app)/notifications')}
+          />
         </Card>
 
         <Card style={styles.card}>
@@ -68,9 +76,15 @@ export function MoreScreen() {
           {profile?.journey_mode ? (
             <AppText tone="secondary">Journey: {journeyLabels[profile.journey_mode]}</AppText>
           ) : null}
-          {signOutError ? <AppText tone="danger">{signOutError}</AppText> : null}
+          {signOutError ? (
+            <AppText accessibilityLiveRegion="polite" accessibilityRole="alert" tone="danger">
+              {signOutError}
+            </AppText>
+          ) : null}
           <Pressable
             accessibilityRole="button"
+            accessibilityLabel={isSigningOut ? 'Signing out' : 'Sign out'}
+            accessibilityState={{ disabled: isSigningOut }}
             disabled={isSigningOut}
             onPress={() => void handleSignOut()}
             style={styles.signOutButton}
@@ -98,8 +112,9 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   signOutButton: {
+    minHeight: 44,
     alignSelf: 'flex-start',
-    paddingVertical: spacing.sm,
+    justifyContent: 'center',
     paddingRight: spacing.md,
   },
 });

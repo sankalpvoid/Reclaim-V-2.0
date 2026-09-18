@@ -8,12 +8,23 @@ type ButtonProps = {
   onPress: () => void;
   icon?: ReactNode;
   disabled?: boolean;
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
 };
 
-export function Button({ label, onPress, icon, disabled = false }: ButtonProps) {
+export function Button({
+  label,
+  onPress,
+  icon,
+  disabled = false,
+  accessibilityLabel,
+  accessibilityHint,
+}: ButtonProps) {
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel ?? label}
+      accessibilityHint={accessibilityHint}
       accessibilityState={{ disabled }}
       disabled={disabled}
       onPress={onPress}
