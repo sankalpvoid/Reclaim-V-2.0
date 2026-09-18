@@ -37,29 +37,53 @@ export default function AuthCallbackScreen() {
     return `reclaim://auth-callback${search}${hash}`;
   }, [params]);
 
-  const authUrl = routeAuthUrl ?? linkingUrl;
-
   useEffect(() => {
-    if (!authUrl) return;
-
     let active = true;
-    void createSessionFromAuthUrl(authUrl)
-      .then((result) => {
-        if (!active) return;
-        if (result.kind === 'invalid') {
-          setError('This confirmation link is invalid or incomplete.');
-          return;
-        }
-        router.replace('/');
-      })
-      .catch(() => {
+    let invalidTimer: ReturnType<typeof setTimeout> | null = null;
+    const attempted = new Set<string>();
+
+    const verify = async (candidate: string | null | undefined) => {
+      if (!candidate || attempted.has(candidate) || !active) return false;
+      attempted.add(candidate);
+
+      const result = await createSessionFromAuthUrl(candidate);
+      if (!active) return false;
+      if (result.kind !== 'session') return false;
+
+      if (invalidTimer) clearTimeout(invalidTimer);
+      router.replace('/');
+      return true;
+    };
+
+    const run = async () => {
+      try {
+        if (await verify(routeAuthUrl)) return;
+        if (await verify(linkingUrl)) return;
+        if (await verify(Linking.getLinkingURL())) return;
+        if (await verify(await Linking.getInitialURL())) return;
+
+        invalidTimer = setTimeout(() => {
+          if (active) setError('This confirmation link is invalid or incomplete.');
+        }, 1200);
+      } catch {
+        if (active) setError('This confirmation link could not be verified.');
+      }
+    };
+
+    void run();
+
+    const subscription = Linking.addEventListener('url', ({ url }) => {
+      void verify(url).catch(() => {
         if (active) setError('This confirmation link could not be verified.');
       });
+    });
 
     return () => {
       active = false;
+      if (invalidTimer) clearTimeout(invalidTimer);
+      subscription.remove();
     };
-  }, [authUrl]);
+  }, [linkingUrl, routeAuthUrl]);
 
   return (
     <Screen>
