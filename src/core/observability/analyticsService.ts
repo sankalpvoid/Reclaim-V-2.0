@@ -20,7 +20,11 @@ type AnalyticsIdentity = {
 
 type CravingTool = 'breathe' | 'timer' | 'water' | 'walk';
 type ToolFeedback = 'yes' | 'a_little' | 'not_really';
-type AuthAction = 'sign_in' | 'sign_up';
+type AuthAction =
+  | 'sign_in'
+  | 'sign_up'
+  | 'password_reset'
+  | 'confirmation_resend';
 
 type AnalyticsEvent =
   | ({ eventName: 'session_started' } & AnalyticsIdentity)
