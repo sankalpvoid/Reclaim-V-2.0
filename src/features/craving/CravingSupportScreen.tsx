@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { trackAnalyticsEvent } from '@/core/observability/analyticsService';
 import { useAuth } from '@/features/auth/AuthContext';
 import {
   cravingTools,
@@ -28,7 +29,7 @@ type Stage = 'choose' | 'tool' | 'feedback';
 const breatheSteps = ['INHALE', 'HOLD', 'EXHALE', 'HOLD'] as const;
 
 export function CravingSupportScreen() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const queryClient = useQueryClient();
   const [stage, setStage] = useState<Stage>('choose');
   const [activeTool, setActiveTool] = useState<CravingToolKey | null>(null);
@@ -86,6 +87,12 @@ export function CravingSupportScreen() {
   }, [activeTool, stage]);
 
   function startTool(tool: CravingToolKey) {
+    void trackAnalyticsEvent({
+      eventName: 'support_tool_started',
+      tool,
+      userId,
+      journeyMode: profile?.journey_mode ?? null,
+    });
     setActiveTool(tool);
     setStage('tool');
     setTimerSeconds(300);
@@ -104,6 +111,18 @@ export function CravingSupportScreen() {
       toolkit: activeTool,
       durationSeconds,
     });
+    void trackAnalyticsEvent({
+      eventName: 'craving_logged',
+      outcome: 'with_tool',
+      userId,
+      journeyMode: profile?.journey_mode ?? null,
+    });
+    void trackAnalyticsEvent({
+      eventName: 'support_tool_completed',
+      tool: activeTool,
+      userId,
+      journeyMode: profile?.journey_mode ?? null,
+    });
     setEventId(id);
     setStage('feedback');
   }
@@ -111,12 +130,24 @@ export function CravingSupportScreen() {
   async function logWithoutExercise() {
     if (!userId) return;
     await recordMutation.mutateAsync({ userId, resisted: false, toolkit: null });
+    void trackAnalyticsEvent({
+      eventName: 'craving_logged',
+      outcome: 'without_tool',
+      userId,
+      journeyMode: profile?.journey_mode ?? null,
+    });
     router.replace('/(app)');
   }
 
   async function submitFeedback(feedback: CravingFeedback) {
     if (!userId || !eventId) return;
     await feedbackMutation.mutateAsync({ userId, eventId, feedback });
+    void trackAnalyticsEvent({
+      eventName: 'tool_feedback',
+      feedback,
+      userId,
+      journeyMode: profile?.journey_mode ?? null,
+    });
     router.replace('/(app)');
   }
 

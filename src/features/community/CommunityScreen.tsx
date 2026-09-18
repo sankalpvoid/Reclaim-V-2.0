@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { trackAnalyticsEvent } from '@/core/observability/analyticsService';
 import { useAuth } from '@/features/auth/AuthContext';
 import { colors, radius, spacing } from '@/theme/tokens';
 import { AppText } from '@/ui/AppText';
@@ -98,6 +99,11 @@ export function CommunityScreen() {
       setPostInputVersion((version) => version + 1);
       setAnonymous(false);
       setTopic('reflection');
+      void trackAnalyticsEvent({
+        eventName: 'community_story_shared',
+        userId,
+        journeyMode: profile?.journey_mode ?? null,
+      });
       await refresh();
     },
   });
@@ -146,6 +152,11 @@ export function CommunityScreen() {
         setReplyPostId(null);
         replyBodyRef.current = '';
         setReplyHasText(false);
+        void trackAnalyticsEvent({
+          eventName: 'community_reply_shared',
+          userId,
+          journeyMode: profile?.journey_mode ?? null,
+        });
       }
       await refresh();
     },

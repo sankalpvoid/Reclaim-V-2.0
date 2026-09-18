@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import type { SmokingEvent } from '@/domain/smoking/smokingEvents';
+import { trackAnalyticsEvent } from '@/core/observability/analyticsService';
 import { useAuth } from '@/features/auth/AuthContext';
 import {
   buildQuitTodaySummary,
@@ -111,6 +112,11 @@ export function TodayScreen() {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: todayKeys.smokingEvents(userId) });
+      void trackAnalyticsEvent({
+        eventName: 'cigarette_logged',
+        userId,
+        journeyMode: profile?.journey_mode ?? null,
+      });
     },
   });
 

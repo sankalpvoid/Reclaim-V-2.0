@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { trackAnalyticsEvent } from '@/core/observability/analyticsService';
 import { signInSchema, signUpSchema } from '@/features/auth/authSchemas';
 import {
   signInWithPassword,
@@ -37,6 +38,10 @@ export default function AuthScreen() {
           setFormError(parsed.error.issues[0]?.message ?? 'Check your details and try again.');
           return;
         }
+        void trackAnalyticsEvent({
+          eventName: 'auth_submitted',
+          authAction: 'sign_in',
+        });
         await signInWithPassword(parsed.data);
       } else {
         const parsed = signUpSchema.safeParse({ displayName, email, password });
@@ -44,6 +49,10 @@ export default function AuthScreen() {
           setFormError(parsed.error.issues[0]?.message ?? 'Check your details and try again.');
           return;
         }
+        void trackAnalyticsEvent({
+          eventName: 'auth_submitted',
+          authAction: 'sign_up',
+        });
         const result = await signUpWithPassword(parsed.data);
         if (!result.session) {
           setNotice('Account created. Check your email to confirm it, then sign in.');
