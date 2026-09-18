@@ -23,7 +23,19 @@ Observe.configure({
   environment: __DEV__ ? 'development' : 'production',
   dispatchInDebug: process.env.EXPO_PUBLIC_OBSERVE_DEBUG === 'true',
   integrations: {
-    'expo-router': true,
+    'expo-router': {
+      filteredParams: [
+        'userId',
+        'id',
+        'token',
+        'email',
+        'code',
+        'sessionId',
+        'postId',
+        'goalId',
+        'articleId',
+      ],
+    },
   },
 });
 
