@@ -1,7 +1,17 @@
-import { useEffect } from 'react';
-import { Stack, router } from 'expo-router';
+import { useEffect, useRef } from 'react';
+import { Stack, router, usePathname } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
+import { analyticsScreenFromPath } from '@/core/observability/analyticsModel';
+import {
+  reportOperationalError,
+  trackAnalyticsEvent,
+} from '@/core/observability/analyticsService';
+import {
+  Observe,
+  ObserveRoot,
+  useObserve,
+} from '@/core/observability/observe';
 import { AppProviders } from '@/core/providers/AppProviders';
 import { useAuth } from '@/features/auth/AuthContext';
 import {
@@ -9,12 +19,78 @@ import {
   configureNotificationPresentation,
 } from '@/features/notifications/notificationService';
 
+Observe.configure({
+  environment: __DEV__ ? 'development' : 'production',
+  dispatchInDebug: false,
+  integrations: {
+    'expo-router': true,
+  },
+});
+
 function RootNavigator() {
-  const { isReady, isAuthenticated, profile, profileError } = useAuth();
+  const {
+    isReady,
+    isAuthenticated,
+    user,
+    profile,
+    authError,
+    profileError,
+  } = useAuth();
+  const pathname = usePathname();
+  const { markInteractive } = useObserve();
+  const sessionTrackedRef = useRef(false);
+  const lastScreenRef = useRef<string | null>(null);
+  const authErrorTrackedRef = useRef(false);
+  const profileErrorTrackedRef = useRef(false);
+
   const canEnterOnboarding =
     isReady && isAuthenticated && !profileError && profile?.onboarding_completed !== true;
   const canEnterApp =
     isReady && isAuthenticated && !profileError && profile?.onboarding_completed === true;
+
+  useEffect(() => {
+    if (isReady) markInteractive();
+  }, [isReady, markInteractive]);
+
+  useEffect(() => {
+    if (!isReady || sessionTrackedRef.current) return;
+    sessionTrackedRef.current = true;
+    void trackAnalyticsEvent({
+      eventName: 'session_started',
+      userId: user?.id ?? null,
+      journeyMode: profile?.journey_mode ?? null,
+    });
+  }, [isReady, profile?.journey_mode, user?.id]);
+
+  useEffect(() => {
+    if (!canEnterApp) return;
+
+    const screen = analyticsScreenFromPath(pathname);
+    if (!screen || lastScreenRef.current === screen) return;
+    lastScreenRef.current = screen;
+
+    void trackAnalyticsEvent({
+      eventName: 'screen_viewed',
+      screen,
+      userId: user?.id ?? null,
+      journeyMode: profile?.journey_mode ?? null,
+    });
+  }, [canEnterApp, pathname, profile?.journey_mode, user?.id]);
+
+  useEffect(() => {
+    if (!authError || authErrorTrackedRef.current) return;
+    authErrorTrackedRef.current = true;
+    reportOperationalError('auth_bootstrap');
+  }, [authError]);
+
+  useEffect(() => {
+    if (!profileError || profileErrorTrackedRef.current) return;
+    profileErrorTrackedRef.current = true;
+    reportOperationalError('profile_load', {
+      userId: user?.id ?? null,
+      journeyMode: profile?.journey_mode ?? null,
+    });
+  }, [profile?.journey_mode, profileError, user?.id]);
 
   useEffect(() => {
     if (!canEnterApp) return;
@@ -41,7 +117,7 @@ function RootNavigator() {
   );
 }
 
-export default function RootLayout() {
+function RootLayout() {
   useEffect(() => {
     configureNotificationPresentation();
   }, []);
@@ -53,3 +129,5 @@ export default function RootLayout() {
     </AppProviders>
   );
 }
+
+export default ObserveRoot.wrap(RootLayout);
