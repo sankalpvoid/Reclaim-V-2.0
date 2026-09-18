@@ -1,7 +1,7 @@
 import Constants from 'expo-constants';
-import { Observe } from '@/core/observability/observe';
 import { Platform } from 'react-native';
 
+import { Observe } from '@/core/observability/observe';
 import { supabase } from '@/core/supabase/client';
 import {
   analyticsJourneyModeSchema,
@@ -18,10 +18,26 @@ type AnalyticsIdentity = {
   journeyMode?: AnalyticsJourneyMode | null;
 };
 
+type CravingTool = 'breathe' | 'timer' | 'water' | 'walk';
+type ToolFeedback = 'yes' | 'a_little' | 'not_really';
+type AuthAction = 'sign_in' | 'sign_up';
+
 type AnalyticsEvent =
   | ({ eventName: 'session_started' } & AnalyticsIdentity)
   | ({ eventName: 'screen_viewed'; screen: AnalyticsScreen } & AnalyticsIdentity)
-  | ({ eventName: 'client_error'; operation: ClientErrorOperation } & AnalyticsIdentity);
+  | ({ eventName: 'client_error'; operation: ClientErrorOperation } & AnalyticsIdentity)
+  | ({ eventName: 'cigarette_logged' } & AnalyticsIdentity)
+  | ({ eventName: 'checkin_completed' } & AnalyticsIdentity)
+  | ({ eventName: 'craving_logged'; outcome: 'with_tool' | 'without_tool' } & AnalyticsIdentity)
+  | ({ eventName: 'support_tool_started'; tool: CravingTool } & AnalyticsIdentity)
+  | ({ eventName: 'support_tool_completed'; tool: CravingTool } & AnalyticsIdentity)
+  | ({ eventName: 'tool_feedback'; feedback: ToolFeedback } & AnalyticsIdentity)
+  | ({ eventName: 'community_story_shared' } & AnalyticsIdentity)
+  | ({ eventName: 'community_reply_shared' } & AnalyticsIdentity)
+  | ({ eventName: 'onboarding_completed' } & AnalyticsIdentity)
+  | ({ eventName: 'journey_mode_selected' } & AnalyticsIdentity)
+  | ({ eventName: 'plan_saved' } & AnalyticsIdentity)
+  | ({ eventName: 'auth_submitted'; authAction: AuthAction } & AnalyticsIdentity);
 
 const debugAnalyticsEnabled =
   process.env.EXPO_PUBLIC_ANALYTICS_DEBUG === 'true';
@@ -57,25 +73,28 @@ function shouldSendAnalytics(): boolean {
 
 function safeProperties(event: AnalyticsEvent): Record<string, string> {
   const base = {
+    client_generation: 'v2',
     platform,
     app_version: appVersion,
   };
 
-  if (event.eventName === 'screen_viewed') {
-    return {
-      ...base,
-      screen: analyticsScreenSchema.parse(event.screen),
-    };
+  switch (event.eventName) {
+    case 'screen_viewed':
+      return { ...base, screen: analyticsScreenSchema.parse(event.screen) };
+    case 'client_error':
+      return { ...base, operation: clientErrorOperationSchema.parse(event.operation) };
+    case 'craving_logged':
+      return { ...base, outcome: event.outcome };
+    case 'support_tool_started':
+    case 'support_tool_completed':
+      return { ...base, tool: event.tool };
+    case 'tool_feedback':
+      return { ...base, feedback: event.feedback };
+    case 'auth_submitted':
+      return { ...base, auth_action: event.authAction };
+    default:
+      return base;
   }
-
-  if (event.eventName === 'client_error') {
-    return {
-      ...base,
-      operation: clientErrorOperationSchema.parse(event.operation),
-    };
-  }
-
-  return base;
 }
 
 export async function trackAnalyticsEvent(event: AnalyticsEvent): Promise<void> {
