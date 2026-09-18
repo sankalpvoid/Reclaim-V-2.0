@@ -41,7 +41,12 @@ export async function deleteCurrentAccount(password: string): Promise<void> {
 
   deleteAccountResponseSchema.parse(data);
 
-  await cancelAllReclaimReminders();
+  try {
+    await cancelAllReclaimReminders();
+  } catch {
+    // Account deletion is already complete. A stale local reminder should not
+    // make the app claim the backend deletion failed.
+  }
 
   // The backend user no longer exists. Clear the local session without
   // depending on a server-side sign-out succeeding for the deleted user.
