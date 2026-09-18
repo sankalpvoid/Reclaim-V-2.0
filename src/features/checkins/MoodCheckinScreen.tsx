@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { trackAnalyticsEvent } from '@/core/observability/analyticsService';
 import { useAuth } from '@/features/auth/AuthContext';
 import {
   buildMoodHistory,
@@ -30,7 +31,7 @@ const moodLabels: Record<Mood, string> = {
 };
 
 export function MoodCheckinScreen() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const queryClient = useQueryClient();
   const [selectedMood, setSelectedMood] = useState<Mood | null>(null);
   const [note, setNote] = useState('');
@@ -69,6 +70,11 @@ export function MoodCheckinScreen() {
       hydratedCheckinIdRef.current = checkin.id;
       setSaved(true);
       await queryClient.invalidateQueries({ queryKey: checkinKeys.history(userId) });
+      void trackAnalyticsEvent({
+        eventName: 'checkin_completed',
+        userId,
+        journeyMode: profile?.journey_mode ?? null,
+      });
       if (checkin.mood === 'craving') router.push('/(app)/craving');
     },
   });
