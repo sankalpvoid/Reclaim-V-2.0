@@ -1,7 +1,7 @@
 import { supabase } from '@/core/supabase/client';
 import {
   emailSchema,
-  resetPasswordSchema,
+  newPasswordSchema,
   signInSchema,
   signUpSchema,
   type EmailInput,
@@ -63,8 +63,8 @@ export async function resendSignUpConfirmation(input: EmailInput): Promise<void>
 }
 
 export async function updatePassword(password: ResetPasswordInput['password']): Promise<void> {
-  const parsed = resetPasswordSchema.pick({ password: true }).parse({ password });
-  const { error } = await supabase.auth.updateUser({ password: parsed.password });
+  const parsedPassword = newPasswordSchema.parse(password);
+  const { error } = await supabase.auth.updateUser({ password: parsedPassword });
   if (error) throw error;
 }
 
