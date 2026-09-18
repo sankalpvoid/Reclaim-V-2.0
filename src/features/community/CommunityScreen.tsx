@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
@@ -50,15 +50,17 @@ const reportReasons: CommunityReportReason[] = ['harmful', 'harassment', 'privac
 export function CommunityScreen() {
   const { user, profile } = useAuth();
   const queryClient = useQueryClient();
-  const [postBody, setPostBody] = useState('');
+  const postBodyRef = useRef('');
+  const [postHasText, setPostHasText] = useState(false);
   const [postInputVersion, setPostInputVersion] = useState(0);
   const [topic, setTopic] = useState<CommunityTopic>('reflection');
   const [anonymous, setAnonymous] = useState(false);
   const [replyPostId, setReplyPostId] = useState<string | null>(null);
-  const [replyBody, setReplyBody] = useState('');
+  const replyBodyRef = useRef('');
+  const [replyHasText, setReplyHasText] = useState(false);
   const [reportTarget, setReportTarget] = useState<ReportTarget | null>(null);
   const [reportReason, setReportReason] = useState<CommunityReportReason>('harmful');
-  const [reportDetails, setReportDetails] = useState('');
+  const reportDetailsRef = useRef('');
 
   const userId = user?.id ?? '';
   const smokeFreeDays = useMemo(
@@ -83,7 +85,7 @@ export function CommunityScreen() {
       await createCommunityPost({
         userId,
         circleId: circle.id,
-        body: postBody,
+        body: postBodyRef.current,
         topic,
         displayName: profile?.display_name ?? null,
         smokeFreeDays,
@@ -91,7 +93,8 @@ export function CommunityScreen() {
       });
     },
     onSuccess: async () => {
-      setPostBody('');
+      postBodyRef.current = '';
+      setPostHasText(false);
       setPostInputVersion((version) => version + 1);
       setAnonymous(false);
       setTopic('reflection');
@@ -141,7 +144,8 @@ export function CommunityScreen() {
     onSuccess: async (_, action) => {
       if (action.type === 'reply') {
         setReplyPostId(null);
-        setReplyBody('');
+        replyBodyRef.current = '';
+        setReplyHasText(false);
       }
       await refresh();
     },
@@ -155,13 +159,13 @@ export function CommunityScreen() {
         postId: reportTarget.postId,
         replyId: reportTarget.replyId,
         reason: reportReason,
-        details: reportDetails,
+        details: reportDetailsRef.current,
       });
     },
     onSuccess: () => {
       setReportTarget(null);
       setReportReason('harmful');
-      setReportDetails('');
+      reportDetailsRef.current = '';
     },
   });
 
@@ -255,7 +259,11 @@ export function CommunityScreen() {
               key={`community-post-${postInputVersion}`}
               label="Your experience"
               defaultValue=""
-              onChangeText={setPostBody}
+              onChangeText={(value) => {
+                postBodyRef.current = value;
+                const hasText = value.trim().length > 0;
+                if (hasText !== postHasText) setPostHasText(hasText);
+              }}
               multiline
               maxLength={1000}
               placeholder="What happened, and what might help someone at the same stage?"
@@ -275,7 +283,7 @@ export function CommunityScreen() {
             </AppText>
             <Button
               label={createMutation.isPending ? 'Sharing…' : 'Share story'}
-              disabled={createMutation.isPending || postBody.trim().length === 0}
+              disabled={createMutation.isPending || !postHasText}
               onPress={() => createMutation.mutate()}
             />
           </Card>
@@ -297,17 +305,27 @@ export function CommunityScreen() {
             myUserId={userId}
             pending={actionMutation.isPending}
             replyOpen={replyPostId === post.id}
-            replyBody={replyPostId === post.id ? replyBody : ''}
-            onReplyBodyChange={setReplyBody}
+            replyHasText={replyPostId === post.id && replyHasText}
+            onReplyBodyChange={(value) => {
+              replyBodyRef.current = value;
+              const hasText = value.trim().length > 0;
+              if (hasText !== replyHasText) setReplyHasText(hasText);
+            }}
             onToggleReply={() => {
               setReplyPostId((value) => (value === post.id ? null : post.id));
-              setReplyBody('');
+              replyBodyRef.current = '';
+              setReplyHasText(false);
             }}
+            onSubmitReply={(postId) => actionMutation.mutate({
+              type: 'reply',
+              postId,
+              body: replyBodyRef.current,
+            })}
             onAction={(action) => actionMutation.mutate(action)}
             onReport={(target) => {
               setReportTarget(target);
               setReportReason('harmful');
-              setReportDetails('');
+              reportDetailsRef.current = '';
             }}
           />
         ))}
@@ -332,7 +350,9 @@ export function CommunityScreen() {
             <Input
               label="Optional details"
               defaultValue=""
-              onChangeText={setReportDetails}
+              onChangeText={(value) => {
+                reportDetailsRef.current = value;
+              }}
               maxLength={500}
               multiline
               style={styles.reportInput}
@@ -342,7 +362,13 @@ export function CommunityScreen() {
               disabled={reportMutation.isPending}
               onPress={() => reportMutation.mutate()}
             />
-            <Pressable onPress={() => setReportTarget(null)} style={styles.smallAction}>
+            <Pressable
+              onPress={() => {
+                setReportTarget(null);
+                reportDetailsRef.current = '';
+              }}
+              style={styles.smallAction}
+            >
               <AppText tone="secondary">Cancel</AppText>
             </Pressable>
           </Card>
@@ -380,9 +406,10 @@ function PostCard({
   myUserId,
   pending,
   replyOpen,
-  replyBody,
+  replyHasText,
   onReplyBodyChange,
   onToggleReply,
+  onSubmitReply,
   onAction,
   onReport,
 }: {
@@ -390,9 +417,10 @@ function PostCard({
   myUserId: string;
   pending: boolean;
   replyOpen: boolean;
-  replyBody: string;
+  replyHasText: boolean;
   onReplyBodyChange: (value: string) => void;
   onToggleReply: () => void;
+  onSubmitReply: (postId: string) => void;
   onAction: (action: CommunityAction) => void;
   onReport: (target: ReportTarget) => void;
 }) {
@@ -489,8 +517,8 @@ function PostCard({
           />
           <Button
             label="Post reply"
-            disabled={pending || replyBody.trim().length === 0}
-            onPress={() => onAction({ type: 'reply', postId: post.id, body: replyBody })}
+            disabled={pending || !replyHasText}
+            onPress={() => onSubmitReply(post.id)}
           />
         </View>
       ) : null}
