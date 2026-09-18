@@ -123,6 +123,14 @@ async function cancelReminderSchedules(kind: ReminderKind): Promise<void> {
   );
 }
 
+export async function cancelAllReclaimReminders(): Promise<void> {
+  if (Platform.OS === 'web') return;
+  await Promise.all([
+    cancelReminderSchedules('daily-checkin'),
+    cancelReminderSchedules('weekly-reflection'),
+  ]);
+}
+
 async function scheduleDailyCheckin(preferences: NotificationPreferences): Promise<void> {
   await Notifications.scheduleNotificationAsync({
     content: {
