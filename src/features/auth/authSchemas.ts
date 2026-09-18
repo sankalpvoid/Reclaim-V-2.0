@@ -4,18 +4,20 @@ export const emailSchema = z.object({
   email: z.string().trim().toLowerCase().email('Enter a valid email address'),
 });
 
+export const newPasswordSchema = z.string().min(8, 'Use at least 8 characters');
+
 export const signInSchema = emailSchema.extend({
   password: z.string().min(1, 'Enter your password'),
 });
 
 export const signUpSchema = emailSchema.extend({
   displayName: z.string().trim().min(1, 'Enter your name').max(80, 'Keep your name under 80 characters'),
-  password: z.string().min(8, 'Use at least 8 characters'),
+  password: newPasswordSchema,
 });
 
 export const resetPasswordSchema = z
   .object({
-    password: z.string().min(8, 'Use at least 8 characters'),
+    password: newPasswordSchema,
     confirmation: z.string().min(1, 'Confirm your new password'),
   })
   .refine((value) => value.password === value.confirmation, {
