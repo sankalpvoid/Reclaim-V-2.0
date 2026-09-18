@@ -1,0 +1,36 @@
+name: Phase 16 install Observe
+
+on:
+  push:
+    branches:
+      - phase-16-observability
+    paths:
+      - .github/workflows/phase16-install-observe.yml
+
+permissions:
+  contents: write
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: phase-16-observability
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.0
+          cache: npm
+      - run: npm ci
+      - run: npx expo install expo-observe --npm
+      - name: Commit dependency
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json package-lock.json
+          if git diff --cached --quiet; then
+            echo "No dependency changes needed."
+            exit 0
+          fi
+          git commit -m "chore: install Expo Observe"
+          git push origin HEAD:phase-16-observability
