@@ -21,7 +21,7 @@ import {
 
 Observe.configure({
   environment: __DEV__ ? 'development' : 'production',
-  dispatchInDebug: false,
+  dispatchInDebug: process.env.EXPO_PUBLIC_OBSERVE_DEBUG === 'true',
   integrations: {
     'expo-router': true,
   },
