@@ -39,6 +39,7 @@ export default function AppTabsLayout() {
       <Tabs.Screen name="goals" options={{ href: null }} />
       <Tabs.Screen name="health" options={{ href: null }} />
       <Tabs.Screen name="notifications" options={{ href: null }} />
+      <Tabs.Screen name="privacy" options={{ href: null }} />
     </Tabs>
   );
 }
