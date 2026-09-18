@@ -53,18 +53,53 @@ function createAnalyticsUuid(): string {
 }
 
 const sessionId = createAnalyticsUuid();
+const anonymousIdStorageKey = 'reclaim-v2-analytics-anonymous-id';
+let anonymousIdCache: string | null = null;
 
-function anonymousId(): string {
-  const observeClientId = Observe.clientId;
-  if (
-    typeof observeClientId === 'string' &&
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-      observeClientId,
-    )
-  ) {
-    return observeClientId;
+function validAnalyticsUuid(value: string | null | undefined): value is string {
+  return Boolean(
+    value &&
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+        value,
+      ),
+  );
+}
+
+async function anonymousId(): Promise<string> {
+  if (anonymousIdCache) return anonymousIdCache;
+
+  if (Platform.OS === 'web') {
+    const storage = (
+      globalThis as typeof globalThis & {
+        localStorage?: {
+          getItem: (key: string) => string | null;
+          setItem: (key: string, value: string) => void;
+        };
+      }
+    ).localStorage;
+    const existing = storage?.getItem(anonymousIdStorageKey);
+    if (validAnalyticsUuid(existing)) {
+      anonymousIdCache = existing;
+      return existing;
+    }
+
+    const next = createAnalyticsUuid();
+    storage?.setItem(anonymousIdStorageKey, next);
+    anonymousIdCache = next;
+    return next;
   }
-  return sessionId;
+
+  const SecureStore = await import('expo-secure-store');
+  const existing = await SecureStore.getItemAsync(anonymousIdStorageKey);
+  if (validAnalyticsUuid(existing)) {
+    anonymousIdCache = existing;
+    return existing;
+  }
+
+  const next = createAnalyticsUuid();
+  await SecureStore.setItemAsync(anonymousIdStorageKey, next);
+  anonymousIdCache = next;
+  return next;
 }
 
 function shouldSendAnalytics(): boolean {
@@ -107,7 +142,7 @@ export async function trackAnalyticsEvent(event: AnalyticsEvent): Promise<void> 
   const { error } = await supabase.from('analytics_events').insert({
     client_created_at: new Date().toISOString(),
     user_id: event.userId ?? null,
-    anonymous_id: anonymousId(),
+    anonymous_id: await anonymousId(),
     session_id: sessionId,
     event_name: event.eventName,
     journey_mode: journeyMode,
