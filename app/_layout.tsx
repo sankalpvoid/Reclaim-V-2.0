@@ -30,6 +30,7 @@ Observe.configure({
         'token',
         'email',
         'code',
+        '#',
         'sessionId',
         'postId',
         'goalId',
