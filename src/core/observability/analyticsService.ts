@@ -99,3 +99,16 @@ export async function trackAnalyticsEvent(event: AnalyticsEvent): Promise<void> 
     console.warn('Reclaim analytics event was not recorded.', error.code);
   }
 }
+
+export function reportOperationalError(
+  operation: ClientErrorOperation,
+  identity: AnalyticsIdentity = {},
+): void {
+  const safeOperation = clientErrorOperationSchema.parse(operation);
+  Observe.reportError(new Error(`reclaim.${safeOperation}`));
+  void trackAnalyticsEvent({
+    eventName: 'client_error',
+    operation: safeOperation,
+    ...identity,
+  });
+}
