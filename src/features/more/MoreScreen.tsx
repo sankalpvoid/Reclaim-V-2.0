@@ -71,6 +71,19 @@ export function MoreScreen() {
         </Card>
 
         <Card style={styles.card}>
+          <AppText variant="caption" tone="secondary">PRIVACY</AppText>
+          <AppText variant="title">Your data and account.</AppText>
+          <AppText tone="secondary">
+            Review what Reclaim stores and access permanent account deletion controls.
+          </AppText>
+          <Button
+            label="Privacy & account"
+            accessibilityHint="Opens privacy information and account deletion controls"
+            onPress={() => router.push('/(app)/privacy')}
+          />
+        </Card>
+
+        <Card style={styles.card}>
           <AppText variant="caption" tone="secondary">ACCOUNT</AppText>
           <AppText variant="title">{profile?.display_name || 'Your Reclaim account'}</AppText>
           {profile?.journey_mode ? (
