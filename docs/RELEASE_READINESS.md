@@ -24,6 +24,10 @@ This document tracks the work required to move Reclaim V2 from a verified develo
 - Native iOS widget
 - Core smoking, cravings, check-ins, insights, goals, community and learning flows
 - CI with Expo Doctor, strict TypeScript and tests
+- EAS preview and production environments configured with client-safe Supabase values
+- Android parity smoke test completed on Pixel 9 Pro / Android 16
+- Android custom-scheme deep-link routing verified with `reclaim://auth-callback`
+- Standalone Android EAS preview APK built, installed, authenticated and verified without Metro
 
 ## Release blockers
 
@@ -48,15 +52,6 @@ Public HTTPS URLs are still required for:
 
 These URLs should be stable before App Store Connect or Play Console metadata is finalized.
 
-### EAS environment variables
-
-Production and preview builds need the existing client-safe Supabase values configured in EAS:
-
-- EXPO_PUBLIC_SUPABASE_URL
-- EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY
-
-Never place a service-role key in an EAS client environment.
-
 ### Auth email delivery
 
 Supabase's built-in email service is suitable for development testing, but production launch should use a custom SMTP provider and branded auth email templates.
@@ -66,9 +61,8 @@ Supabase's built-in email service is suitable for development testing, but produ
 Before public submission:
 
 - run an iOS preview/release build rather than relying only on the dev client
-- run Android on an emulator or physical device and complete a parity smoke test
 - verify deep links from real email clients on both platforms
-- verify notifications and permissions on device
+- verify notifications and permissions on a physical device
 - verify widgets on a release-like iOS build
 - decide whether iPad support remains enabled; if yes, include iPad QA and store assets
 
@@ -86,11 +80,10 @@ The performance advisor currently reports only informational unused-index notice
 
 1. Finalize app icon and splash assets.
 2. Publish privacy and support URLs.
-3. Configure EAS client-safe environment variables.
-4. Configure production SMTP and branded auth emails.
-5. Build iOS preview and Android preview binaries.
-6. Complete platform parity and deep-link smoke tests.
-7. Resolve any release-build-only defects.
-8. Set the intended public version (for example 1.0.0 when launch scope is approved).
-9. Create production builds with EAS.
-10. Submit first to TestFlight / Play internal testing before public review.
+3. Configure production SMTP and branded auth emails.
+4. Build and verify the iOS preview binary.
+5. Verify real-email auth deep links on both platforms and notifications on a physical device.
+6. Resolve any release-build-only defects.
+7. Set the intended public version (for example 1.0.0 when launch scope is approved).
+8. Create production builds with EAS.
+9. Submit first to TestFlight / Play internal testing before public review.
