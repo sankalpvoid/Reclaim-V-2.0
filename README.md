@@ -15,9 +15,9 @@ V1 remains available as the behavioural and product reference. Its monolithic fr
 - Zod
 - React Hook Form
 - Vitest for domain/unit tests
-- GitHub Actions and EAS as the intended CI/release path
+- GitHub Actions and EAS for CI and release builds
 
-See `docs/ARCHITECTURE.md` and `docs/MIGRATION_INVENTORY.md` before making architectural changes.
+See `docs/ARCHITECTURE.md`, `docs/MIGRATION_INVENTORY.md`, and `docs/RELEASE_READINESS.md` before making architectural or release changes.
 
 ## Requirements
 
@@ -45,19 +45,19 @@ After dependencies are verified, create local environment configuration:
 cp .env.example .env
 ```
 
-Populate `.env` with the existing Reclaim Supabase project's client-safe URL and publishable/anon key. Never place a Supabase service-role key in the mobile application.
+Populate `.env` with the existing Reclaim Supabase project's client-safe URL and publishable key. Never place a Supabase service-role key in the mobile application.
 
-Then start with a clean Metro cache:
+The native development target is the standalone Expo dev client, not Expo Go:
 
 ```bash
-npx expo start --clear
+npx expo start --dev-client --clear
 ```
 
 ## Current phase
 
-Foundation only.
+Phase 19 — release readiness and store/build foundations.
 
-Major feature migration, auth migration, widgets, community, learning/research automation, AI, payments, and full visual redesign remain intentionally deferred until the foundation passes local verification.
+The core product, auth recovery, security/privacy hardening, accessibility, analytics and observability foundations are in place. Current work focuses on production build configuration, store assets and metadata, release-like QA, and iOS/Android parity before any public submission.
 
 ## Current architecture
 
@@ -66,6 +66,6 @@ Major feature migration, auth migration, widgets, community, learning/research a
 - `src/domain/` — pure product/business rules
 - `src/theme/` — semantic design tokens
 - `src/ui/` — reusable UI primitives
-- `docs/` — architecture and migration decisions
+- `docs/` — architecture, migration and release decisions
 
 Do not allow product behaviour to accumulate in route files or a replacement monolithic `app.js`.
