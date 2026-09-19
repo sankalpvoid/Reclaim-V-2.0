@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { trackAnalyticsEvent } from '@/core/observability/analyticsService';
@@ -37,6 +37,21 @@ export function CravingSupportScreen() {
   const [timerSeconds, setTimerSeconds] = useState(300);
   const [breathIndex, setBreathIndex] = useState(0);
   const startedAtRef = useRef<number | null>(null);
+
+  const resetFlow = useCallback(() => {
+    setStage('choose');
+    setActiveTool(null);
+    setEventId(null);
+    setTimerSeconds(300);
+    setBreathIndex(0);
+    startedAtRef.current = null;
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      resetFlow();
+    }, [resetFlow]),
+  );
 
   const userId = user?.id ?? '';
   const historyQuery = useQuery({
@@ -136,6 +151,7 @@ export function CravingSupportScreen() {
       userId,
       journeyMode: profile?.journey_mode ?? null,
     });
+    resetFlow();
     router.replace('/(app)');
   }
 
@@ -148,6 +164,7 @@ export function CravingSupportScreen() {
       userId,
       journeyMode: profile?.journey_mode ?? null,
     });
+    resetFlow();
     router.replace('/(app)');
   }
 
@@ -216,7 +233,13 @@ export function CravingSupportScreen() {
             <Button label="Yes" onPress={() => void submitFeedback('yes')} />
             <Button label="A little" onPress={() => void submitFeedback('a_little')} />
             <Button label="Not really" onPress={() => void submitFeedback('not_really')} />
-            <Pressable onPress={() => router.replace('/(app)')} style={styles.skipButton}>
+            <Pressable
+              onPress={() => {
+                resetFlow();
+                router.replace('/(app)');
+              }}
+              style={styles.skipButton}
+            >
               <AppText tone="secondary">Skip</AppText>
             </Pressable>
           </View>
