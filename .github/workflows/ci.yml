@@ -23,6 +23,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Validate release configuration
+        run: |
+          node -e "JSON.parse(require('fs').readFileSync('eas.json', 'utf8'))"
+          npx expo config --type public > /tmp/reclaim-expo-config.json
+
       - name: Check Expo project health
         run: npx --yes expo-doctor@1.20.4
 
