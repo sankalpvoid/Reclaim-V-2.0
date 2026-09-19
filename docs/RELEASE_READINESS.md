@@ -28,6 +28,9 @@ This document tracks the work required to move Reclaim V2 from a verified develo
 - Android parity smoke test completed on Pixel 9 Pro / Android 16
 - Android custom-scheme deep-link routing verified with `reclaim://auth-callback`
 - Standalone Android EAS preview APK built, installed, authenticated and verified without Metro
+- Standalone iOS EAS simulator preview built, installed, authenticated and verified without Metro
+- iOS custom-scheme deep-link routing verified with `reclaim://auth-callback`
+- Reclaim iOS widget verified in the release-style simulator build
 
 ## Release blockers
 
@@ -60,10 +63,8 @@ Supabase's built-in email service is suitable for development testing, but produ
 
 Before public submission:
 
-- run an iOS preview/release build rather than relying only on the dev client
 - verify deep links from real email clients on both platforms
 - verify notifications and permissions on a physical device
-- verify widgets on a release-like iOS build
 - decide whether iPad support remains enabled; if yes, include iPad QA and store assets
 
 ### Store accounts and signing
@@ -81,9 +82,9 @@ The performance advisor currently reports only informational unused-index notice
 1. Finalize app icon and splash assets.
 2. Publish privacy and support URLs.
 3. Configure production SMTP and branded auth emails.
-4. Build and verify the iOS preview binary.
-5. Verify real-email auth deep links on both platforms and notifications on a physical device.
+4. Verify real-email auth deep links on both platforms and notifications on a physical device.
+5. Decide iPad support and complete any required iPad QA/store assets.
 6. Resolve any release-build-only defects.
 7. Set the intended public version (for example 1.0.0 when launch scope is approved).
-8. Create production builds with EAS.
+8. Enroll/connect store accounts and create production builds with EAS.
 9. Submit first to TestFlight / Play internal testing before public review.
