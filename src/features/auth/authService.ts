@@ -1,10 +1,19 @@
 import { supabase } from '@/core/supabase/client';
 import {
+  emailSchema,
+  newPasswordSchema,
   signInSchema,
   signUpSchema,
+  type EmailInput,
+  type ResetPasswordInput,
   type SignInInput,
   type SignUpInput,
 } from '@/features/auth/authSchemas';
+
+const authRedirects = {
+  confirmation: 'reclaim://auth-callback',
+  passwordRecovery: 'reclaim://reset-password',
+} as const;
 
 export async function signInWithPassword(input: SignInInput) {
   const credentials = signInSchema.parse(input);
@@ -20,6 +29,7 @@ export async function signUpWithPassword(input: SignUpInput) {
     email,
     password,
     options: {
+      emailRedirectTo: authRedirects.confirmation,
       data: {
         display_name: displayName,
       },
@@ -28,6 +38,34 @@ export async function signUpWithPassword(input: SignUpInput) {
 
   if (error) throw error;
   return data;
+}
+
+export async function requestPasswordReset(input: EmailInput): Promise<void> {
+  const { email } = emailSchema.parse(input);
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: authRedirects.passwordRecovery,
+  });
+
+  if (error) throw error;
+}
+
+export async function resendSignUpConfirmation(input: EmailInput): Promise<void> {
+  const { email } = emailSchema.parse(input);
+  const { error } = await supabase.auth.resend({
+    type: 'signup',
+    email,
+    options: {
+      emailRedirectTo: authRedirects.confirmation,
+    },
+  });
+
+  if (error) throw error;
+}
+
+export async function updatePassword(password: ResetPasswordInput['password']): Promise<void> {
+  const parsedPassword = newPasswordSchema.parse(password);
+  const { error } = await supabase.auth.updateUser({ password: parsedPassword });
+  if (error) throw error;
 }
 
 export async function signOut() {
