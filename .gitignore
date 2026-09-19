@@ -10,3 +10,5 @@ Expo-Go-*.tar.app/
 *.log
 .DS_Store
 coverage/
+android/
+ios/
