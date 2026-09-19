@@ -2,16 +2,19 @@
   "expo": {
     "name": "Reclaim",
     "slug": "reclaim-v2",
+    "owner": "sankalpvoid",
     "version": "0.1.0",
     "orientation": "portrait",
     "scheme": "reclaim",
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.reclaim.mobile"
+      "bundleIdentifier": "app.reclaim.mobile",
+      "buildNumber": "1"
     },
     "android": {
       "package": "app.reclaim.mobile",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#0A0A0A"
       }
@@ -21,7 +24,12 @@
     },
     "plugins": [
       "expo-router",
-      "expo-splash-screen",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#0A0A0A"
+        }
+      ],
       "expo-secure-store",
       "expo-notifications",
       [
