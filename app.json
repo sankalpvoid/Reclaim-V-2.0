@@ -9,12 +9,10 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.reclaim.mobile",
-      "buildNumber": "1"
+      "bundleIdentifier": "app.reclaim.mobile"
     },
     "android": {
       "package": "app.reclaim.mobile",
-      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#0A0A0A"
       }
