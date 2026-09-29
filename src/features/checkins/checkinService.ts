@@ -6,6 +6,10 @@ import {
   type Mood,
 } from '@/features/checkins/checkinModel';
 
+export const checkinKeys = {
+  history: (userId: string) => ['checkins', userId] as const,
+};
+
 export const ONBOARDING_CHECKIN_CLIENT_ID = '00000000-0000-4000-8000-000000000002';
 
 function mapCheckin(row: {
