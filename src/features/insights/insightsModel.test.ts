@@ -25,7 +25,11 @@ describe('buildInsights', () => {
       new Date('2026-09-16T12:00:00Z'),
     );
 
-    expect(insights.some((insight) => insight.id === 'craving-time')).toBe(true);
+    const insight = insights.find((item) => item.id === 'craving-time');
+    expect(insight?.action).toEqual({
+      label: 'Open craving support',
+      route: '/(app)/craving',
+    });
   });
 
   it('uses repeated tool feedback before recommending a coping tool', () => {
@@ -39,7 +43,12 @@ describe('buildInsights', () => {
       new Date('2026-09-16T12:00:00Z'),
     );
 
-    expect(insights.find((insight) => insight.id === 'tool-effectiveness')?.title).toContain('Ride the wave');
+    const insight = insights.find((item) => item.id === 'tool-effectiveness');
+    expect(insight?.title).toContain('Ride the wave');
+    expect(insight?.action).toEqual({
+      label: 'Use Ride the wave',
+      route: '/(app)/craving',
+    });
   });
 
   it('compares the last seven days with the previous seven days', () => {
@@ -57,7 +66,10 @@ describe('buildInsights', () => {
       new Date('2026-09-16T12:00:00Z'),
     );
 
-    expect(insights.some((insight) => insight.id === 'smoking-trend')).toBe(true);
+    expect(insights.find((insight) => insight.id === 'smoking-trend')?.action).toEqual({
+      label: 'View today',
+      route: '/(app)',
+    });
   });
 
   it('uses cigarette quantities rather than event row counts', () => {
