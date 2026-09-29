@@ -8,6 +8,7 @@ import { spacing } from '@/theme/tokens';
 import { AppText } from '@/ui/AppText';
 import { Button } from '@/ui/Button';
 import { Card } from '@/ui/Card';
+import { ErrorCard } from '@/ui/ErrorCard';
 import { Screen } from '@/ui/Screen';
 import {
   articlesForJourney,
@@ -85,7 +86,7 @@ export function LearningScreen() {
 
   const completedCount = articleStates.filter((item) => item.completed).length;
   const savedCount = articleStates.filter((item) => item.saved).length;
-  const error = articlesQuery.error ?? progressQuery.error ?? updateMutation.error;
+  const error = articlesQuery.error ?? progressQuery.error ?? signalQuery.error ?? updateMutation.error;
 
   return (
     <Screen>
@@ -180,11 +181,18 @@ export function LearningScreen() {
         })}
 
         {error ? (
-          <Card>
-            <AppText accessibilityLiveRegion="polite" accessibilityRole="alert" tone="danger">
-              {error instanceof Error ? error.message : 'Learning library could not load.'}
-            </AppText>
-          </Card>
+          <ErrorCard
+            message={error instanceof Error ? error.message : 'Learning library could not load.'}
+            isRetrying={articlesQuery.isFetching || progressQuery.isFetching || signalQuery.isFetching}
+            onRetry={() => {
+              updateMutation.reset();
+              void Promise.all([
+                articlesQuery.refetch(),
+                progressQuery.refetch(),
+                signalQuery.refetch(),
+              ]);
+            }}
+          />
         ) : null}
       </ScrollView>
     </Screen>
