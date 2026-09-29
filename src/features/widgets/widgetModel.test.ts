@@ -42,6 +42,63 @@ describe('Reclaim widget snapshot', () => {
     });
   });
 
+  it('shows reduce progress when smoking data is available', () => {
+    const now = new Date('2026-09-15T12:00:00.000Z');
+    expect(
+      buildReclaimWidgetSnapshot(
+        { ...profile, journey_mode: 'reduce', daily_target: 5 },
+        now,
+        {
+          smokingEvents: [
+            { id: 'one', smokedAt: '2026-09-15T08:00:00.000Z', cigarettes: 1 },
+            { id: 'two', smokedAt: '2026-09-15T10:00:00.000Z', cigarettes: 2 },
+          ],
+          reductionTarget: 5,
+        },
+      ),
+    ).toEqual({
+      mode: 'reduce',
+      eyebrow: 'SMOKE LESS',
+      primary: '3 / 5',
+      secondary: '2 remaining today',
+    });
+  });
+
+  it('does not treat a missing reduce log as a successful zero', () => {
+    expect(
+      buildReclaimWidgetSnapshot(
+        { ...profile, journey_mode: 'reduce', daily_target: 5 },
+        new Date('2026-09-15T12:00:00.000Z'),
+        { smokingEvents: [], reductionTarget: 5 },
+      ),
+    ).toEqual({
+      mode: 'reduce',
+      eyebrow: 'SMOKE LESS',
+      primary: 'No log yet',
+      secondary: 'Target: 5 today',
+    });
+  });
+
+  it('shows track-mode context when smoking data is available', () => {
+    expect(
+      buildReclaimWidgetSnapshot(
+        { ...profile, journey_mode: 'track' },
+        new Date('2026-09-15T12:00:00.000Z'),
+        {
+          smokingEvents: [
+            { id: 'one', smokedAt: '2026-09-14T12:00:00.000Z', cigarettes: 2 },
+            { id: 'two', smokedAt: '2026-09-15T09:00:00.000Z', cigarettes: 1 },
+          ],
+        },
+      ),
+    ).toEqual({
+      mode: 'track',
+      eyebrow: 'UNDERSTAND',
+      primary: '1 logged today',
+      secondary: '3 in the last 7 days',
+    });
+  });
+
   it('does not invent track-mode progress without smoking logs', () => {
     expect(buildReclaimWidgetSnapshot({ ...profile, journey_mode: 'track' })).toEqual({
       mode: 'track',
