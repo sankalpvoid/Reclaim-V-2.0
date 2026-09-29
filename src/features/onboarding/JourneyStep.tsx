@@ -38,6 +38,38 @@ const options: readonly {
   },
 ] as const;
 
+export function JourneyModePicker({ value, onSelect }: JourneyStepProps) {
+  return (
+    <View style={styles.options}>
+      {options.map((option) => {
+        const selected = option.mode === value;
+        return (
+          <Pressable
+            key={option.mode}
+            accessibilityRole="button"
+            accessibilityState={{ selected }}
+            onPress={() => onSelect(option.mode)}
+            style={({ pressed }) => [
+              styles.card,
+              selected && styles.cardSelected,
+              pressed && styles.cardPressed,
+            ]}
+          >
+            <View style={[styles.icon, selected && styles.iconSelected]}>
+              <AppText variant="title">{option.icon}</AppText>
+            </View>
+            <View style={styles.copy}>
+              <AppText variant="title">{option.title}</AppText>
+              <AppText tone="secondary">{option.body}</AppText>
+            </View>
+            <AppText tone="secondary">{selected ? '✓' : '›'}</AppText>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
 export function JourneyStep({ value, onSelect }: JourneyStepProps) {
   return (
     <View style={styles.container}>
@@ -48,33 +80,7 @@ export function JourneyStep({ value, onSelect }: JourneyStepProps) {
         body="Reclaim will shape the experience around where you are—not where you think you should be."
       />
 
-      <View style={styles.options}>
-        {options.map((option) => {
-          const selected = option.mode === value;
-          return (
-            <Pressable
-              key={option.mode}
-              accessibilityRole="button"
-              accessibilityState={{ selected }}
-              onPress={() => onSelect(option.mode)}
-              style={({ pressed }) => [
-                styles.card,
-                selected && styles.cardSelected,
-                pressed && styles.cardPressed,
-              ]}
-            >
-              <View style={[styles.icon, selected && styles.iconSelected]}>
-                <AppText variant="title">{option.icon}</AppText>
-              </View>
-              <View style={styles.copy}>
-                <AppText variant="title">{option.title}</AppText>
-                <AppText tone="secondary">{option.body}</AppText>
-              </View>
-              <AppText tone="secondary">{selected ? '✓' : '›'}</AppText>
-            </Pressable>
-          );
-        })}
-      </View>
+      <JourneyModePicker value={value} onSelect={onSelect} />
 
       <AppText variant="caption" tone="secondary" style={styles.note}>
         Every path is private. Every honest log counts as useful information.
