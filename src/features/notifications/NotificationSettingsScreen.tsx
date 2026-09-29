@@ -1,15 +1,20 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Linking, Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { router } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useAuth } from '@/features/auth/AuthContext';
+import { dailyCheckinClientId } from '@/features/checkins/checkinModel';
+import { checkinKeys, getCheckins } from '@/features/checkins/checkinService';
+import { cravingKeys, getCravingHistory } from '@/features/craving/cravingService';
 import { colors, radius, spacing } from '@/theme/tokens';
 import { AppText } from '@/ui/AppText';
 import { Button } from '@/ui/Button';
 import { Card } from '@/ui/Card';
 import { Screen } from '@/ui/Screen';
 import {
+  applyReminderSuggestion,
+  buildReminderSuggestion,
   formatReminderTime,
   hasAnyReminderEnabled,
   weekdayLabels,
@@ -46,7 +51,7 @@ const permissionLabels: Record<NotificationPermissionState, string> = {
 };
 
 export function NotificationSettingsScreen() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const queryClient = useQueryClient();
   const [draft, setDraft] = useState<NotificationPreferences | null>(null);
   const [permission, setPermission] = useState<NotificationPermissionState>('undetermined');
@@ -57,6 +62,18 @@ export function NotificationSettingsScreen() {
   const preferencesQuery = useQuery({
     queryKey: notificationKeys.preferences(userId),
     queryFn: () => getNotificationPreferences(userId),
+    enabled: Boolean(userId),
+  });
+
+  const checkinsQuery = useQuery({
+    queryKey: checkinKeys.history(userId),
+    queryFn: () => getCheckins(userId, 7),
+    enabled: Boolean(userId),
+  });
+
+  const cravingsQuery = useQuery({
+    queryKey: cravingKeys.history(userId),
+    queryFn: () => getCravingHistory(userId),
     enabled: Boolean(userId),
   });
 
@@ -73,6 +90,28 @@ export function NotificationSettingsScreen() {
       setPermission(result.permission);
     });
   }, [preferencesQuery.data]);
+
+  const todayCheckin = checkinsQuery.data?.find(
+    (checkin) => checkin.clientId === dailyCheckinClientId(),
+  );
+
+  const recentCravings = useMemo(() => {
+    const since = Date.now() - 3 * 86_400_000;
+    return (cravingsQuery.data ?? []).filter((craving) => {
+      const createdAt = new Date(craving.created_at).getTime();
+      return Number.isFinite(createdAt) && createdAt >= since;
+    }).length;
+  }, [cravingsQuery.data]);
+
+  const reminderSuggestion = useMemo(() => {
+    if (!draft || !profile) return null;
+    return buildReminderSuggestion({
+      preferences: draft,
+      journeyMode: profile.journey_mode,
+      checkedInToday: Boolean(todayCheckin),
+      recentCravings,
+    });
+  }, [draft, profile, recentCravings, todayCheckin]);
 
   const saveMutation = useMutation({
     mutationFn: async () => {
@@ -148,6 +187,24 @@ export function NotificationSettingsScreen() {
             <Button label="Open device settings" onPress={() => void Linking.openSettings()} />
           ) : null}
         </Card>
+
+        {draft && reminderSuggestion ? (
+          <Card style={styles.stack}>
+            <AppText variant="caption" tone="secondary">RECOMMENDED SETUP</AppText>
+            <AppText variant="title">{reminderSuggestion.title}</AppText>
+            <AppText tone="secondary">{reminderSuggestion.body}</AppText>
+            <AppText variant="caption" tone="secondary">Why: {reminderSuggestion.reason}</AppText>
+            <Button
+              label={reminderSuggestion.ctaLabel}
+              onPress={() => {
+                setDraft((current) =>
+                  current ? applyReminderSuggestion(current, reminderSuggestion) : current,
+                );
+                setStatusMessage('Recommendation applied. Save reminder settings to schedule it.');
+              }}
+            />
+          </Card>
+        ) : null}
 
         {preferencesQuery.isLoading || !draft ? (
           <Card><AppText tone="secondary">Loading reminder preferences…</AppText></Card>
