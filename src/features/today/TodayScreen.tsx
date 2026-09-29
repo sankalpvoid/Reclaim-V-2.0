@@ -317,7 +317,7 @@ export function TodayScreen() {
             </Card>
 
             <View style={styles.signalSection}>
-              <AppText variant="caption" tone="secondary">TODAY’S SIGNALS</AppText>
+              <AppText variant="caption" tone="secondary">TODAY AT A GLANCE</AppText>
               <View style={styles.statsGrid}>
                 <StatCard label="MOOD" value={personalized.moodLabel} />
                 <StatCard label="CRAVINGS LOGGED" value={String(personalized.cravingsToday)} />
@@ -338,7 +338,7 @@ export function TodayScreen() {
         )}
 
         <Card style={styles.exploreCard}>
-          <AppText variant="caption" tone="secondary">KEEP GOING</AppText>
+          <AppText variant="caption" tone="secondary">EXPLORE</AppText>
           <QuickAction
             label="Craving support"
             detail="Short tools when an urge hits"
@@ -467,7 +467,7 @@ const styles = StyleSheet.create({
   },
   focusCard: {
     gap: spacing.md,
-    paddingVertical: spacing.lg,
+    paddingVertical: spacing.sm,
   },
   signalSection: {
     gap: spacing.sm,
@@ -476,7 +476,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   quickAction: {
-    minHeight: 64,
+    minHeight: 56,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
