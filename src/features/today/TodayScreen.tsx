@@ -331,7 +331,15 @@ export function TodayScreen() {
               <AppText tone="secondary">{personalized.focus.body}</AppText>
               <Button
                 label={personalized.focus.ctaLabel}
-                onPress={() => router.push(personalized.focus.route)}
+                onPress={() => {
+                  void trackAnalyticsEvent({
+                    eventName: 'for_you_action',
+                    action: personalized.focus.kind,
+                    userId,
+                    journeyMode: profile.journey_mode,
+                  });
+                  router.push(personalized.focus.route);
+                }}
               />
             </Card>
 
