@@ -12,6 +12,7 @@ describe('analytics model', () => {
     expect(analyticsScreenFromPath('/insights')).toBe('insights');
     expect(analyticsScreenFromPath('/(app)/community')).toBe('community');
     expect(analyticsScreenFromPath('/notifications/')).toBe('notifications');
+    expect(analyticsScreenFromPath('/(app)/journey')).toBe('journey');
   });
 
   it('does not export unknown route text', () => {
