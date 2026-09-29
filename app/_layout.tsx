@@ -18,6 +18,7 @@ import {
   addReminderResponseListener,
   configureNotificationPresentation,
   getLastReminderResponse,
+  type ReminderResponse,
 } from '@/features/notifications/notificationService';
 
 Observe.configure({
@@ -115,10 +116,7 @@ function RootNavigator() {
     if (!canEnterApp) return;
 
     let active = true;
-    const handleReminder = (response: {
-      kind: 'daily-checkin' | 'weekly-reflection';
-      notificationId: string;
-    }) => {
+    const handleReminder = (response: ReminderResponse) => {
       if (!active || handledReminderIdsRef.current.has(response.notificationId)) return;
       handledReminderIdsRef.current.add(response.notificationId);
 
