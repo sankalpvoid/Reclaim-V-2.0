@@ -3,11 +3,11 @@ import { z } from 'zod';
 export const moodSchema = z.enum(['great', 'okay', 'struggling', 'craving']);
 export type Mood = z.infer<typeof moodSchema>;
 
-export const moodOptions: ReadonlyArray<{
+export const moodOptions: readonly {
   key: Mood;
   label: string;
   summary: string;
-}> = [
+}[] = [
   { key: 'great', label: 'I’m feeling great', summary: 'Things feel steady today.' },
   { key: 'okay', label: 'I’m okay', summary: 'Getting through the day.' },
   { key: 'struggling', label: 'I’m struggling', summary: 'Today feels harder than usual.' },
@@ -76,7 +76,7 @@ export function buildMoodHistory(
   }
 
   const loggedDays = series.filter((day) => day.mood !== null).length;
-  const mostCommonMood = (Object.entries(counts) as Array<[Mood, number]>)
+  const mostCommonMood = (Object.entries(counts) as [Mood, number][])
     .sort((a, b) => b[1] - a[1])
     .find(([, count]) => count > 0)?.[0] ?? null;
 
