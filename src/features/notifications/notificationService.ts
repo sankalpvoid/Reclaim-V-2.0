@@ -7,7 +7,9 @@ import {
   defaultNotificationPreferences,
   hasAnyReminderEnabled,
   notificationPreferencesSchema,
+  parseReminderKind,
   type NotificationPreferences,
+  type ReminderKind,
 } from './notificationModel';
 
 const notificationPreferenceRowSchema = z.object({
@@ -22,7 +24,11 @@ const notificationPreferenceRowSchema = z.object({
 });
 
 export type NotificationPermissionState = 'granted' | 'denied' | 'undetermined' | 'unsupported';
-export type ReminderKind = 'daily-checkin' | 'weekly-reflection';
+
+export type ReminderResponse = {
+  kind: ReminderKind;
+  notificationId: string;
+};
 
 export const notificationKeys = {
   preferences: (userId: string) => ['notifications', 'preferences', userId] as const,
@@ -213,12 +219,33 @@ export async function scheduleTestNotification(): Promise<NotificationPermission
   return permission;
 }
 
+function mapReminderResponse(
+  response: Notifications.NotificationResponse | null,
+): ReminderResponse | null {
+  if (!response) return null;
+  const kind = parseReminderKind(
+    response.notification.request.content.data?.reclaimReminder,
+  );
+  if (!kind) return null;
+
+  return {
+    kind,
+    notificationId: response.notification.request.identifier,
+  };
+}
+
+export async function getLastReminderResponse(): Promise<ReminderResponse | null> {
+  if (Platform.OS === 'web') return null;
+  const response = await Notifications.getLastNotificationResponseAsync();
+  return mapReminderResponse(response);
+}
+
 export function addReminderResponseListener(
-  listener: (kind: ReminderKind) => void,
+  listener: (response: ReminderResponse) => void,
 ): Notifications.EventSubscription | null {
   if (Platform.OS === 'web') return null;
   return Notifications.addNotificationResponseReceivedListener((response) => {
-    const kind = response.notification.request.content.data?.reclaimReminder;
-    if (kind === 'daily-checkin' || kind === 'weekly-reflection') listener(kind);
+    const mapped = mapReminderResponse(response);
+    if (mapped) listener(mapped);
   });
 }
