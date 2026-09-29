@@ -26,6 +26,7 @@ import { colors, radius, spacing } from '@/theme/tokens';
 import { AppText } from '@/ui/AppText';
 import { Button } from '@/ui/Button';
 import { Card } from '@/ui/Card';
+import { ErrorCard } from '@/ui/ErrorCard';
 import { Screen } from '@/ui/Screen';
 
 const journeyLabels = {
@@ -207,6 +208,24 @@ export function TodayScreen() {
     cravingsQuery.error ??
     goalsQuery.error ??
     logMutation.error;
+  const retryingTodayData =
+    smokingEventsQuery.isFetching ||
+    reductionPlanQuery.isFetching ||
+    checkinsQuery.isFetching ||
+    cravingsQuery.isFetching ||
+    goalsQuery.isFetching;
+
+  function retryTodayData() {
+    logMutation.reset();
+    const retries: Promise<unknown>[] = [
+      checkinsQuery.refetch(),
+      cravingsQuery.refetch(),
+    ];
+    if (needsSmokingData) retries.push(smokingEventsQuery.refetch());
+    if (mode === 'reduce') retries.push(reductionPlanQuery.refetch());
+    if (mode === 'quit') retries.push(goalsQuery.refetch());
+    void Promise.all(retries);
+  }
 
   return (
     <Screen>
@@ -393,11 +412,11 @@ export function TodayScreen() {
         </Card>
 
         {dataError ? (
-          <Card style={styles.errorCard}>
-            <AppText tone="danger">
-              {dataError instanceof Error ? dataError.message : 'Could not refresh Today.'}
-            </AppText>
-          </Card>
+          <ErrorCard
+            message={dataError instanceof Error ? dataError.message : 'Could not refresh Today.'}
+            isRetrying={retryingTodayData}
+            onRetry={retryTodayData}
+          />
         ) : null}
 
       </ScrollView>
@@ -520,8 +539,5 @@ const styles = StyleSheet.create({
   quickActionCopy: {
     flex: 1,
     gap: spacing.xs,
-  },
-  errorCard: {
-    borderColor: colors.danger,
   },
 });

@@ -6,10 +6,11 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth/AuthContext';
 import { buildInsights } from '@/features/insights/insightsModel';
 import { getInsightSourceData, insightKeys } from '@/features/insights/insightsService';
-import { colors, spacing } from '@/theme/tokens';
+import { spacing } from '@/theme/tokens';
 import { AppText } from '@/ui/AppText';
 import { Button } from '@/ui/Button';
 import { Card } from '@/ui/Card';
+import { ErrorCard } from '@/ui/ErrorCard';
 import { Screen } from '@/ui/Screen';
 
 export function InsightsScreen() {
@@ -40,11 +41,11 @@ export function InsightsScreen() {
         {sourceQuery.isLoading ? (
           <Card><AppText tone="secondary">Looking for useful patterns…</AppText></Card>
         ) : sourceQuery.error ? (
-          <Card style={styles.errorCard}>
-            <AppText tone="danger">
-              {sourceQuery.error instanceof Error ? sourceQuery.error.message : 'Could not load insights.'}
-            </AppText>
-          </Card>
+          <ErrorCard
+            message={sourceQuery.error instanceof Error ? sourceQuery.error.message : 'Could not load insights.'}
+            isRetrying={sourceQuery.isFetching}
+            onRetry={() => void sourceQuery.refetch()}
+          />
         ) : insights.length === 0 ? (
           <Card style={styles.emptyCard}>
             <AppText variant="title">Still learning your pattern.</AppText>
@@ -128,8 +129,5 @@ const styles = StyleSheet.create({
   },
   methodCard: {
     gap: spacing.sm,
-  },
-  errorCard: {
-    borderColor: colors.danger,
   },
 });
