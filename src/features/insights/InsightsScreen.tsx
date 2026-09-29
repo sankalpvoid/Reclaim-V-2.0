@@ -92,7 +92,7 @@ export function InsightsScreen() {
         <Card style={styles.methodCard}>
           <AppText variant="caption" tone="secondary">HOW THIS WORKS</AppText>
           <AppText tone="secondary">
-            Reclaim insights are deterministic and explainable. They are calculated from your recent Reclaim data; no language model is deciding what happened or inventing missing context.
+            Patterns are calculated only from your recent Reclaim logs. When the evidence is too thin, Reclaim stays quiet instead of filling in the gaps.
           </AppText>
         </Card>
       </ScrollView>
