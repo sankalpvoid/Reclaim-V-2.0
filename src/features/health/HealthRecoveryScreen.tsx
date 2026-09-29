@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
@@ -58,10 +58,10 @@ export function HealthRecoveryScreen() {
     return () => clearInterval(timer);
   }, []);
 
-  const recovery = useMemo(() => {
-    if (!profile?.quit_date || profile.journey_mode !== 'quit' || !milestonesQuery.data) return null;
-    return buildHealthRecovery(profile.quit_date, milestonesQuery.data, now);
-  }, [milestonesQuery.data, now, profile?.journey_mode, profile?.quit_date]);
+  const recovery =
+    profile?.quit_date && profile.journey_mode === 'quit' && milestonesQuery.data
+      ? buildHealthRecovery(profile.quit_date, milestonesQuery.data, now)
+      : null;
 
   return (
     <Screen>
