@@ -40,22 +40,26 @@ export function MoreScreen() {
           <AppText variant="caption" tone="secondary">MORE</AppText>
           <AppText variant="display">Your Reclaim setup.</AppText>
           <AppText tone="secondary">
-            Goals, reminders, and account controls live here so Today can stay focused on the day itself.
+            {profile?.journey_mode === 'quit'
+              ? 'Goals, reminders, and account controls live here so Today can stay focused on the day itself.'
+              : 'Reminders and account controls live here so Today can stay focused on the day itself.'}
           </AppText>
         </View>
 
-        <Card style={styles.card}>
-          <AppText variant="caption" tone="secondary">GOALS</AppText>
-          <AppText variant="title">What are you reclaiming for?</AppText>
-          <AppText tone="secondary">
-            Turn money reclaimed from smoking into visible targets without spending or resetting progress.
-          </AppText>
-          <Button
-            label="Open goals"
-            accessibilityHint="Opens your savings goals"
-            onPress={() => router.push('/(app)/goals')}
-          />
-        </Card>
+        {profile?.journey_mode === 'quit' ? (
+          <Card style={styles.card}>
+            <AppText variant="caption" tone="secondary">GOALS</AppText>
+            <AppText variant="title">What are you reclaiming for?</AppText>
+            <AppText tone="secondary">
+              Turn money reclaimed from smoking into visible targets without spending or resetting progress.
+            </AppText>
+            <Button
+              label="Open goals"
+              accessibilityHint="Opens your savings goals"
+              onPress={() => router.push('/(app)/goals')}
+            />
+          </Card>
+        ) : null}
 
         <Card style={styles.card}>
           <AppText variant="caption" tone="secondary">REMINDERS</AppText>
