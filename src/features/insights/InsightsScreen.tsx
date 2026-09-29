@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
+import { router } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 
 import { useAuth } from '@/features/auth/AuthContext';
@@ -7,6 +8,7 @@ import { buildInsights } from '@/features/insights/insightsModel';
 import { getInsightSourceData, insightKeys } from '@/features/insights/insightsService';
 import { colors, spacing } from '@/theme/tokens';
 import { AppText } from '@/ui/AppText';
+import { Button } from '@/ui/Button';
 import { Card } from '@/ui/Card';
 import { Screen } from '@/ui/Screen';
 
@@ -52,6 +54,10 @@ export function InsightsScreen() {
             <AppText variant="caption" tone="secondary">
               {sourceQuery.data?.events.length ?? 0} recent smoking/craving events · {sourceQuery.data?.checkins.length ?? 0} recent check-ins
             </AppText>
+            <View style={styles.emptyActions}>
+              <Button label="Log a check-in" onPress={() => router.push('/(app)/check-in')} />
+              <Button label="Open craving support" onPress={() => router.push('/(app)/craving')} />
+            </View>
           </Card>
         ) : (
           <View style={styles.list}>
@@ -65,6 +71,10 @@ export function InsightsScreen() {
                 </View>
                 <AppText tone="secondary">{insight.body}</AppText>
                 <AppText variant="caption" tone="secondary">Based on: {insight.evidence}</AppText>
+                <Button
+                  label={insight.action.label}
+                  onPress={() => router.push(insight.action.route)}
+                />
               </Card>
             ))}
           </View>
@@ -102,6 +112,9 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   emptyCard: {
+    gap: spacing.md,
+  },
+  emptyActions: {
     gap: spacing.sm,
   },
   methodCard: {
