@@ -329,7 +329,9 @@ export function NotificationSettingsScreen() {
           </>
         )}
 
-        {statusMessage ? <AppText tone="secondary">{statusMessage}</AppText> : null}
+        {statusMessage ? (
+          <AppText accessibilityLiveRegion="polite" tone="secondary">{statusMessage}</AppText>
+        ) : null}
         {error ? (
           <ErrorCard
             message={error instanceof Error ? error.message : 'Reminder settings could not be updated.'}
