@@ -21,7 +21,7 @@ describe('buildProgressMoment', () => {
   it('falls back to avoided cigarettes when no day milestone is reached', () => {
     const moment = buildProgressMoment({
       elapsedDays: 0.5,
-      cigarettesAvoided: 55,
+      cigarettesAvoided: 51,
       moneyReclaimed: 825,
       minutesReclaimed: 605,
       currencySymbol: '₹',
@@ -37,7 +37,7 @@ describe('buildProgressMoment', () => {
     const moment = buildProgressMoment({
       elapsedDays: 0.2,
       cigarettesAvoided: 5,
-      moneyReclaimed: 1_100,
+      moneyReclaimed: 1_020,
       minutesReclaimed: 55,
       currencySymbol: '₹',
     });
@@ -46,6 +46,18 @@ describe('buildProgressMoment', () => {
       id: 'money-1000',
       title: '₹1,000 reclaimed',
     });
+  });
+
+  it('stops surfacing a milestone after its short celebration window', () => {
+    expect(
+      buildProgressMoment({
+        elapsedDays: 10,
+        cigarettesAvoided: 80,
+        moneyReclaimed: 1_400,
+        minutesReclaimed: 800,
+        currencySymbol: '₹',
+      }),
+    ).toBeNull();
   });
 
   it('returns null when there is not enough progress for a moment yet', () => {

@@ -37,12 +37,21 @@ function formatMinutes(minutes: number): string {
   return `${safe}m`;
 }
 
-function highestReached(value: number, thresholds: readonly number[]): number | null {
-  return thresholds.find((threshold) => value >= threshold) ?? null;
+function recentlyReached(
+  value: number,
+  thresholds: readonly number[],
+  windowForThreshold: (threshold: number) => number,
+): number | null {
+  return (
+    thresholds.find((threshold) => {
+      const window = Math.max(0, windowForThreshold(threshold));
+      return value >= threshold && value < threshold + window;
+    }) ?? null
+  );
 }
 
 export function buildProgressMoment(input: ProgressMomentInput): ProgressMoment | null {
-  const dayMilestone = highestReached(input.elapsedDays, dayMilestones);
+  const dayMilestone = recentlyReached(input.elapsedDays, dayMilestones, () => 1);
   if (dayMilestone !== null) {
     return {
       id: `days-${dayMilestone}`,
@@ -53,7 +62,11 @@ export function buildProgressMoment(input: ProgressMomentInput): ProgressMoment 
     };
   }
 
-  const cigarettesMilestone = highestReached(input.cigarettesAvoided, cigaretteMilestones);
+  const cigarettesMilestone = recentlyReached(
+    input.cigarettesAvoided,
+    cigaretteMilestones,
+    (threshold) => Math.max(2, threshold * 0.05),
+  );
   if (cigarettesMilestone !== null) {
     return {
       id: `cigarettes-${cigarettesMilestone}`,
@@ -64,7 +77,11 @@ export function buildProgressMoment(input: ProgressMomentInput): ProgressMoment 
     };
   }
 
-  const moneyMilestone = highestReached(input.moneyReclaimed, moneyMilestones);
+  const moneyMilestone = recentlyReached(
+    input.moneyReclaimed,
+    moneyMilestones,
+    (threshold) => Math.max(50, threshold * 0.05),
+  );
   if (moneyMilestone !== null) {
     return {
       id: `money-${moneyMilestone}`,
@@ -75,7 +92,7 @@ export function buildProgressMoment(input: ProgressMomentInput): ProgressMoment 
     };
   }
 
-  const timeMilestone = highestReached(input.minutesReclaimed, timeMilestones);
+  const timeMilestone = recentlyReached(input.minutesReclaimed, timeMilestones, () => 60);
   if (timeMilestone !== null) {
     return {
       id: `time-${timeMilestone}`,
