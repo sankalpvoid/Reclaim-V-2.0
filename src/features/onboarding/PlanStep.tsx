@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { CountrySelect } from '@/features/onboarding/CountrySelect';
@@ -72,7 +72,6 @@ export function PlanStep({
   const {
     control,
     handleSubmit,
-    watch,
     formState: { isSubmitting },
   } = useForm<PlanFormValues>({
     defaultValues: {
@@ -84,7 +83,7 @@ export function PlanStep({
     },
   });
 
-  const cigarettesPerDay = watch('cigarettesPerDay');
+  const cigarettesPerDay = useWatch({ control, name: 'cigarettesPerDay' });
   const targetPreview = useMemo(() => {
     if (mode !== 'reduce') return null;
     const value = Number(cigarettesPerDay);

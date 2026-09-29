@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import DateTimePicker from '@expo/ui/community/datetime-picker';
+import ExpoDateTimePicker from '@expo/ui/community/datetime-picker';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { colors, radius, spacing } from '@/theme/tokens';
@@ -26,7 +26,7 @@ export function QuitDatePicker({ value, onChange, disabled = false }: QuitDatePi
       <View style={styles.field}>
         <AppText variant="caption">Your quit date and time</AppText>
         <View style={styles.iosPicker}>
-          <DateTimePicker
+          <ExpoDateTimePicker
             value={value}
             disabled={disabled}
             display="compact"
@@ -56,7 +56,7 @@ export function QuitDatePicker({ value, onChange, disabled = false }: QuitDatePi
         <AppText tone="secondary">›</AppText>
       </Pressable>
       {showAndroidPicker ? (
-        <DateTimePicker
+        <ExpoDateTimePicker
           value={value}
           maximumDate={new Date()}
           mode="datetime"

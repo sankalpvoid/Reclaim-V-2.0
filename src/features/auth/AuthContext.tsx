@@ -1,5 +1,5 @@
 import type { PropsWithChildren } from 'react';
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AppState, Platform } from 'react-native';
@@ -97,29 +97,18 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   const isReady = isInitialized && (!user || !profileQuery.isPending);
 
-  const value = useMemo<AuthContextValue>(
-    () => ({
-      session,
-      user,
-      profile: user ? (profileQuery.data ?? null) : null,
-      isAuthenticated: Boolean(user),
-      isReady,
-      authError,
-      profileError: profileQuery.error ?? null,
-      refreshProfile: async () => {
-        await profileQuery.refetch();
-      },
-    }),
-    [
-      authError,
-      isReady,
-      profileQuery.data,
-      profileQuery.error,
-      profileQuery.refetch,
-      session,
-      user,
-    ],
-  );
+  const value: AuthContextValue = {
+    session,
+    user,
+    profile: user ? (profileQuery.data ?? null) : null,
+    isAuthenticated: Boolean(user),
+    isReady,
+    authError,
+    profileError: profileQuery.error ?? null,
+    refreshProfile: async () => {
+      await profileQuery.refetch();
+    },
+  };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
