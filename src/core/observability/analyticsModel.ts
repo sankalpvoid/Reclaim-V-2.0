@@ -13,6 +13,7 @@ export const analyticsScreenSchema = z.enum([
   'craving',
   'goals',
   'health',
+  'journey',
   'notifications',
 ]);
 export type AnalyticsScreen = z.infer<typeof analyticsScreenSchema>;
@@ -33,6 +34,7 @@ const screenByLeaf: Record<string, AnalyticsScreen> = {
   craving: 'craving',
   goals: 'goals',
   health: 'health',
+  journey: 'journey',
   notifications: 'notifications',
 };
 
