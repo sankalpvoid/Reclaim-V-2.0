@@ -1,12 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import type { SmokingEvent } from '@/domain/smoking/smokingEvents';
 import { trackAnalyticsEvent } from '@/core/observability/analyticsService';
 import { useAuth } from '@/features/auth/AuthContext';
+import { checkinKeys, getCheckins } from '@/features/checkins/checkinService';
+import { cravingKeys, getCravingHistory } from '@/features/craving/cravingService';
+import { getSavingsGoals, goalKeys } from '@/features/goals/goalService';
 import {
+  buildPersonalizedToday,
   buildQuitTodaySummary,
   buildSmokingTodaySummary,
   formatMoney,
@@ -35,6 +39,26 @@ function StatCard({ label, value }: { label: string; value: string }) {
       <AppText variant="caption" tone="secondary">{label}</AppText>
       <AppText variant="title">{value}</AppText>
     </View>
+  );
+}
+
+function QuickAction({
+  label,
+  detail,
+  onPress,
+}: {
+  label: string;
+  detail: string;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable accessibilityRole="button" onPress={onPress} style={styles.quickAction}>
+      <View style={styles.quickActionCopy}>
+        <AppText variant="title">{label}</AppText>
+        <AppText variant="caption" tone="secondary">{detail}</AppText>
+      </View>
+      <AppText variant="title" tone="secondary">›</AppText>
+    </Pressable>
   );
 }
 
@@ -95,6 +119,24 @@ export function TodayScreen() {
     enabled: Boolean(userId) && mode === 'reduce',
   });
 
+  const checkinsQuery = useQuery({
+    queryKey: checkinKeys.history(userId),
+    queryFn: () => getCheckins(userId),
+    enabled: Boolean(userId),
+  });
+
+  const cravingsQuery = useQuery({
+    queryKey: cravingKeys.history(userId),
+    queryFn: () => getCravingHistory(userId),
+    enabled: Boolean(userId),
+  });
+
+  const goalsQuery = useQuery({
+    queryKey: goalKeys.list(userId),
+    queryFn: () => getSavingsGoals(userId),
+    enabled: Boolean(userId) && mode === 'quit',
+  });
+
   const smokingEvents = useMemo<SmokingEvent[]>(
     () =>
       (smokingEventsQuery.data ?? []).map((row) => ({
@@ -137,7 +179,24 @@ export function TodayScreen() {
       : null;
   const smokingSummary =
     mode === 'quit' ? null : buildSmokingTodaySummary(profile, smokingEvents, target, now);
-  const dataError = smokingEventsQuery.error ?? reductionPlanQuery.error ?? logMutation.error;
+  const personalized = buildPersonalizedToday({
+    mode,
+    checkins: checkinsQuery.data ?? [],
+    cravings: cravingsQuery.data ?? [],
+    goals: goalsQuery.data ?? [],
+    moneyReclaimed: quitSummary?.moneyReclaimed ?? 0,
+    currencySymbol: profile.currency_symbol,
+    now,
+  });
+  const personalizationLoading =
+    checkinsQuery.isLoading || cravingsQuery.isLoading || (mode === 'quit' && goalsQuery.isLoading);
+  const dataError =
+    smokingEventsQuery.error ??
+    reductionPlanQuery.error ??
+    checkinsQuery.error ??
+    cravingsQuery.error ??
+    goalsQuery.error ??
+    logMutation.error;
 
   return (
     <Screen>
@@ -237,31 +296,71 @@ export function TodayScreen() {
           </>
         ) : null}
 
-        <Card style={styles.supportCard}>
-          <AppText variant="caption" tone="secondary">HEALTH RECOVERY</AppText>
-          <AppText variant="title">Recovery milestones</AppText>
-          <AppText tone="secondary">
-            View the source-backed recovery timeline calculated from your quit date.
-          </AppText>
-          <Button label="View milestones" onPress={() => router.push('/(app)/health')} />
-        </Card>
+        {personalizationLoading ? (
+          <Card style={styles.focusCard}>
+            <AppText variant="caption" tone="secondary">FOR YOU NOW</AppText>
+            <AppText variant="title">Reading today’s context…</AppText>
+            <AppText tone="secondary">
+              Reclaim is checking today’s mood, cravings, and active goals before choosing what to surface.
+            </AppText>
+          </Card>
+        ) : (
+          <>
+            <Card style={styles.focusCard}>
+              <AppText variant="caption" tone="secondary">{personalized.focus.eyebrow}</AppText>
+              <AppText variant="title">{personalized.focus.title}</AppText>
+              <AppText tone="secondary">{personalized.focus.body}</AppText>
+              <Button
+                label={personalized.focus.ctaLabel}
+                onPress={() => router.push(personalized.focus.route)}
+              />
+            </Card>
 
-        <Card style={styles.supportCard}>
-          <AppText variant="caption" tone="secondary">DAILY CHECK-IN</AppText>
-          <AppText variant="title">How are you today?</AppText>
-          <AppText tone="secondary">
-            Track how the day feels and build a mood history Reclaim can use for later insights.
-          </AppText>
-          <Button label="Check in" onPress={() => router.push('/(app)/check-in')} />
-        </Card>
+            <View style={styles.signalSection}>
+              <AppText variant="caption" tone="secondary">TODAY’S SIGNALS</AppText>
+              <View style={styles.statsGrid}>
+                <StatCard label="MOOD" value={personalized.moodLabel} />
+                <StatCard label="CRAVINGS LOGGED" value={String(personalized.cravingsToday)} />
+                {personalized.goalSignal ? (
+                  <StatCard
+                    label="NEXT SAVINGS GOAL"
+                    value={`${Math.round(personalized.goalSignal.progressPercent)}%`}
+                  />
+                ) : null}
+              </View>
+              {personalized.cravingsToday > 0 ? (
+                <AppText variant="caption" tone="secondary">
+                  {personalized.resistedToday} of today’s logged cravings were recorded as resisted.
+                </AppText>
+              ) : null}
+            </View>
+          </>
+        )}
 
-        <Card style={styles.supportCard}>
-          <AppText variant="caption" tone="secondary">CRAVING SUPPORT</AppText>
-          <AppText variant="title">Need help with an urge?</AppText>
-          <AppText tone="secondary">
-            Open a short support tool, or simply log the craving without judgment.
-          </AppText>
-          <Button label="Get craving support" onPress={() => router.push('/(app)/craving')} />
+        <Card style={styles.exploreCard}>
+          <AppText variant="caption" tone="secondary">KEEP GOING</AppText>
+          <QuickAction
+            label="Craving support"
+            detail="Short tools when an urge hits"
+            onPress={() => router.push('/(app)/craving')}
+          />
+          <QuickAction
+            label="Health recovery"
+            detail="Source-backed milestones from your quit date"
+            onPress={() => router.push('/(app)/health')}
+          />
+          <QuickAction
+            label="Insights"
+            detail="Patterns only when your logs support them"
+            onPress={() => router.push('/(app)/insights')}
+          />
+          {mode === 'quit' ? (
+            <QuickAction
+              label="Savings goals"
+              detail="Turn reclaimed money into visible targets"
+              onPress={() => router.push('/(app)/goals')}
+            />
+          ) : null}
         </Card>
 
         {dataError ? (
@@ -366,8 +465,29 @@ const styles = StyleSheet.create({
   barUnknown: {
     backgroundColor: colors.border,
   },
-  supportCard: {
+  focusCard: {
+    gap: spacing.md,
+    paddingVertical: spacing.lg,
+  },
+  signalSection: {
     gap: spacing.sm,
+  },
+  exploreCard: {
+    gap: spacing.sm,
+  },
+  quickAction: {
+    minHeight: 64,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.md,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.border,
+    paddingVertical: spacing.md,
+  },
+  quickActionCopy: {
+    flex: 1,
+    gap: spacing.xs,
   },
   errorCard: {
     borderColor: colors.danger,

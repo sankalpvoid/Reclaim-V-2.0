@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import type { Profile } from '../profile/profile';
 import {
+  buildPersonalizedToday,
   buildQuitTodaySummary,
   buildSmokingTodaySummary,
   formatAvoidedCigarettes,
@@ -47,6 +48,90 @@ describe('Today model', () => {
     expect(summary?.avoidedLabel).toBe('20');
     expect(summary?.moneyLabel).toBe('₹300');
     expect(summary?.timeLabel).toBe('3h 40m');
+  });
+
+  it('prioritizes a daily check-in when Today has no context yet', () => {
+    const summary = buildPersonalizedToday({
+      mode: 'quit',
+      checkins: [],
+      cravings: [],
+      goals: [],
+      moneyReclaimed: 300,
+      currencySymbol: '₹',
+      now: new Date(2026, 8, 15, 12, 0, 0),
+    });
+
+    expect(summary.focus.kind).toBe('checkin');
+    expect(summary.moodLabel).toBe('Not checked in');
+    expect(summary.cravingsToday).toBe(0);
+  });
+
+  it('prioritizes support after a recent craving', () => {
+    const now = new Date(2026, 8, 15, 12, 0, 0);
+    const summary = buildPersonalizedToday({
+      mode: 'quit',
+      checkins: [
+        {
+          id: 'checkin-1',
+          clientId: '00000000-0000-4000-8000-202609150000',
+          mood: 'okay',
+          note: null,
+          createdAt: now.toISOString(),
+        },
+      ],
+      cravings: [
+        {
+          id: 'craving-1',
+          resisted: true,
+          toolkit: 'water',
+          tool_feedback: 'yes',
+          duration_seconds: 60,
+          created_at: new Date(now.getTime() - 30 * 60_000).toISOString(),
+        },
+      ],
+      goals: [],
+      moneyReclaimed: 300,
+      currencySymbol: '₹',
+      now,
+    });
+
+    expect(summary.focus.kind).toBe('support');
+    expect(summary.cravingsToday).toBe(1);
+    expect(summary.resistedToday).toBe(1);
+  });
+
+  it('surfaces the next savings goal after the user has checked in', () => {
+    const now = new Date(2026, 8, 15, 12, 0, 0);
+    const summary = buildPersonalizedToday({
+      mode: 'quit',
+      checkins: [
+        {
+          id: 'checkin-1',
+          clientId: '00000000-0000-4000-8000-202609150000',
+          mood: 'great',
+          note: null,
+          createdAt: now.toISOString(),
+        },
+      ],
+      cravings: [],
+      goals: [
+        {
+          id: '00000000-0000-4000-8000-000000000010',
+          user_id: profile.id,
+          name: 'Headphones',
+          target_amount: 1000,
+          current_amount: 0,
+          achieved: false,
+          created_at: now.toISOString(),
+        },
+      ],
+      moneyReclaimed: 300,
+      currencySymbol: '₹',
+      now,
+    });
+
+    expect(summary.focus.kind).toBe('goal');
+    expect(summary.goalSignal?.progressPercent).toBe(30);
   });
 
   it('builds reduce-mode target progress from actual logs', () => {
