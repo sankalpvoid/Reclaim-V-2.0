@@ -90,18 +90,55 @@ Deno.serve(async (req: Request) => {
     },
   });
 
-  // Product analytics is not retained after account deletion. Other
+  // Product analytics is not retained after account deletion. Capture the
+  // installation IDs that have been associated with this account so earlier
+  // anonymous events from the same installation can be removed too. Other
   // user-owned Reclaim rows are removed by ON DELETE CASCADE constraints.
-  const { error: analyticsError } = await admin
+  const { data: linkedAnalytics, error: analyticsLookupError } = await admin
     .from('analytics_events')
-    .delete()
-    .eq('user_id', user.id);
+    .select('anonymous_id')
+    .eq('user_id', user.id)
+    .not('anonymous_id', 'is', null);
 
-  if (analyticsError) {
+  if (analyticsLookupError) {
     return Response.json(
       { error: 'Account deletion could not be completed.' },
       { status: 500, headers: corsHeaders },
     );
+  }
+
+  const anonymousIds = [
+    ...new Set(
+      (linkedAnalytics ?? [])
+        .map((row) => row.anonymous_id)
+        .filter((value): value is string => typeof value === 'string' && value.length > 0),
+    ),
+  ];
+
+  const { error: accountAnalyticsError } = await admin
+    .from('analytics_events')
+    .delete()
+    .eq('user_id', user.id);
+
+  if (accountAnalyticsError) {
+    return Response.json(
+      { error: 'Account deletion could not be completed.' },
+      { status: 500, headers: corsHeaders },
+    );
+  }
+
+  if (anonymousIds.length > 0) {
+    const { error: anonymousAnalyticsError } = await admin
+      .from('analytics_events')
+      .delete()
+      .in('anonymous_id', anonymousIds);
+
+    if (anonymousAnalyticsError) {
+      return Response.json(
+        { error: 'Account deletion could not be completed.' },
+        { status: 500, headers: corsHeaders },
+      );
+    }
   }
 
   const { error: deleteError } = await admin.auth.admin.deleteUser(user.id);
