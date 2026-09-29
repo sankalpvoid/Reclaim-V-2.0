@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import type { SmokingEvent } from '@/domain/smoking/smokingEvents';
 import { trackAnalyticsEvent } from '@/core/observability/analyticsService';
+import { buildProgressMoment } from '@/features/achievements/achievementModel';
 import { useAuth } from '@/features/auth/AuthContext';
 import { checkinKeys, getCheckins } from '@/features/checkins/checkinService';
 import { cravingKeys, getCravingHistory } from '@/features/craving/cravingService';
@@ -173,6 +174,15 @@ export function TodayScreen() {
   }
 
   const quitSummary = mode === 'quit' ? buildQuitTodaySummary(profile, now) : null;
+  const progressMoment = quitSummary
+    ? buildProgressMoment({
+        elapsedDays: quitSummary.elapsedDays,
+        cigarettesAvoided: quitSummary.cigarettesAvoided,
+        moneyReclaimed: quitSummary.moneyReclaimed,
+        minutesReclaimed: quitSummary.minutesReclaimed,
+        currencySymbol: profile.currency_symbol,
+      })
+    : null;
   const target =
     mode === 'reduce'
       ? reductionPlanQuery.data?.current_target ?? profile.daily_target ?? null
@@ -230,6 +240,15 @@ export function TodayScreen() {
               <StatCard label="MONEY RECLAIMED" value={quitSummary.moneyLabel} />
               <StatCard label="TIME RECLAIMED" value={quitSummary.timeLabel} />
             </View>
+
+            {progressMoment ? (
+              <Card style={styles.momentCard}>
+                <AppText variant="caption" tone="secondary">{progressMoment.eyebrow}</AppText>
+                <AppText variant="title">{progressMoment.title}</AppText>
+                <AppText tone="secondary">{progressMoment.body}</AppText>
+                <AppText variant="caption" tone="secondary">{progressMoment.detail}</AppText>
+              </Card>
+            ) : null}
           </>
         ) : null}
 
@@ -466,6 +485,9 @@ const styles = StyleSheet.create({
   },
   barUnknown: {
     backgroundColor: colors.border,
+  },
+  momentCard: {
+    gap: spacing.sm,
   },
   focusCard: {
     gap: spacing.md,
