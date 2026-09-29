@@ -11,6 +11,7 @@ import { colors, radius, spacing } from '@/theme/tokens';
 import { AppText } from '@/ui/AppText';
 import { Button } from '@/ui/Button';
 import { Card } from '@/ui/Card';
+import { ErrorCard } from '@/ui/ErrorCard';
 import { Screen } from '@/ui/Screen';
 import {
   applyReminderSuggestion,
@@ -161,7 +162,7 @@ export function NotificationSettingsScreen() {
     );
   }
 
-  const error = preferencesQuery.error ?? saveMutation.error ?? testMutation.error;
+  const error = preferencesQuery.error ?? checkinsQuery.error ?? cravingsQuery.error ?? saveMutation.error ?? testMutation.error;
 
   return (
     <Screen>
@@ -330,9 +331,21 @@ export function NotificationSettingsScreen() {
 
         {statusMessage ? <AppText tone="secondary">{statusMessage}</AppText> : null}
         {error ? (
-          <Card style={styles.errorCard}>
-            <AppText tone="danger">{error instanceof Error ? error.message : 'Reminder settings could not be updated.'}</AppText>
-          </Card>
+          <ErrorCard
+            message={error instanceof Error ? error.message : 'Reminder settings could not be updated.'}
+            isRetrying={
+              preferencesQuery.isFetching || checkinsQuery.isFetching || cravingsQuery.isFetching
+            }
+            onRetry={() => {
+              saveMutation.reset();
+              testMutation.reset();
+              void Promise.all([
+                preferencesQuery.refetch(),
+                checkinsQuery.refetch(),
+                cravingsQuery.refetch(),
+              ]);
+            }}
+          />
         ) : null}
 
       </ScrollView>
@@ -401,8 +414,5 @@ const styles = StyleSheet.create({
   },
   choiceSelected: {
     borderColor: colors.textPrimary,
-  },
-  errorCard: {
-    borderColor: colors.danger,
   },
 });
