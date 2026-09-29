@@ -69,10 +69,11 @@ export function CommunityScreen() {
     [profile?.quit_date],
   );
 
+  const journeyMode = profile?.journey_mode ?? 'quit';
   const snapshotQuery = useQuery({
-    queryKey: communityKeys.snapshot(userId, smokeFreeDays),
-    queryFn: () => getCommunitySnapshot(userId, smokeFreeDays),
-    enabled: Boolean(userId) && profile?.journey_mode === 'quit',
+    queryKey: communityKeys.snapshot(userId, journeyMode, smokeFreeDays),
+    queryFn: () => getCommunitySnapshot(userId, journeyMode, smokeFreeDays),
+    enabled: Boolean(userId) && Boolean(profile),
   });
 
   async function refresh() {
@@ -188,22 +189,6 @@ export function CommunityScreen() {
     );
   }
 
-  if (profile.journey_mode !== 'quit') {
-    return (
-      <Screen>
-        <ScrollView contentContainerStyle={styles.content}>
-          <Card style={styles.stack}>
-            <AppText variant="caption" tone="secondary">COMMUNITY CIRCLES</AppText>
-            <AppText variant="title">Stage circles currently follow smoke-free time.</AppText>
-            <AppText tone="secondary">
-              Reclaim will not guess a quit stage for Reduce or Track journeys. Community support for those paths will get its own honest grouping later.
-            </AppText>
-          </Card>
-        </ScrollView>
-      </Screen>
-    );
-  }
-
   const snapshot = snapshotQuery.data;
   const error = createMutation.error ?? actionMutation.error ?? reportMutation.error ?? snapshotQuery.error;
 
@@ -212,7 +197,9 @@ export function CommunityScreen() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.heading}>
           <AppText variant="caption" tone="secondary">COMMUNITY</AppText>
-          <AppText variant="display">People near your stage.</AppText>
+          <AppText variant="display">
+            {profile.journey_mode === 'quit' ? 'People near your stage.' : 'People on your path.'}
+          </AppText>
           <AppText tone="secondary">
             Peer support, not comparison. Community stories are personal experiences, not medical advice.
           </AppText>
@@ -222,7 +209,11 @@ export function CommunityScreen() {
           <Card><AppText tone="secondary">Finding your stage circle…</AppText></Card>
         ) : snapshot?.activeCircle ? (
           <Card style={styles.stageCard}>
-            <AppText variant="caption" tone="secondary">YOUR STAGE · DAY {smokeFreeDays}</AppText>
+            <AppText variant="caption" tone="secondary">
+              {profile.journey_mode === 'quit'
+                ? `YOUR STAGE · DAY ${smokeFreeDays}`
+                : 'YOUR JOURNEY CIRCLE'}
+            </AppText>
             <AppText variant="title">{snapshot.activeCircle.name}</AppText>
             {snapshot.activeCircle.description ? (
               <AppText tone="secondary">{snapshot.activeCircle.description}</AppText>
@@ -252,7 +243,7 @@ export function CommunityScreen() {
 
         {snapshot?.activeCircle ? (
           <Card style={styles.composer}>
-            <AppText variant="caption" tone="secondary">SHARE WITH THIS STAGE</AppText>
+            <AppText variant="caption" tone="secondary">SHARE WITH THIS CIRCLE</AppText>
             <View style={styles.chips}>
               {topics.map((item) => (
                 <Pressable
@@ -277,7 +268,7 @@ export function CommunityScreen() {
               }}
               multiline
               maxLength={1000}
-              placeholder="What happened, and what might help someone at the same stage?"
+              placeholder="What happened, and what might help someone on the same path?"
               style={styles.textarea}
             />
             <Pressable
@@ -314,6 +305,7 @@ export function CommunityScreen() {
             key={post.id}
             post={post}
             myUserId={userId}
+            showSmokeFreeDays={profile.journey_mode === 'quit'}
             pending={actionMutation.isPending}
             replyOpen={replyPostId === post.id}
             replyHasText={replyPostId === post.id && replyHasText}
@@ -415,6 +407,7 @@ export function CommunityScreen() {
 function PostCard({
   post,
   myUserId,
+  showSmokeFreeDays,
   pending,
   replyOpen,
   replyHasText,
@@ -426,6 +419,7 @@ function PostCard({
 }: {
   post: CommunityPost;
   myUserId: string;
+  showSmokeFreeDays: boolean;
   pending: boolean;
   replyOpen: boolean;
   replyHasText: boolean;
@@ -442,7 +436,7 @@ function PostCard({
         <View style={styles.postHeaderCopy}>
           <AppText variant="title">{post.authorName}</AppText>
           <AppText variant="caption" tone="secondary">
-            {topicLabels[post.topic]} · day {post.smokeFreeDays} · {formatCommunityAge(post.createdAt)}
+            {topicLabels[post.topic]} · {showSmokeFreeDays ? `day ${post.smokeFreeDays} · ` : ''}{formatCommunityAge(post.createdAt)}
           </AppText>
         </View>
         {post.isFeatured ? <AppText variant="caption">FEATURED</AppText> : null}
