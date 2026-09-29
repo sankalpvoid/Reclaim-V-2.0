@@ -192,8 +192,8 @@ export function buildPersonalizedToday(input: {
     focus = {
       kind: 'checkin',
       eyebrow: 'FOR YOU NOW',
-      title: 'Give Reclaim ten seconds of context.',
-      body: 'You have not checked in today yet. One mood check-in helps the app interpret cravings, smoking logs, and later insights more intelligently.',
+      title: 'How are you doing today?',
+      body: 'A quick mood check-in gives Reclaim context for today’s cravings, progress, and later insights.',
       ctaLabel: 'Check in now',
       route: '/(app)/check-in',
     };
@@ -219,7 +219,7 @@ export function buildPersonalizedToday(input: {
 
   return {
     focus,
-    moodLabel: todayCheckin ? moodLabels[todayCheckin.mood] : 'Not checked in',
+    moodLabel: todayCheckin ? moodLabels[todayCheckin.mood] : 'Not yet',
     cravingsToday: cravingsToday.length,
     resistedToday,
     goalSignal: nextGoal

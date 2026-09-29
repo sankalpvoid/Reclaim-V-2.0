@@ -62,7 +62,7 @@ describe('Today model', () => {
     });
 
     expect(summary.focus.kind).toBe('checkin');
-    expect(summary.moodLabel).toBe('Not checked in');
+    expect(summary.moodLabel).toBe('Not yet');
     expect(summary.cravingsToday).toBe(0);
   });
 
