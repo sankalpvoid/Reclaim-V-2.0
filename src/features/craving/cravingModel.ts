@@ -13,12 +13,12 @@ export type CravingToolRecommendation = {
   averageScore: number;
 };
 
-export const cravingTools: Array<{
+export const cravingTools: {
   key: CravingToolKey;
   name: string;
   durationLabel: string;
   summary: string;
-}> = [
+}[] = [
   {
     key: 'breathe',
     name: 'Box breathing',
