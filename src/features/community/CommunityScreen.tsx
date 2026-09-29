@@ -83,14 +83,14 @@ export function CommunityScreen() {
   const createMutation = useMutation({
     mutationFn: async () => {
       const circle = snapshotQuery.data?.activeCircle;
-      if (!userId || !circle) throw new Error('Your stage circle is not ready yet.');
+      if (!userId || !circle) throw new Error('Your community circle is not ready yet.');
       await createCommunityPost({
         userId,
         circleId: circle.id,
         body: postBodyRef.current,
         topic,
         displayName: profile?.display_name ?? null,
-        smokeFreeDays,
+        smokeFreeDays: profile?.journey_mode === 'quit' ? smokeFreeDays : 0,
         anonymous,
       });
     },
@@ -206,7 +206,7 @@ export function CommunityScreen() {
         </View>
 
         {snapshotQuery.isLoading ? (
-          <Card><AppText tone="secondary">Finding your stage circle…</AppText></Card>
+          <Card><AppText tone="secondary">Finding your community circle…</AppText></Card>
         ) : snapshot?.activeCircle ? (
           <Card style={styles.stageCard}>
             <AppText variant="caption" tone="secondary">
@@ -292,12 +292,12 @@ export function CommunityScreen() {
         ) : null}
 
         <View style={styles.feedHeader}>
-          <AppText variant="caption" tone="secondary">STAGE FEED</AppText>
+          <AppText variant="caption" tone="secondary">CIRCLE FEED</AppText>
           <AppText variant="title">Stories, support, small wins.</AppText>
         </View>
 
         {snapshot && snapshot.posts.length === 0 ? (
-          <Card><AppText tone="secondary">No visible stories in this stage yet.</AppText></Card>
+          <Card><AppText tone="secondary">No visible stories in this circle yet.</AppText></Card>
         ) : null}
 
         {snapshot?.posts.map((post) => (
