@@ -344,11 +344,13 @@ export function TodayScreen() {
             detail="Short tools when an urge hits"
             onPress={() => router.push('/(app)/craving')}
           />
-          <QuickAction
-            label="Health recovery"
-            detail="Source-backed milestones from your quit date"
-            onPress={() => router.push('/(app)/health')}
-          />
+          {mode === 'quit' ? (
+            <QuickAction
+              label="Health recovery"
+              detail="Source-backed milestones from your quit date"
+              onPress={() => router.push('/(app)/health')}
+            />
+          ) : null}
           <QuickAction
             label="Insights"
             detail="Patterns only when your logs support them"
