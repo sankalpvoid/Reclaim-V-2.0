@@ -23,7 +23,11 @@ This document tracks the work required to move Reclaim V2 from a verified develo
 - Accessibility and interaction pass
 - Native iOS widget
 - Core smoking, cravings, check-ins, insights, goals, community and learning flows
-- CI with Expo Doctor, strict TypeScript and tests
+- CI with Expo Doctor, strict TypeScript, lint and tests
+- CI guards for native release identifiers/EAS configuration and high/critical production dependency vulnerabilities
+- Retryable accessible error states for the main data-heavy product surfaces
+- Journey-aware iOS widget data for Quit, Reduce and Track modes
+- Account deletion removes linked product analytics, including associated anonymous installation analytics
 - EAS preview and production environments configured with client-safe Supabase values
 - Android parity smoke test completed on Pixel 9 Pro / Android 16
 - Android custom-scheme deep-link routing verified with `reclaim://auth-callback`
@@ -75,7 +79,9 @@ Production submission still requires valid Apple Developer / App Store Connect a
 
 The current Supabase security advisor has one known warning: leaked-password protection is disabled because the project is on a plan where enabling it requires an upgrade. This is a plan limitation rather than an application-code defect.
 
-The performance advisor currently reports only informational unused-index notices. Do not remove those indexes solely because a low-traffic pre-launch database has not used them yet.
+The latest Supabase advisor pass (September 29, 2026) reports no RLS or database-policy security findings. The only security warning is leaked-password protection being disabled. The performance advisor reports six informational unused-index notices; do not remove those indexes solely because a low-traffic pre-launch database has not used them yet.
+
+The deployed `delete-account` Edge Function is JWT-protected and currently on version 2.
 
 ## Release sequence
 
