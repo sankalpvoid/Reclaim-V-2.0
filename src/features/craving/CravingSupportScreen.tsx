@@ -112,7 +112,6 @@ export function CravingSupportScreen() {
     setStage('tool');
     setTimerSeconds(300);
     setBreathIndex(0);
-    startedAtRef.current = Date.now();
   }
 
   async function finishTool() {
@@ -192,7 +191,13 @@ export function CravingSupportScreen() {
                 .slice()
                 .sort((a, b) => Number(b.key === recommendedTool) - Number(a.key === recommendedTool))
                 .map((tool) => (
-                  <Pressable key={tool.key} onPress={() => startTool(tool.key)}>
+                  <Pressable
+                    key={tool.key}
+                    onPress={() => {
+                      startedAtRef.current = Date.now();
+                      startTool(tool.key);
+                    }}
+                  >
                     <Card style={styles.toolCard}>
                       {tool.key === recommendedTool ? (
                         <AppText variant="caption">WORKED FOR YOU BEFORE</AppText>
