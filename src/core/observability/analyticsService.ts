@@ -8,9 +8,13 @@ import {
   analyticsPlatform,
   analyticsScreenSchema,
   clientErrorOperationSchema,
+  communityEngagementSchema,
+  forYouActionSchema,
   type AnalyticsJourneyMode,
   type AnalyticsScreen,
   type ClientErrorOperation,
+  type CommunityEngagement,
+  type ForYouAction,
 } from './analyticsModel';
 
 type AnalyticsIdentity = {
@@ -38,6 +42,8 @@ type AnalyticsEvent =
   | ({ eventName: 'tool_feedback'; feedback: ToolFeedback } & AnalyticsIdentity)
   | ({ eventName: 'community_story_shared' } & AnalyticsIdentity)
   | ({ eventName: 'community_reply_shared' } & AnalyticsIdentity)
+  | ({ eventName: 'community_engaged'; engagement: CommunityEngagement } & AnalyticsIdentity)
+  | ({ eventName: 'for_you_action'; action: ForYouAction } & AnalyticsIdentity)
   | ({ eventName: 'onboarding_completed' } & AnalyticsIdentity)
   | ({ eventName: 'journey_mode_selected' } & AnalyticsIdentity)
   | ({ eventName: 'plan_saved' } & AnalyticsIdentity)
@@ -129,6 +135,10 @@ function safeProperties(event: AnalyticsEvent): Record<string, string> {
       return { ...base, tool: event.tool };
     case 'tool_feedback':
       return { ...base, feedback: event.feedback };
+    case 'community_engaged':
+      return { ...base, engagement: communityEngagementSchema.parse(event.engagement) };
+    case 'for_you_action':
+      return { ...base, action: forYouActionSchema.parse(event.action) };
     case 'auth_submitted':
       return { ...base, auth_action: event.authAction };
     default:
