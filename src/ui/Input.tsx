@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
 
 import { AppText } from '@/ui/AppText';
@@ -22,7 +22,7 @@ export function Input({
 }: InputProps) {
   const inputRef = useRef<TextInput>(null);
   const lastEmittedValueRef = useRef<string | undefined>(undefined);
-  const initialValueRef = useRef(value ?? defaultValue ?? '');
+  const [initialValue] = useState(() => value ?? defaultValue ?? '');
 
   useEffect(() => {
     if (value === undefined || value === lastEmittedValueRef.current) {
@@ -43,7 +43,7 @@ export function Input({
       <TextInput
         ref={inputRef}
         {...props}
-        defaultValue={initialValueRef.current}
+        defaultValue={initialValue}
         onChangeText={(text) => {
           lastEmittedValueRef.current = text;
           onChangeText?.(text);
