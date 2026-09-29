@@ -256,10 +256,10 @@ export function NotificationSettingsScreen() {
             />
 
             <Card style={styles.stack}>
-              <AppText variant="caption" tone="secondary">NATIVE TEST</AppText>
+              <AppText variant="caption" tone="secondary">TEST REMINDERS</AppText>
               <AppText variant="title">Check this device</AppText>
               <AppText tone="secondary">
-                Schedule one local test notification for about three seconds from now. This does not change your reminder preferences.
+                Send one test reminder in about three seconds. Your saved reminder schedule will not change.
               </AppText>
               <Button
                 label={testMutation.isPending ? 'Scheduling…' : 'Send test notification'}
@@ -277,9 +277,6 @@ export function NotificationSettingsScreen() {
           </Card>
         ) : null}
 
-        <AppText variant="caption" tone="secondary">
-          Phase 11 uses local notifications only. Remote push delivery is intentionally deferred until Reclaim has a development build and server-side delivery path.
-        </AppText>
       </ScrollView>
     </Screen>
   );
