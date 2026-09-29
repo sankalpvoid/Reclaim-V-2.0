@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { analyticsPlatform, analyticsScreenFromPath } from './analyticsModel';
+import {
+  analyticsPlatform,
+  analyticsScreenFromPath,
+  clientErrorOperationSchema,
+} from './analyticsModel';
 
 describe('analytics model', () => {
   it('maps known app routes to a fixed screen vocabulary', () => {
@@ -13,6 +17,11 @@ describe('analytics model', () => {
   it('does not export unknown route text', () => {
     expect(analyticsScreenFromPath('/article/private-user-value')).toBeNull();
     expect(analyticsScreenFromPath('/unexpected?token=secret')).toBeNull();
+  });
+
+  it('keeps operational error names on a fixed allowlist', () => {
+    expect(clientErrorOperationSchema.parse('notification_response')).toBe('notification_response');
+    expect(clientErrorOperationSchema.safeParse('notification_payload_with_private_data').success).toBe(false);
   });
 
   it('normalizes platform values to an allowlist', () => {

@@ -13,6 +13,14 @@ export const notificationPreferencesSchema = z.object({
 
 export type NotificationPreferences = z.infer<typeof notificationPreferencesSchema>;
 
+export const reminderKindSchema = z.enum(['daily-checkin', 'weekly-reflection']);
+export type ReminderKind = z.infer<typeof reminderKindSchema>;
+
+export function parseReminderKind(value: unknown): ReminderKind | null {
+  const parsed = reminderKindSchema.safeParse(value);
+  return parsed.success ? parsed.data : null;
+}
+
 export const weekdayLabels: Record<number, string> = {
   1: 'Sunday',
   2: 'Monday',
