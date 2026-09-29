@@ -12,9 +12,12 @@ export const communityReportReasonSchema = z.enum([
 ]);
 export type CommunityReportReason = z.infer<typeof communityReportReasonSchema>;
 
+export type CommunityJourneyMode = 'quit' | 'reduce' | 'track';
+
 export type CommunityCircle = {
   id: string;
   name: string;
+  journeyMode: CommunityJourneyMode;
   minSmokeFreeDays: number;
   maxSmokeFreeDays: number | null;
   description: string | null;
