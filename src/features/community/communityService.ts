@@ -119,7 +119,7 @@ export type CommunitySnapshot = {
   circles: CommunityCircle[];
   activeCircle: CommunityCircle | null;
   posts: CommunityPost[];
-  blockedUsers: Array<{ userId: string; name: string }>;
+  blockedUsers: { userId: string; name: string }[];
   challenge: CommunityChallenge | null;
 };
 
