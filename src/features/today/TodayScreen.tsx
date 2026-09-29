@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -95,15 +95,9 @@ function WeekStrip({ days }: { days: ReturnType<typeof buildSmokingTodaySummary>
   );
 }
 
-export function TodayScreen() {
+export function TodayScreen({ now }: { now: Date }) {
   const { user, profile } = useAuth();
   const queryClient = useQueryClient();
-  const [now, setNow] = useState(() => new Date());
-
-  useEffect(() => {
-    const timer = setInterval(() => setNow(new Date()), 60_000);
-    return () => clearInterval(timer);
-  }, []);
 
   const userId = user?.id ?? '';
   const mode = profile?.journey_mode ?? 'quit';
