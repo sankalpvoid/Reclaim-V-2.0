@@ -11,17 +11,13 @@ import {
   moodOptions,
   type Mood,
 } from '@/features/checkins/checkinModel';
-import { getCheckins, saveDailyCheckin } from '@/features/checkins/checkinService';
+import { checkinKeys, getCheckins, saveDailyCheckin } from '@/features/checkins/checkinService';
 import { colors, radius, spacing } from '@/theme/tokens';
 import { AppText } from '@/ui/AppText';
 import { Button } from '@/ui/Button';
 import { Card } from '@/ui/Card';
 import { Input } from '@/ui/Input';
 import { Screen } from '@/ui/Screen';
-
-export const checkinKeys = {
-  history: (userId: string) => ['checkins', userId] as const,
-};
 
 const moodLabels: Record<Mood, string> = {
   great: 'Great',
