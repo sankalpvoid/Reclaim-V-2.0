@@ -9,10 +9,10 @@ import {
 } from './communityModel';
 
 const circles: CommunityCircle[] = [
-  { id: 'a', name: 'First 72 Hours', minSmokeFreeDays: 0, maxSmokeFreeDays: 2, description: null },
-  { id: 'b', name: 'First Week', minSmokeFreeDays: 3, maxSmokeFreeDays: 6, description: null },
-  { id: 'c', name: 'First Month', minSmokeFreeDays: 7, maxSmokeFreeDays: 29, description: null },
-  { id: 'd', name: '30 Days & Beyond', minSmokeFreeDays: 30, maxSmokeFreeDays: null, description: null },
+  { id: 'a', name: 'First 72 Hours', journeyMode: 'quit', minSmokeFreeDays: 0, maxSmokeFreeDays: 2, description: null },
+  { id: 'b', name: 'First Week', journeyMode: 'quit', minSmokeFreeDays: 3, maxSmokeFreeDays: 6, description: null },
+  { id: 'c', name: 'First Month', journeyMode: 'quit', minSmokeFreeDays: 7, maxSmokeFreeDays: 29, description: null },
+  { id: 'd', name: '30 Days & Beyond', journeyMode: 'quit', minSmokeFreeDays: 30, maxSmokeFreeDays: null, description: null },
 ];
 
 describe('community model', () => {
