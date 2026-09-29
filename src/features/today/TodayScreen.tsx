@@ -467,7 +467,7 @@ const styles = StyleSheet.create({
   },
   focusCard: {
     gap: spacing.md,
-    paddingVertical: spacing.sm,
+    paddingVertical: spacing.md,
   },
   signalSection: {
     gap: spacing.sm,
@@ -483,7 +483,7 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: colors.border,
-    paddingVertical: spacing.md,
+    paddingVertical: spacing.sm,
   },
   quickActionCopy: {
     flex: 1,
