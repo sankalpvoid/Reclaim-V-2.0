@@ -1,4 +1,4 @@
-import type { CravingToolKey } from '../craving/cravingModel';
+import { parseCravingToolKey, type CravingToolKey } from '../craving/cravingModel';
 
 export type InsightAction = {
   label: string;
@@ -84,17 +84,18 @@ export function buildInsights(events: SmokingEvent[], checkins: Checkin[], now =
     const best = [...tools.entries()]
       .filter(([, stats]) => stats.total >= 2)
       .sort((a, b) => b[1].helpful / b[1].total - a[1].helpful / a[1].total)[0];
-    if (best && best[1].helpful / best[1].total >= 0.67) {
+    const bestTool = parseCravingToolKey(best?.[0]);
+    if (best && bestTool && best[1].helpful / best[1].total >= 0.67) {
       insights.push({
         id: 'tool-effectiveness',
-        title: `${toolLabels[best[0]] ?? best[0]} is helping`,
+        title: `${toolLabels[bestTool]} is helping`,
         body: 'Your own feedback suggests this coping tool is worth trying first during a craving.',
         evidence: `${best[1].helpful} helpful ratings from ${best[1].total} uses`,
         confidence: best[1].total >= 4 ? 'established' : 'emerging',
         action: {
-          label: `Use ${toolLabels[best[0]] ?? 'this tool'}`,
+          label: `Use ${toolLabels[bestTool]}`,
           route: '/(app)/craving',
-          tool: best[0] as CravingToolKey,
+          tool: bestTool,
         },
       });
     }
