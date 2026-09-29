@@ -42,14 +42,16 @@ export function JourneySettingsScreen() {
     );
   }
 
-  const storedQuitAt = profile.quit_date ? new Date(profile.quit_date).getTime() : null;
+  const activeUser = user;
+  const activeProfile = profile;
+  const storedQuitAt = activeProfile.quit_date ? new Date(activeProfile.quit_date).getTime() : null;
   const quitDateChanged =
     mode === 'quit' &&
     (storedQuitAt === null || !Number.isFinite(storedQuitAt) || quitDate.getTime() !== storedQuitAt);
-  const hasChanges = mode !== profile.journey_mode || quitDateChanged;
+  const hasChanges = mode !== activeProfile.journey_mode || quitDateChanged;
   const targetPreview =
-    mode === 'reduce' && (profile.cigarettes_per_day ?? 0) > 0
-      ? calculateInitialReductionTarget(profile.cigarettes_per_day ?? 0)
+    mode === 'reduce' && (activeProfile.cigarettes_per_day ?? 0) > 0
+      ? calculateInitialReductionTarget(activeProfile.cigarettes_per_day ?? 0)
       : null;
 
   async function save() {
@@ -58,10 +60,10 @@ export function JourneySettingsScreen() {
     setIsSaving(true);
 
     try {
-      const previousMode = profile.journey_mode;
+      const previousMode = activeProfile.journey_mode;
       await updateJourneySettings({
-        userId: user.id,
-        profile,
+        userId: activeUser.id,
+        profile: activeProfile,
         nextMode: mode,
         quitDate,
       });
@@ -70,7 +72,7 @@ export function JourneySettingsScreen() {
       if (previousMode !== mode) {
         void trackAnalyticsEvent({
           eventName: 'journey_mode_selected',
-          userId: user.id,
+          userId: activeUser.id,
           journeyMode: mode,
         });
       }
@@ -111,7 +113,7 @@ export function JourneySettingsScreen() {
             <AppText variant="caption" tone="secondary">FRESH STARTING TARGET</AppText>
             <AppText variant="title">{targetPreview} cigarettes / day</AppText>
             <AppText tone="secondary">
-              Based on your saved baseline of {profile.cigarettes_per_day} per day. This creates a new active reduction plan only when you switch into Smoke Less.
+              Based on your saved baseline of {activeProfile.cigarettes_per_day} per day. This creates a new active reduction plan only when you switch into Smoke Less.
             </AppText>
           </Card>
         ) : null}
@@ -119,7 +121,7 @@ export function JourneySettingsScreen() {
         <Card style={styles.detailCard}>
           <AppText variant="caption" tone="secondary">WHAT CHANGES</AppText>
           <AppText tone="secondary">
-            {journeyTransitionCopy(profile.journey_mode, mode)}
+            {journeyTransitionCopy(activeProfile.journey_mode, mode)}
           </AppText>
         </Card>
 
