@@ -10,8 +10,8 @@ export type ReclaimWidgetSnapshot = {
 };
 
 export type ReclaimWidgetContext = {
-  smokingEvents?: readonly SmokingEvent[];
-  reductionTarget?: number | null;
+  smokingEvents?: readonly SmokingEvent[] | undefined;
+  reductionTarget?: number | null | undefined;
 };
 
 export function buildReclaimWidgetSnapshot(
