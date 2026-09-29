@@ -1,5 +1,6 @@
+import type { SmokingEvent } from '../../domain/smoking/smokingEvents';
 import type { Profile } from '../profile/profile';
-import { buildQuitTodaySummary } from '../today/todayModel';
+import { buildQuitTodaySummary, buildSmokingTodaySummary } from '../today/todayModel';
 
 export type ReclaimWidgetSnapshot = {
   mode: 'quit' | 'reduce' | 'track';
@@ -8,9 +9,15 @@ export type ReclaimWidgetSnapshot = {
   secondary: string;
 };
 
+export type ReclaimWidgetContext = {
+  smokingEvents?: readonly SmokingEvent[];
+  reductionTarget?: number | null;
+};
+
 export function buildReclaimWidgetSnapshot(
   profile: Profile,
   now: Date = new Date(),
+  context: ReclaimWidgetContext = {},
 ): ReclaimWidgetSnapshot {
   const mode = profile.journey_mode ?? 'quit';
 
@@ -30,6 +37,54 @@ export function buildReclaimWidgetSnapshot(
       eyebrow: 'QUIT NOW',
       primary: 'Your next decision',
       secondary: 'Open Reclaim to continue',
+    };
+  }
+
+  if (context.smokingEvents !== undefined) {
+    const target = mode === 'reduce' ? (context.reductionTarget ?? profile.daily_target ?? null) : null;
+    const summary = buildSmokingTodaySummary(profile, context.smokingEvents, target, now);
+    const today = summary.recentDays.at(-1);
+    const hasTodayLog = today?.known === true;
+
+    if (mode === 'reduce') {
+      if (!hasTodayLog) {
+        return {
+          mode,
+          eyebrow: 'SMOKE LESS',
+          primary: 'No log yet',
+          secondary: target === null ? 'Open Reclaim to log honestly' : `Target: ${target} today`,
+        };
+      }
+
+      if (summary.targetProgress) {
+        const { remaining, overBy } = summary.targetProgress;
+        return {
+          mode,
+          eyebrow: 'SMOKE LESS',
+          primary: `${summary.todayCount} / ${summary.targetProgress.target}`,
+          secondary:
+            overBy > 0
+              ? `${overBy} over target · keep logging`
+              : `${remaining} remaining today`,
+        };
+      }
+
+      return {
+        mode,
+        eyebrow: 'SMOKE LESS',
+        primary: `${summary.todayCount} logged today`,
+        secondary: `${summary.sevenDayCount} in the last 7 days`,
+      };
+    }
+
+    return {
+      mode: 'track',
+      eyebrow: 'UNDERSTAND',
+      primary: hasTodayLog ? `${summary.todayCount} logged today` : 'No log yet',
+      secondary:
+        summary.sevenDayCount > 0
+          ? `${summary.sevenDayCount} in the last 7 days`
+          : 'Open Reclaim to log honestly',
     };
   }
 
