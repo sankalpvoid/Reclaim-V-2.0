@@ -115,18 +115,6 @@ Deno.serve(async (req: Request) => {
     ),
   ];
 
-  const { error: accountAnalyticsError } = await admin
-    .from('analytics_events')
-    .delete()
-    .eq('user_id', user.id);
-
-  if (accountAnalyticsError) {
-    return Response.json(
-      { error: 'Account deletion could not be completed.' },
-      { status: 500, headers: corsHeaders },
-    );
-  }
-
   if (anonymousIds.length > 0) {
     const { error: anonymousAnalyticsError } = await admin
       .from('analytics_events')
@@ -139,6 +127,20 @@ Deno.serve(async (req: Request) => {
         { status: 500, headers: corsHeaders },
       );
     }
+  }
+
+  // Delete any remaining user-linked rows (for example rows without an
+  // anonymous installation ID) after anonymous cleanup has succeeded.
+  const { error: accountAnalyticsError } = await admin
+    .from('analytics_events')
+    .delete()
+    .eq('user_id', user.id);
+
+  if (accountAnalyticsError) {
+    return Response.json(
+      { error: 'Account deletion could not be completed.' },
+      { status: 500, headers: corsHeaders },
+    );
   }
 
   const { error: deleteError } = await admin.auth.admin.deleteUser(user.id);
