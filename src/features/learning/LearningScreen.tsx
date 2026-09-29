@@ -49,11 +49,11 @@ export function LearningScreen() {
 
   const learningFocus = useMemo(() => {
     const parsedJourney = journeyModeSchema.safeParse(profile?.journey_mode);
-    if (!parsedJourney.success) return null;
+    if (!parsedJourney.success || !signalQuery.data) return null;
     return buildLearningFocus(
       parsedJourney.data,
-      signalQuery.data?.events ?? [],
-      signalQuery.data?.checkins ?? [],
+      signalQuery.data.events,
+      signalQuery.data.checkins,
     );
   }, [profile?.journey_mode, signalQuery.data]);
 
