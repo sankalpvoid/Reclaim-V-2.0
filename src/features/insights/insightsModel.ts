@@ -1,6 +1,9 @@
+import type { CravingToolKey } from '../craving/cravingModel';
+
 export type InsightAction = {
   label: string;
   route: '/(app)' | '/(app)/craving' | '/(app)/check-in';
+  tool?: CravingToolKey;
 };
 
 export type Insight = {
@@ -91,6 +94,7 @@ export function buildInsights(events: SmokingEvent[], checkins: Checkin[], now =
         action: {
           label: `Use ${toolLabels[best[0]] ?? 'this tool'}`,
           route: '/(app)/craving',
+          tool: best[0] as CravingToolKey,
         },
       });
     }
