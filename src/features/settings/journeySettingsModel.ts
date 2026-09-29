@@ -1,5 +1,5 @@
-import { calculateInitialReductionTarget } from '@/features/onboarding/onboardingModel';
-import type { Profile } from '@/features/profile/profile';
+import { calculateInitialReductionTarget } from '../onboarding/onboardingModel';
+import type { Profile } from '../profile/profile';
 
 export type JourneyMode = Profile['journey_mode'];
 
