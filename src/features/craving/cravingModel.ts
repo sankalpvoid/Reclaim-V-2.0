@@ -6,6 +6,13 @@ export type CravingHistoryItem = {
   tool_feedback: CravingFeedback | null;
 };
 
+export type CravingToolRecommendation = {
+  key: CravingToolKey;
+  helpful: number;
+  total: number;
+  averageScore: number;
+};
+
 export const cravingTools: Array<{
   key: CravingToolKey;
   name: string;
@@ -44,9 +51,9 @@ const feedbackScores: Record<CravingFeedback, number> = {
   not_really: 0,
 };
 
-export function recommendCravingTool(
+export function getCravingToolRecommendation(
   history: readonly CravingHistoryItem[],
-): CravingToolKey | null {
+): CravingToolRecommendation | null {
   const rated = history.filter(
     (item): item is CravingHistoryItem & { toolkit: CravingToolKey; tool_feedback: CravingFeedback } =>
       item.toolkit !== null && item.tool_feedback !== null,
@@ -54,19 +61,36 @@ export function recommendCravingTool(
 
   if (rated.length < 3) return null;
 
-  const aggregate = new Map<CravingToolKey, { count: number; score: number }>();
+  const aggregate = new Map<CravingToolKey, { count: number; score: number; helpful: number }>();
   for (const item of rated) {
-    const current = aggregate.get(item.toolkit) ?? { count: 0, score: 0 };
+    const current = aggregate.get(item.toolkit) ?? { count: 0, score: 0, helpful: 0 };
     current.count += 1;
     current.score += feedbackScores[item.tool_feedback];
+    if (item.tool_feedback === 'yes' || item.tool_feedback === 'a_little') current.helpful += 1;
     aggregate.set(item.toolkit, current);
   }
 
   const ranked = [...aggregate.entries()]
     .filter(([, value]) => value.count >= 2 && value.score > 0)
-    .sort(([, a], [, b]) => b.score / b.count - a.score / a.count || b.count - a.count);
+    .map(([key, value]) => ({
+      key,
+      helpful: value.helpful,
+      total: value.count,
+      averageScore: value.score / value.count,
+    }))
+    .sort((a, b) => b.averageScore - a.averageScore || b.total - a.total);
 
-  return ranked[0]?.[0] ?? null;
+  return ranked[0] ?? null;
+}
+
+export function recommendCravingTool(
+  history: readonly CravingHistoryItem[],
+): CravingToolKey | null {
+  return getCravingToolRecommendation(history)?.key ?? null;
+}
+
+export function parseCravingToolKey(value: string | null | undefined): CravingToolKey | null {
+  return cravingTools.some((tool) => tool.key === value) ? (value as CravingToolKey) : null;
 }
 
 export function formatTimer(seconds: number): string {

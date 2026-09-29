@@ -1,14 +1,17 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { router, useFocusEffect } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { trackAnalyticsEvent } from '@/core/observability/analyticsService';
 import { useAuth } from '@/features/auth/AuthContext';
+import { dailyCheckinClientId } from '@/features/checkins/checkinModel';
+import { checkinKeys, getCheckins } from '@/features/checkins/checkinService';
 import {
   cravingTools,
   formatTimer,
-  recommendCravingTool,
+  getCravingToolRecommendation,
+  parseCravingToolKey,
   type CravingFeedback,
   type CravingToolKey,
 } from '@/features/craving/cravingModel';
@@ -31,6 +34,9 @@ const breatheSteps = ['INHALE', 'HOLD', 'EXHALE', 'HOLD'] as const;
 export function CravingSupportScreen() {
   const { user, profile } = useAuth();
   const queryClient = useQueryClient();
+  const params = useLocalSearchParams<{ tool?: string | string[] }>();
+  const toolParam = Array.isArray(params.tool) ? params.tool[0] : params.tool;
+  const requestedTool = parseCravingToolKey(toolParam);
   const [stage, setStage] = useState<Stage>('choose');
   const [activeTool, setActiveTool] = useState<CravingToolKey | null>(null);
   const [eventId, setEventId] = useState<string | null>(null);
@@ -60,10 +66,24 @@ export function CravingSupportScreen() {
     enabled: Boolean(userId),
   });
 
-  const recommendedTool = useMemo(
-    () => recommendCravingTool(historyQuery.data ?? []),
+  const checkinsQuery = useQuery({
+    queryKey: checkinKeys.history(userId),
+    queryFn: () => getCheckins(userId, 14),
+    enabled: Boolean(userId),
+  });
+
+  const recommendation = useMemo(
+    () => getCravingToolRecommendation(historyQuery.data ?? []),
     [historyQuery.data],
   );
+  const primaryTool = requestedTool ?? recommendation?.key ?? null;
+  const primaryToolInfo = primaryTool
+    ? cravingTools.find((tool) => tool.key === primaryTool) ?? null
+    : null;
+  const todayCheckin = checkinsQuery.data?.find(
+    (checkin) => checkin.clientId === dailyCheckinClientId(),
+  );
+  const hardDay = todayCheckin?.mood === 'craving' || todayCheckin?.mood === 'struggling';
 
   const recordMutation = useMutation({
     mutationFn: recordCraving,
@@ -167,7 +187,11 @@ export function CravingSupportScreen() {
     router.replace('/(app)');
   }
 
-  const error = historyQuery.error ?? recordMutation.error ?? feedbackMutation.error;
+  const error =
+    historyQuery.error ??
+    checkinsQuery.error ??
+    recordMutation.error ??
+    feedbackMutation.error;
 
   return (
     <Screen>
@@ -186,10 +210,48 @@ export function CravingSupportScreen() {
               </AppText>
             </View>
 
+            {primaryToolInfo ? (
+              <Card style={styles.recommendationCard}>
+                <AppText variant="caption" tone="secondary">
+                  {requestedTool ? 'FROM YOUR INSIGHT' : 'WORKED FOR YOU BEFORE'}
+                </AppText>
+                <AppText variant="title">
+                  {requestedTool ? `Start with ${primaryToolInfo.name}` : `Try ${primaryToolInfo.name} first`}
+                </AppText>
+                <AppText tone="secondary">
+                  {requestedTool
+                    ? 'This is the coping tool your recent Insight pointed to.'
+                    : recommendation
+                      ? `Your feedback marked it helpful ${recommendation.helpful} of ${recommendation.total} times.`
+                      : 'This tool is ready when you are.'}
+                </AppText>
+                {hardDay ? (
+                  <AppText variant="caption" tone="secondary">
+                    Your check-in says today has felt harder, so Reclaim is keeping support close.
+                  </AppText>
+                ) : null}
+                <Button
+                  label={`Start ${primaryToolInfo.name}`}
+                  onPress={() => {
+                    startedAtRef.current = Date.now();
+                    startTool(primaryToolInfo.key);
+                  }}
+                />
+              </Card>
+            ) : hardDay ? (
+              <Card style={styles.recommendationCard}>
+                <AppText variant="caption" tone="secondary">TODAY</AppText>
+                <AppText variant="title">Keep the next step small.</AppText>
+                <AppText tone="secondary">
+                  Your check-in says today has felt harder. Pick whichever support tool feels easiest to start.
+                </AppText>
+              </Card>
+            ) : null}
+
             <View style={styles.stack}>
               {cravingTools
                 .slice()
-                .sort((a, b) => Number(b.key === recommendedTool) - Number(a.key === recommendedTool))
+                .sort((a, b) => Number(b.key === primaryTool) - Number(a.key === primaryTool))
                 .map((tool) => (
                   <Pressable
                     key={tool.key}
@@ -199,8 +261,10 @@ export function CravingSupportScreen() {
                     }}
                   >
                     <Card style={styles.toolCard}>
-                      {tool.key === recommendedTool ? (
-                        <AppText variant="caption">WORKED FOR YOU BEFORE</AppText>
+                      {tool.key === primaryTool ? (
+                        <AppText variant="caption">
+                          {requestedTool ? 'FROM YOUR INSIGHT' : 'WORKED FOR YOU BEFORE'}
+                        </AppText>
                       ) : null}
                       <View style={styles.toolHeader}>
                         <AppText variant="title">{tool.name}</AppText>
@@ -323,6 +387,9 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   stack: {
+    gap: spacing.md,
+  },
+  recommendationCard: {
     gap: spacing.md,
   },
   toolCard: {

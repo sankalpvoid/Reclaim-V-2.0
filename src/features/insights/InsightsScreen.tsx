@@ -73,7 +73,16 @@ export function InsightsScreen() {
                 <AppText variant="caption" tone="secondary">Based on: {insight.evidence}</AppText>
                 <Button
                   label={insight.action.label}
-                  onPress={() => router.push(insight.action.route)}
+                  onPress={() => {
+                    if (insight.action.route === '/(app)/craving' && insight.action.tool) {
+                      router.push({
+                        pathname: '/(app)/craving',
+                        params: { tool: insight.action.tool },
+                      });
+                      return;
+                    }
+                    router.push(insight.action.route);
+                  }}
                 />
               </Card>
             ))}
