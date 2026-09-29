@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { Input } from '@/ui/Input';
 
@@ -13,12 +13,12 @@ function toLocalInput(value: Date) {
   return `${value.getFullYear()}-${pad(value.getMonth() + 1)}-${pad(value.getDate())}T${pad(value.getHours())}:${pad(value.getMinutes())}`;
 }
 
-export function QuitDatePicker({ value, onChange, disabled = false }: QuitDatePickerProps) {
-  const [draft, setDraft] = useState(() => toLocalInput(value));
+export function QuitDatePicker(props: QuitDatePickerProps) {
+  return <QuitDatePickerDraft key={props.value.getTime()} {...props} />;
+}
 
-  useEffect(() => {
-    setDraft(toLocalInput(value));
-  }, [value]);
+function QuitDatePickerDraft({ value, onChange, disabled = false }: QuitDatePickerProps) {
+  const [draft, setDraft] = useState(() => toLocalInput(value));
 
   return (
     <Input
