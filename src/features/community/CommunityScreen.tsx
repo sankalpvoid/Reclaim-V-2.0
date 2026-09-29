@@ -159,6 +159,19 @@ export function CommunityScreen() {
           journeyMode: profile?.journey_mode ?? null,
         });
       }
+
+      if (
+        (action.type === 'cheer' || action.type === 'save' || action.type === 'challenge') &&
+        action.next
+      ) {
+        void trackAnalyticsEvent({
+          eventName: 'community_engaged',
+          engagement: action.type,
+          userId,
+          journeyMode: profile?.journey_mode ?? null,
+        });
+      }
+
       await refresh();
     },
   });
