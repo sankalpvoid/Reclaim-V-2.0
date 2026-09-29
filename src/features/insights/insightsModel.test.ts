@@ -48,6 +48,7 @@ describe('buildInsights', () => {
     expect(insight?.action).toEqual({
       label: 'Use Ride the wave',
       route: '/(app)/craving',
+      tool: 'timer',
     });
   });
 
