@@ -25,7 +25,7 @@ jobs:
 
       - name: Validate release configuration
         run: |
-          node -e "JSON.parse(require('fs').readFileSync('eas.json', 'utf8'))"
+          node scripts/validate-release-config.mjs
           npx expo config --type public > /tmp/reclaim-expo-config.json
 
       - name: Check Expo project health
