@@ -20,6 +20,7 @@ export type AnalyticsScreen = z.infer<typeof analyticsScreenSchema>;
 export const clientErrorOperationSchema = z.enum([
   'auth_bootstrap',
   'profile_load',
+  'notification_response',
 ]);
 export type ClientErrorOperation = z.infer<typeof clientErrorOperationSchema>;
 
