@@ -17,6 +17,7 @@ import { useAuth } from '@/features/auth/AuthContext';
 import {
   addReminderResponseListener,
   configureNotificationPresentation,
+  getLastReminderResponse,
 } from '@/features/notifications/notificationService';
 
 Observe.configure({
@@ -59,6 +60,7 @@ function RootNavigator() {
   const lastScreenRef = useRef<string | null>(null);
   const authErrorTrackedRef = useRef(false);
   const profileErrorTrackedRef = useRef(false);
+  const handledReminderIdsRef = useRef(new Set<string>());
 
   const canEnterOnboarding =
     isReady && isAuthenticated && !profileError && profile?.onboarding_completed !== true;
@@ -111,11 +113,32 @@ function RootNavigator() {
 
   useEffect(() => {
     if (!canEnterApp) return;
-    const subscription = addReminderResponseListener((kind) => {
-      if (kind === 'daily-checkin') router.push('/(app)/check-in');
-      if (kind === 'weekly-reflection') router.push('/(app)/insights');
-    });
-    return () => subscription?.remove();
+
+    let active = true;
+    const handleReminder = (response: {
+      kind: 'daily-checkin' | 'weekly-reflection';
+      notificationId: string;
+    }) => {
+      if (!active || handledReminderIdsRef.current.has(response.notificationId)) return;
+      handledReminderIdsRef.current.add(response.notificationId);
+
+      if (response.kind === 'daily-checkin') router.push('/(app)/check-in');
+      if (response.kind === 'weekly-reflection') router.push('/(app)/insights');
+    };
+
+    const subscription = addReminderResponseListener(handleReminder);
+    void getLastReminderResponse()
+      .then((response) => {
+        if (response) handleReminder(response);
+      })
+      .catch(() => {
+        reportOperationalError('notification_response');
+      });
+
+    return () => {
+      active = false;
+      subscription?.remove();
+    };
   }, [canEnterApp]);
 
   return (
