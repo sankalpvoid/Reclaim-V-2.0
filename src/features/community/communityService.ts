@@ -9,6 +9,7 @@ import {
   safeCommunityName,
   selectCommunityCircle,
   type CommunityCircle,
+  type CommunityJourneyMode,
   type CommunityReportReason,
   type CommunityTopic,
 } from './communityModel';
@@ -28,6 +29,7 @@ const circleRowSchema = z.object({
   min_smoke_free_days: z.number().int(),
   max_smoke_free_days: z.number().int().nullable(),
   description: z.string().nullable(),
+  journey_mode: z.enum(['quit', 'reduce', 'track']),
 });
 
 const postRowSchema = z.object({
@@ -131,23 +133,26 @@ function localDateKey(date = new Date()) {
 }
 
 export const communityKeys = {
-  snapshot: (userId: string, smokeFreeDays: number) =>
-    ['community', 'snapshot', userId, smokeFreeDays] as const,
+  snapshot: (userId: string, journeyMode: CommunityJourneyMode, smokeFreeDays: number) =>
+    ['community', 'snapshot', userId, journeyMode, smokeFreeDays] as const,
 };
 
 export async function getCommunitySnapshot(
   userId: string,
+  journeyMode: CommunityJourneyMode,
   smokeFreeDays: number,
 ): Promise<CommunitySnapshot> {
   const { data: circleData, error: circleError } = await supabase
     .from('circles')
-    .select('id, name, min_smoke_free_days, max_smoke_free_days, description')
+    .select('id, name, min_smoke_free_days, max_smoke_free_days, description, journey_mode')
+    .eq('journey_mode', journeyMode)
     .order('min_smoke_free_days', { ascending: true });
   if (circleError) throw circleError;
 
   const circles = z.array(circleRowSchema).parse(circleData ?? []).map((row) => ({
     id: row.id,
     name: row.name,
+    journeyMode: row.journey_mode,
     minSmokeFreeDays: row.min_smoke_free_days,
     maxSmokeFreeDays: row.max_smoke_free_days,
     description: row.description,
@@ -165,7 +170,8 @@ export async function getCommunitySnapshot(
     name: row.blocked_name,
   }));
 
-  const challengePromise = getCurrentChallenge(userId);
+  const challengePromise =
+    journeyMode === 'quit' ? getCurrentChallenge(userId) : Promise.resolve(null);
   if (!activeCircle) {
     return { circles, activeCircle: null, posts: [], blockedUsers, challenge: await challengePromise };
   }
