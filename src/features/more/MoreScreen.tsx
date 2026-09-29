@@ -46,6 +46,21 @@ export function MoreScreen() {
           </AppText>
         </View>
 
+        <Card style={styles.card}>
+          <AppText variant="caption" tone="secondary">JOURNEY</AppText>
+          <AppText variant="title">
+            {profile?.journey_mode ? journeyLabels[profile.journey_mode] : 'Your pace'}
+          </AppText>
+          <AppText tone="secondary">
+            Your pace can change. Switch journeys without erasing your Reclaim history.
+          </AppText>
+          <Button
+            label="Change journey"
+            accessibilityHint="Opens journey settings"
+            onPress={() => router.push('/(app)/journey')}
+          />
+        </Card>
+
         {profile?.journey_mode === 'quit' ? (
           <Card style={styles.card}>
             <AppText variant="caption" tone="secondary">GOALS</AppText>
