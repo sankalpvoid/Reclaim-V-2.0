@@ -4,6 +4,7 @@ import {
   defaultNotificationPreferences,
   formatReminderTime,
   hasAnyReminderEnabled,
+  parseReminderKind,
 } from './notificationModel';
 
 describe('notificationModel', () => {
@@ -18,6 +19,13 @@ describe('notificationModel', () => {
     expect(formatReminderTime(0, 5)).toBe('12:05 AM');
     expect(formatReminderTime(12, 0)).toBe('12:00 PM');
     expect(formatReminderTime(21, 30)).toBe('9:30 PM');
+  });
+
+  it('accepts only known reminder kinds from notification payloads', () => {
+    expect(parseReminderKind('daily-checkin')).toBe('daily-checkin');
+    expect(parseReminderKind('weekly-reflection')).toBe('weekly-reflection');
+    expect(parseReminderKind('other')).toBeNull();
+    expect(parseReminderKind(undefined)).toBeNull();
   });
 
   it('reports when at least one reminder is enabled', () => {
