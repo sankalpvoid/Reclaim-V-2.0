@@ -1,9 +1,15 @@
+export type InsightAction = {
+  label: string;
+  route: '/(app)' | '/(app)/craving' | '/(app)/check-in';
+};
+
 export type Insight = {
   id: string;
   title: string;
   body: string;
   evidence: string;
   confidence: 'emerging' | 'established';
+  action: InsightAction;
 };
 
 type SmokingEvent = {
@@ -54,6 +60,10 @@ export function buildInsights(events: SmokingEvent[], checkins: Checkin[], now =
         body: `Most of your logged cravings are happening in the ${top[0]}.`,
         evidence: `${top[1]} of ${cravings.length} logged cravings`,
         confidence: cravings.length >= 6 ? 'established' : 'emerging',
+        action: {
+          label: 'Open craving support',
+          route: '/(app)/craving',
+        },
       });
     }
   }
@@ -78,6 +88,10 @@ export function buildInsights(events: SmokingEvent[], checkins: Checkin[], now =
         body: 'Your own feedback suggests this coping tool is worth trying first during a craving.',
         evidence: `${best[1].helpful} helpful ratings from ${best[1].total} uses`,
         confidence: best[1].total >= 4 ? 'established' : 'emerging',
+        action: {
+          label: `Use ${toolLabels[best[0]] ?? 'this tool'}`,
+          route: '/(app)/craving',
+        },
       });
     }
   }
@@ -91,6 +105,10 @@ export function buildInsights(events: SmokingEvent[], checkins: Checkin[], now =
         body: 'Half or more of your recent check-ins reflect struggle or cravings. Reclaim can prioritize support over pressure.',
         evidence: `${hard} of ${checkins.length} recent check-ins`,
         confidence: checkins.length >= 7 ? 'established' : 'emerging',
+        action: {
+          label: 'Open support',
+          route: '/(app)/craving',
+        },
       });
     }
   }
@@ -114,6 +132,10 @@ export function buildInsights(events: SmokingEvent[], checkins: Checkin[], now =
       body: 'The last seven days contain fewer logged cigarettes than the seven days before them.',
       evidence: `${previous} → ${current} logged cigarettes · ${drop}% lower`,
       confidence: previous + current >= 10 ? 'established' : 'emerging',
+      action: {
+        label: 'View today',
+        route: '/(app)',
+      },
     });
   }
 
