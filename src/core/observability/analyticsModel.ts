@@ -26,6 +26,12 @@ export const clientErrorOperationSchema = z.enum([
 ]);
 export type ClientErrorOperation = z.infer<typeof clientErrorOperationSchema>;
 
+export const forYouActionSchema = z.enum(['support', 'checkin', 'goal', 'insights']);
+export type ForYouAction = z.infer<typeof forYouActionSchema>;
+
+export const communityEngagementSchema = z.enum(['cheer', 'save', 'challenge']);
+export type CommunityEngagement = z.infer<typeof communityEngagementSchema>;
+
 const screenByLeaf: Record<string, AnalyticsScreen> = {
   insights: 'insights',
   community: 'community',
