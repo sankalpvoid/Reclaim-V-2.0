@@ -3,6 +3,7 @@ import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useAuth } from '@/features/auth/AuthContext';
+import { getInsightSourceData, insightKeys } from '@/features/insights/insightsService';
 import { spacing } from '@/theme/tokens';
 import { AppText } from '@/ui/AppText';
 import { Button } from '@/ui/Button';
@@ -11,8 +12,10 @@ import { Screen } from '@/ui/Screen';
 import {
   articlesForJourney,
   attachLearningProgress,
+  buildLearningFocus,
   learningCategoryLabels,
   journeyModeSchema,
+  rankLearningArticles,
 } from './learningModel';
 import {
   getLearningArticles,
@@ -38,13 +41,36 @@ export function LearningScreen() {
     queryFn: () => getLearningProgress(userId),
     enabled: Boolean(userId),
   });
+  const signalQuery = useQuery({
+    queryKey: insightKeys.source(userId),
+    queryFn: () => getInsightSourceData(userId),
+    enabled: Boolean(userId),
+  });
+
+  const learningFocus = useMemo(() => {
+    const parsedJourney = journeyModeSchema.safeParse(profile?.journey_mode);
+    if (!parsedJourney.success) return null;
+    return buildLearningFocus(
+      parsedJourney.data,
+      signalQuery.data?.events ?? [],
+      signalQuery.data?.checkins ?? [],
+    );
+  }, [profile?.journey_mode, signalQuery.data]);
 
   const articleStates = useMemo(() => {
     const parsedJourney = journeyModeSchema.safeParse(profile?.journey_mode);
     if (!parsedJourney.success) return [];
     const filtered = articlesForJourney(articlesQuery.data ?? [], parsedJourney.data);
-    return attachLearningProgress(filtered, progressQuery.data ?? []);
-  }, [articlesQuery.data, profile?.journey_mode, progressQuery.data]);
+    const attached = attachLearningProgress(filtered, progressQuery.data ?? []);
+    return rankLearningArticles(attached, learningFocus?.category ?? null);
+  }, [articlesQuery.data, learningFocus?.category, profile?.journey_mode, progressQuery.data]);
+
+  const recommendedArticleId =
+    learningFocus
+      ? articleStates.find(
+          (article) => !article.completed && article.category === learningFocus.category,
+        )?.id ?? null
+      : null;
 
   const updateMutation = useMutation({
     mutationFn: async (input: { articleId: string; action: 'save' | 'complete'; next: boolean }) => {
@@ -76,6 +102,14 @@ export function LearningScreen() {
           <AppText variant="caption" tone="secondary">YOUR LIBRARY</AppText>
           <AppText variant="title">{completedCount} completed · {savedCount} saved</AppText>
           <AppText tone="secondary">Articles shown here match your current journey.</AppText>
+          {learningFocus ? (
+            <View style={styles.focusCopy}>
+              <AppText variant="caption" tone="secondary">
+                FIRST UP · {learningCategoryLabels[learningFocus.category].toUpperCase()}
+              </AppText>
+              <AppText tone="secondary">{learningFocus.reason}</AppText>
+            </View>
+          ) : null}
         </Card>
 
         {articlesQuery.isLoading || progressQuery.isLoading ? (
@@ -88,6 +122,7 @@ export function LearningScreen() {
             <Card key={article.id} style={styles.articleCard}>
               <View style={styles.articleMeta}>
                 <AppText variant="caption" tone="secondary">
+                  {article.id === recommendedArticleId ? 'FOR YOU NOW · ' : ''}
                   {learningCategoryLabels[article.category].toUpperCase()} · {article.estimatedMinutes} MIN
                 </AppText>
                 {article.completed ? <AppText variant="caption">COMPLETED</AppText> : null}
@@ -166,6 +201,10 @@ const styles = StyleSheet.create({
   },
   heading: { gap: spacing.sm },
   summaryCard: { gap: spacing.sm },
+  focusCopy: {
+    gap: spacing.xs,
+    paddingTop: spacing.sm,
+  },
   articleCard: { gap: spacing.md },
   articleMeta: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing.md },
   reader: { gap: spacing.md },
