@@ -56,6 +56,7 @@ export function NotificationSettingsScreen() {
   const [draft, setDraft] = useState<NotificationPreferences | null>(null);
   const [permission, setPermission] = useState<NotificationPermissionState>('undetermined');
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [referenceTime] = useState(() => Date.now());
   const hydratedUserRef = useRef<string | null>(null);
   const userId = user?.id ?? '';
 
@@ -96,12 +97,12 @@ export function NotificationSettingsScreen() {
   );
 
   const recentCravings = useMemo(() => {
-    const since = Date.now() - 3 * 86_400_000;
+    const since = referenceTime - 3 * 86_400_000;
     return (cravingsQuery.data ?? []).filter((craving) => {
       const createdAt = new Date(craving.created_at).getTime();
       return Number.isFinite(createdAt) && createdAt >= since;
     }).length;
-  }, [cravingsQuery.data]);
+  }, [cravingsQuery.data, referenceTime]);
 
   const reminderSuggestion = useMemo(() => {
     if (!draft || !profile) return null;
