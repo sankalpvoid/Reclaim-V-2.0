@@ -26,7 +26,7 @@ function localDateKey(value = new Date()): string {
   return `${year}-${month}-${day}`;
 }
 
-async function syncReductionPlan(
+export async function syncReductionPlan(
   userId: string,
   cigarettesPerDay: number,
   dailyTarget: number | null,
