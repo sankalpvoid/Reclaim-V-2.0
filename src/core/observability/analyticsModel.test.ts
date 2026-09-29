@@ -4,6 +4,8 @@ import {
   analyticsPlatform,
   analyticsScreenFromPath,
   clientErrorOperationSchema,
+  communityEngagementSchema,
+  forYouActionSchema,
 } from './analyticsModel';
 
 describe('analytics model', () => {
@@ -24,6 +26,13 @@ describe('analytics model', () => {
   it('keeps operational error names on a fixed allowlist', () => {
     expect(clientErrorOperationSchema.parse('notification_response')).toBe('notification_response');
     expect(clientErrorOperationSchema.safeParse('notification_payload_with_private_data').success).toBe(false);
+  });
+
+  it('keeps product engagement properties on fixed allowlists', () => {
+    expect(forYouActionSchema.parse('support')).toBe('support');
+    expect(forYouActionSchema.safeParse('private free text').success).toBe(false);
+    expect(communityEngagementSchema.parse('cheer')).toBe('cheer');
+    expect(communityEngagementSchema.safeParse('post-123').success).toBe(false);
   });
 
   it('normalizes platform values to an allowlist', () => {
