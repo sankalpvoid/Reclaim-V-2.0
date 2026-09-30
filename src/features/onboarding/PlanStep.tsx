@@ -9,7 +9,7 @@ import { calculateInitialReductionTarget } from '@/features/onboarding/onboardin
 import { onboardingPlanSchema } from '@/features/onboarding/onboardingSchemas';
 import { saveOnboardingPlan } from '@/features/onboarding/onboardingService';
 import type { Profile } from '@/features/profile/profile';
-import { spacing } from '@/theme/tokens';
+import { colors, spacing } from '@/theme/tokens';
 import { AppText } from '@/ui/AppText';
 import { Button } from '@/ui/Button';
 import { Card } from '@/ui/Card';
@@ -128,9 +128,9 @@ export function PlanStep({
           onBack={onBack}
         />
 
-        <Card style={styles.modeCard}>
-          <AppText variant="caption" tone="secondary">YOUR PACE</AppText>
-          <AppText variant="title">{copy.label}</AppText>
+        <Card tone="accent" style={styles.modeCard}>
+          <AppText variant="micro" tone="accent">YOUR PACE</AppText>
+          <AppText variant="headline">{copy.label}</AppText>
         </Card>
 
         <View style={styles.form}>
@@ -180,8 +180,8 @@ export function PlanStep({
           />
 
           {mode === 'reduce' && targetPreview !== null ? (
-            <Card>
-              <AppText variant="caption" tone="secondary">YOUR FIRST GENTLE TARGET</AppText>
+            <Card tone="accent">
+              <AppText variant="micro" tone="accent">YOUR FIRST GENTLE TARGET</AppText>
               <AppText variant="title">{targetPreview} cigarettes / day</AppText>
               <AppText tone="secondary">
                 About 10% below your baseline, with at least a one-cigarette step. Reclaim never automatically pushes the target below 1/day.
@@ -250,5 +250,8 @@ const styles = StyleSheet.create({
   },
   form: {
     gap: spacing.lg,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingTop: spacing.lg,
   },
 });

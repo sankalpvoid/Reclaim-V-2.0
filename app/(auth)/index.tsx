@@ -13,8 +13,9 @@ import {
   signInWithPassword,
   signUpWithPassword,
 } from '@/features/auth/authService';
-import { spacing } from '@/theme/tokens';
+import { colors, radius, spacing } from '@/theme/tokens';
 import { AppText } from '@/ui/AppText';
+import { BrandMark } from '@/ui/BrandMark';
 import { Button } from '@/ui/Button';
 import { Input } from '@/ui/Input';
 import { Screen } from '@/ui/Screen';
@@ -131,20 +132,26 @@ export default function AuthScreen() {
     <Screen>
       <View style={styles.container}>
         <View style={styles.header}>
-          <AppText variant="caption" tone="secondary">RECLAIM</AppText>
-          <AppText variant="display">
-            {isSignIn ? 'Welcome back.' : isSignUp ? 'Your next chapter.' : 'Reset your password.'}
-          </AppText>
-          <AppText tone="secondary">
-            {isSignIn
-              ? 'Sign in to restore your Reclaim journey.'
-              : isSignUp
-                ? 'A private place to reclaim your time, health and money.'
-                : 'Enter your account email and Reclaim will send a secure recovery link.'}
-          </AppText>
+          <BrandMark />
+          <View style={styles.headerCopy}>
+            <AppText variant="micro" tone="accent">
+              {isSignIn ? 'WELCOME BACK' : isSignUp ? 'START WHERE YOU ARE' : 'ACCOUNT RECOVERY'}
+            </AppText>
+            <AppText variant="display">
+              {isSignIn ? 'Return to your pace.' : isSignUp ? 'Make space for change.' : 'Reset your password.'}
+            </AppText>
+            <AppText tone="secondary">
+              {isSignIn
+                ? 'Your progress, patterns and support are waiting.'
+                : isSignUp
+                  ? 'A private place to quit, reduce, or simply understand your smoking.'
+                  : 'Enter your account email and we’ll send a secure recovery link.'}
+            </AppText>
+          </View>
         </View>
 
-        <View style={styles.form}>
+        <View style={styles.formPanel}>
+          <View style={styles.form}>
           {isSignUp ? (
             <Input
               label="Name"
@@ -214,7 +221,7 @@ export default function AuthScreen() {
               onPress={() => changeMode('forgot')}
               style={styles.textAction}
             >
-              <AppText tone="secondary">Forgot password?</AppText>
+              <AppText tone="accent">Forgot password?</AppText>
             </Pressable>
           ) : null}
 
@@ -226,11 +233,12 @@ export default function AuthScreen() {
               onPress={() => void resendConfirmation()}
               style={styles.textAction}
             >
-              <AppText tone="secondary">
+              <AppText tone="accent">
                 {isResending ? 'Resending confirmation…' : 'Resend confirmation email'}
               </AppText>
             </Pressable>
           ) : null}
+          </View>
         </View>
 
         {isForgot ? (
@@ -251,7 +259,7 @@ export default function AuthScreen() {
           >
             <AppText tone="secondary">
               {isSignIn ? 'New to Reclaim? ' : 'Already have an account? '}
-              <AppText>{isSignIn ? 'Create account' : 'Sign in'}</AppText>
+              <AppText tone="accent">{isSignIn ? 'Create account' : 'Sign in'}</AppText>
             </AppText>
           </Pressable>
         )}
@@ -264,13 +272,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: '100%',
-    maxWidth: 480,
+    maxWidth: 500,
     alignSelf: 'center',
     justifyContent: 'center',
     gap: spacing.xl,
+    paddingVertical: spacing.xl,
   },
   header: {
+    gap: spacing.xl,
+  },
+  headerCopy: {
     gap: spacing.sm,
+  },
+  formPanel: {
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    borderWidth: 1,
+    borderRadius: radius.xl,
+    padding: spacing.lg,
   },
   form: {
     gap: spacing.md,
@@ -283,8 +302,8 @@ const styles = StyleSheet.create({
   },
   switchMode: {
     minHeight: 44,
-    alignSelf: 'flex-start',
+    alignSelf: 'center',
     justifyContent: 'center',
-    paddingRight: spacing.md,
+    paddingHorizontal: spacing.md,
   },
 });

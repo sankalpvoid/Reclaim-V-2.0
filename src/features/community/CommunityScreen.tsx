@@ -209,7 +209,7 @@ export function CommunityScreen() {
     <Screen>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.heading}>
-          <AppText variant="caption" tone="secondary">COMMUNITY</AppText>
+          <AppText variant="micro" tone="accent">COMMUNITY</AppText>
           <AppText variant="display">
             {profile.journey_mode === 'quit' ? 'People near your stage.' : 'People on your path.'}
           </AppText>
@@ -219,10 +219,10 @@ export function CommunityScreen() {
         </View>
 
         {snapshotQuery.isLoading ? (
-          <Card><AppText tone="secondary">Finding your community circle…</AppText></Card>
+          <Card tone="flat"><AppText tone="secondary">Finding your community circle…</AppText></Card>
         ) : snapshot?.activeCircle ? (
-          <Card style={styles.stageCard}>
-            <AppText variant="caption" tone="secondary">
+          <Card tone="accent" style={styles.stageCard}>
+            <AppText variant="micro" tone="accent">
               {profile.journey_mode === 'quit'
                 ? `YOUR STAGE · DAY ${smokeFreeDays}`
                 : 'YOUR JOURNEY CIRCLE'}
@@ -235,8 +235,8 @@ export function CommunityScreen() {
         ) : null}
 
         {snapshot?.challenge ? (
-          <Card style={styles.stack}>
-            <AppText variant="caption" tone="secondary">CURRENT COMMUNITY CHALLENGE</AppText>
+          <Card tone="raised" style={styles.stack}>
+            <AppText variant="micro" tone="accent">CURRENT COMMUNITY CHALLENGE</AppText>
             <AppText variant="title">{snapshot.challenge.title}</AppText>
             <AppText tone="secondary">{snapshot.challenge.description}</AppText>
             <AppText variant="caption" tone="secondary">
@@ -255,8 +255,8 @@ export function CommunityScreen() {
         ) : null}
 
         {snapshot?.activeCircle ? (
-          <Card style={styles.composer}>
-            <AppText variant="caption" tone="secondary">SHARE WITH THIS CIRCLE</AppText>
+          <Card tone="raised" style={styles.composer}>
+            <AppText variant="micro" tone="accent">SHARE WITH THIS CIRCLE</AppText>
             <View style={styles.chips}>
               {topics.map((item) => (
                 <Pressable
@@ -305,12 +305,12 @@ export function CommunityScreen() {
         ) : null}
 
         <View style={styles.feedHeader}>
-          <AppText variant="caption" tone="secondary">CIRCLE FEED</AppText>
+          <AppText variant="micro" tone="tertiary">CIRCLE FEED</AppText>
           <AppText variant="title">Stories, support, small wins.</AppText>
         </View>
 
         {snapshot && snapshot.posts.length === 0 ? (
-          <Card><AppText tone="secondary">No visible stories in this circle yet.</AppText></Card>
+          <Card tone="flat"><AppText tone="secondary">No visible stories in this circle yet.</AppText></Card>
         ) : null}
 
         {snapshot?.posts.map((post) => (
@@ -347,8 +347,8 @@ export function CommunityScreen() {
         ))}
 
         {reportTarget ? (
-          <Card style={styles.stack}>
-            <AppText variant="caption" tone="secondary">REPORT TO MODERATION</AppText>
+          <Card tone="danger" style={styles.stack}>
+            <AppText variant="micro" tone="danger">REPORT TO MODERATION</AppText>
             <AppText variant="title">What is the concern?</AppText>
             <View style={styles.chips}>
               {reportReasons.map((reason) => (
@@ -391,8 +391,8 @@ export function CommunityScreen() {
         ) : null}
 
         {snapshot && snapshot.blockedUsers.length > 0 ? (
-          <Card style={styles.stack}>
-            <AppText variant="caption" tone="secondary">BLOCKED COMMUNITY MEMBERS</AppText>
+          <Card tone="flat" style={styles.stack}>
+            <AppText variant="micro" tone="tertiary">BLOCKED COMMUNITY MEMBERS</AppText>
             {snapshot.blockedUsers.map((blocked) => (
               <View key={blocked.userId} style={styles.blockedRow}>
                 <AppText>{blocked.name}</AppText>
@@ -444,7 +444,7 @@ function PostCard({
 }) {
   const mine = post.userId === myUserId;
   return (
-    <Card style={styles.postCard}>
+    <Card tone={post.isFeatured ? 'accent' : 'default'} style={styles.postCard}>
       <View style={styles.postHeader}>
         <View style={styles.postHeaderCopy}>
           <AppText variant="title">{post.authorName}</AppText>
@@ -452,7 +452,7 @@ function PostCard({
             {topicLabels[post.topic]} · {showSmokeFreeDays ? `day ${post.smokeFreeDays} · ` : ''}{formatCommunityAge(post.createdAt)}
           </AppText>
         </View>
-        {post.isFeatured ? <AppText variant="caption">FEATURED</AppText> : null}
+        {post.isFeatured ? <AppText variant="micro" tone="accent">FEATURED</AppText> : null}
       </View>
       <AppText>{post.body}</AppText>
 
@@ -585,19 +585,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
   },
-  chipActive: { borderColor: colors.textPrimary },
+  chipActive: { borderColor: colors.accentMuted, backgroundColor: colors.accentSoft },
   textarea: { minHeight: 112, textAlignVertical: 'top' },
   reportInput: { minHeight: 80, textAlignVertical: 'top' },
   replyInput: { minHeight: 72, textAlignVertical: 'top' },
   checkboxRow: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   checkbox: { width: 18, height: 18, borderRadius: 5, borderWidth: 1, borderColor: colors.border },
-  checkboxActive: { backgroundColor: colors.textPrimary },
+  checkboxActive: { backgroundColor: colors.accent, borderColor: colors.accent },
   feedHeader: { gap: spacing.xs },
-  postCard: { gap: spacing.md },
+  postCard: { gap: spacing.md, paddingVertical: spacing.lg },
   postHeader: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing.md },
   postHeaderCopy: { flex: 1, gap: spacing.xs },
-  actionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
-  smallAction: { minHeight: 44, justifyContent: 'center', paddingRight: spacing.sm },
+  actionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  smallAction: {
+    minHeight: 40,
+    justifyContent: 'center',
+    borderRadius: radius.pill,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
+    paddingHorizontal: spacing.sm,
+  },
   replies: {
     gap: spacing.sm,
     borderTopWidth: StyleSheet.hairlineWidth,

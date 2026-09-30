@@ -14,6 +14,7 @@ import {
 import { checkinKeys, getCheckins, saveDailyCheckin } from '@/features/checkins/checkinService';
 import { colors, radius, spacing } from '@/theme/tokens';
 import { AppText } from '@/ui/AppText';
+import { BackButton } from '@/ui/BackButton';
 import { Button } from '@/ui/Button';
 import { Card } from '@/ui/Card';
 import { Input } from '@/ui/Input';
@@ -78,12 +79,10 @@ export function MoodCheckinScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Pressable accessibilityRole="button" onPress={() => router.back()} style={styles.backButton}>
-          <AppText tone="secondary">‹ Back</AppText>
-        </Pressable>
+        <BackButton label="Back" onPress={() => router.back()} />
 
         <View style={styles.heading}>
-          <AppText variant="caption" tone="secondary">DAILY CHECK-IN</AppText>
+          <AppText variant="micro" tone="accent">DAILY CHECK-IN</AppText>
           <AppText variant="display">How are you today?</AppText>
           <AppText tone="secondary">
             One honest check-in is enough. You can update today’s answer later.
@@ -103,7 +102,7 @@ export function MoodCheckinScreen() {
                   setSaved(false);
                 }}
               >
-                <Card style={[styles.moodCard, selected ? styles.moodCardSelected : null]}>
+                <Card tone={selected ? 'accent' : 'default'} style={styles.moodCard}>
                   <AppText variant="title">{option.label}</AppText>
                   <AppText tone="secondary">{option.summary}</AppText>
                 </Card>
@@ -134,7 +133,7 @@ export function MoodCheckinScreen() {
           </AppText>
         ) : null}
 
-        {saved ? <AppText tone="secondary">Today’s check-in is saved.</AppText> : null}
+        {saved ? <AppText tone="success">Today’s check-in is saved.</AppText> : null}
 
         <Button
           label={saveMutation.isPending ? 'Saving…' : todayCheckin ? 'Update today’s check-in' : 'Save check-in'}
@@ -142,10 +141,10 @@ export function MoodCheckinScreen() {
           onPress={() => saveMutation.mutate()}
         />
 
-        <Card style={styles.historyCard}>
+        <Card tone="raised" style={styles.historyCard}>
           <View style={styles.historyHeader}>
             <View style={styles.headingCompact}>
-              <AppText variant="caption" tone="secondary">MOOD HISTORY</AppText>
+              <AppText variant="micro" tone="tertiary">MOOD HISTORY</AppText>
               <AppText variant="title">Patterns, not scores.</AppText>
             </View>
             <View style={styles.periodRow}>
@@ -223,9 +222,8 @@ const styles = StyleSheet.create({
   },
   moodCard: {
     gap: spacing.xs,
-  },
-  moodCardSelected: {
-    borderColor: colors.textPrimary,
+    minHeight: 86,
+    justifyContent: 'center',
   },
   noteInput: {
     minHeight: 96,
@@ -249,7 +247,8 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
   },
   periodButtonActive: {
-    borderColor: colors.textPrimary,
+    borderColor: colors.accentMuted,
+    backgroundColor: colors.accentSoft,
   },
   countGrid: {
     flexDirection: 'row',
@@ -261,6 +260,7 @@ const styles = StyleSheet.create({
     flexBasis: '45%',
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.border,
+    backgroundColor: colors.backgroundRaised,
     borderRadius: radius.md,
     padding: spacing.md,
     gap: spacing.xs,

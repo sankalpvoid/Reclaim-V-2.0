@@ -12,16 +12,17 @@ import {
 import { getHealthMilestones, healthKeys } from '@/features/health/healthService';
 import { colors, radius, spacing } from '@/theme/tokens';
 import { AppText } from '@/ui/AppText';
+import { BackButton } from '@/ui/BackButton';
 import { Card } from '@/ui/Card';
 import { Screen } from '@/ui/Screen';
 
 function MilestoneCard({ milestone }: { milestone: HealthMilestoneProgress }) {
   return (
-    <Card style={styles.milestoneCard}>
+    <Card tone={milestone.reached ? 'success' : 'default'} style={styles.milestoneCard}>
       <View style={styles.milestoneHeading}>
         <View style={[styles.statusDot, milestone.reached ? styles.statusDotReached : null]} />
         <View style={styles.milestoneCopy}>
-          <AppText variant="caption" tone="secondary">
+          <AppText variant="micro" tone={milestone.reached ? 'success' : 'tertiary'}>
             {milestone.reached ? 'MILESTONE REACHED' : 'AHEAD'}
           </AppText>
           <AppText variant="title">{milestone.title}</AppText>
@@ -66,12 +67,10 @@ export function HealthRecoveryScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Pressable accessibilityRole="button" onPress={() => router.back()} style={styles.backButton}>
-          <AppText tone="secondary">‹ Back</AppText>
-        </Pressable>
+        <BackButton label="Back" onPress={() => router.back()} />
 
         <View style={styles.heading}>
-          <AppText variant="caption" tone="secondary">HEALTH RECOVERY</AppText>
+          <AppText variant="micro" tone="accent">HEALTH RECOVERY</AppText>
           <AppText variant="display">Recovery, over time.</AppText>
           <AppText tone="secondary">
             An evidence-informed timeline based on time since your quit date.
@@ -97,8 +96,8 @@ export function HealthRecoveryScreen() {
           </Card>
         ) : recovery ? (
           <>
-            <Card style={styles.progressCard}>
-              <AppText variant="caption" tone="secondary">TIME SINCE QUIT DATE</AppText>
+            <Card tone="accent" style={styles.progressCard}>
+              <AppText variant="micro" tone="accent">TIME SINCE QUIT DATE</AppText>
               <AppText style={styles.elapsedValue}>
                 {formatRecoveryElapsed(recovery.elapsedMinutes)}
               </AppText>
@@ -128,8 +127,8 @@ export function HealthRecoveryScreen() {
           </>
         ) : null}
 
-        <Card style={styles.disclaimerCard}>
-          <AppText variant="caption" tone="secondary">ABOUT THESE ESTIMATES</AppText>
+        <Card tone="flat" style={styles.disclaimerCard}>
+          <AppText variant="micro" tone="tertiary">ABOUT THESE ESTIMATES</AppText>
           <AppText tone="secondary">
             Recovery varies by person. These milestones are educational estimates from the cited sources, not medical measurements, diagnosis, or medical advice.
           </AppText>
@@ -166,7 +165,7 @@ const styles = StyleSheet.create({
     lineHeight: 58,
     fontWeight: '800',
     letterSpacing: -2,
-    color: colors.textPrimary,
+    color: colors.accentLight,
   },
   progressTrack: {
     width: '100%',
@@ -178,10 +177,10 @@ const styles = StyleSheet.create({
   progressFill: {
     height: '100%',
     borderRadius: radius.pill,
-    backgroundColor: colors.textPrimary,
+    backgroundColor: colors.accent,
   },
   timeline: {
-    gap: spacing.sm,
+    gap: spacing.md,
   },
   milestoneCard: {
     gap: spacing.sm,
@@ -204,8 +203,8 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   statusDotReached: {
-    backgroundColor: colors.textPrimary,
-    borderColor: colors.textPrimary,
+    backgroundColor: colors.success,
+    borderColor: colors.success,
   },
   disclaimerCard: {
     gap: spacing.sm,

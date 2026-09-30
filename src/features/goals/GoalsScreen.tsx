@@ -21,6 +21,7 @@ import {
 import { buildQuitTodaySummary, formatMoney } from '@/features/today/todayModel';
 import { colors, radius, spacing } from '@/theme/tokens';
 import { AppText } from '@/ui/AppText';
+import { BackButton } from '@/ui/BackButton';
 import { Button } from '@/ui/Button';
 import { Card } from '@/ui/Card';
 import { Input } from '@/ui/Input';
@@ -83,7 +84,7 @@ function GoalCard({
   }
 
   return (
-    <Card style={styles.goalCard}>
+    <Card tone={progress.achieved ? 'success' : 'raised'} style={styles.goalCard}>
       {editing ? (
         <>
           <Input
@@ -130,7 +131,7 @@ function GoalCard({
         <>
           <View style={styles.goalHeading}>
             <View style={styles.goalHeadingCopy}>
-              <AppText variant="caption" tone="secondary">
+              <AppText variant="micro" tone={progress.achieved ? 'success' : 'tertiary'}>
                 {progress.achieved ? 'GOAL REACHED' : 'SAVINGS GOAL'}
               </AppText>
               <AppText variant="title">{goal.name}</AppText>
@@ -267,12 +268,10 @@ export function GoalsScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-        <Pressable accessibilityRole="button" onPress={() => router.back()} style={styles.backButton}>
-          <AppText tone="secondary">‹ Back</AppText>
-        </Pressable>
+        <BackButton label="Back" onPress={() => router.back()} />
 
         <View style={styles.heading}>
-          <AppText variant="caption" tone="secondary">SAVINGS GOALS</AppText>
+          <AppText variant="micro" tone="accent">SAVINGS GOALS</AppText>
           <AppText variant="display">Make room for more.</AppText>
           <AppText tone="secondary">
             Turn money reclaimed from smoking into visible targets. Goals never spend or reset your progress.
@@ -280,8 +279,8 @@ export function GoalsScreen() {
         </View>
 
         {canAutoFund ? (
-          <Card style={styles.fundingCard}>
-            <AppText variant="caption" tone="secondary">AUTOMATIC FUNDING</AppText>
+          <Card tone="accent" style={styles.fundingCard}>
+            <AppText variant="micro" tone="accent">AUTOMATIC FUNDING</AppText>
             <AppText style={styles.reclaimedValue}>{formatMoney(currencySymbol, moneyReclaimed)}</AppText>
             <AppText tone="secondary">reclaimed since your quit date</AppText>
             <AppText variant="caption" tone="secondary">
@@ -298,7 +297,7 @@ export function GoalsScreen() {
         )}
 
         <View style={styles.sectionHeading}>
-          <AppText variant="caption" tone="secondary">YOUR GOALS</AppText>
+          <AppText variant="micro" tone="tertiary">YOUR GOALS</AppText>
           <AppText variant="title">What are you reclaiming for?</AppText>
         </View>
 
@@ -326,7 +325,7 @@ export function GoalsScreen() {
             ))}
           </View>
         ) : (
-          <Card style={styles.emptyCard}>
+          <Card tone="raised" style={styles.emptyCard}>
             <AppText variant="title">No goal yet.</AppText>
             <AppText tone="secondary">
               Add something meaningful. Reclaim will compare your reclaimed total with that target automatically.
@@ -334,8 +333,8 @@ export function GoalsScreen() {
           </Card>
         )}
 
-        <Card style={styles.createCard}>
-          <AppText variant="caption" tone="secondary">ADD A GOAL</AppText>
+        <Card tone="raised" style={styles.createCard}>
+          <AppText variant="micro" tone="accent">ADD A GOAL</AppText>
           <Input
             label="What are you saving for?"
             value={name}
@@ -375,8 +374,8 @@ export function GoalsScreen() {
           />
         </Card>
 
-        <Card style={styles.noteCard}>
-          <AppText variant="caption" tone="secondary">HOW FUNDING WORKS</AppText>
+        <Card tone="flat" style={styles.noteCard}>
+          <AppText variant="micro" tone="tertiary">HOW FUNDING WORKS</AppText>
           <AppText tone="secondary">
             Every goal is compared with the same total money Reclaim calculates as reclaimed. Multiple goals do not duplicate, allocate, or spend money; they are progress targets, not a wallet.
           </AppText>
@@ -414,10 +413,10 @@ const styles = StyleSheet.create({
     lineHeight: 54,
     fontWeight: '800',
     letterSpacing: -2,
-    color: colors.textPrimary,
+    color: colors.accentLight,
   },
   stack: {
-    gap: spacing.sm,
+    gap: spacing.md,
   },
   goalCard: {
     gap: spacing.md,
@@ -442,7 +441,7 @@ const styles = StyleSheet.create({
   progressFill: {
     height: '100%',
     borderRadius: radius.pill,
-    backgroundColor: colors.textPrimary,
+    backgroundColor: colors.accent,
   },
   actionRow: {
     flexDirection: 'row',

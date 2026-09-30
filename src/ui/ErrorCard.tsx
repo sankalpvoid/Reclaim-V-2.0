@@ -19,12 +19,13 @@ export function ErrorCard({
   retryLabel = 'Try again',
 }: ErrorCardProps) {
   return (
-    <Card style={styles.card}>
+    <Card tone="danger" style={styles.card}>
       <AppText accessibilityLiveRegion="polite" accessibilityRole="alert" tone="danger">
         {message}
       </AppText>
       {onRetry ? (
         <Button
+          variant="ghost"
           label={isRetrying ? 'Retrying…' : retryLabel}
           disabled={isRetrying}
           onPress={onRetry}

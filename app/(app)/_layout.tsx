@@ -1,30 +1,38 @@
 import { Tabs } from 'expo-router';
+import { Platform, StyleSheet, View, type ColorValue } from 'react-native';
 
 import { colors, spacing } from '@/theme/tokens';
 
-const noIcon = () => null;
+const tabMarker = ({ color, focused }: { color: ColorValue; focused: boolean }) => (
+  <View style={[styles.marker, { backgroundColor: color }, focused ? styles.markerActive : null]} />
+);
 
 export default function AppTabsLayout() {
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.textPrimary,
-        tabBarInactiveTintColor: colors.textSecondary,
+        tabBarActiveTintColor: colors.accentLight,
+        tabBarInactiveTintColor: colors.textTertiary,
         tabBarHideOnKeyboard: true,
-        tabBarIcon: noIcon,
+        tabBarIcon: tabMarker,
         tabBarIconStyle: {
-          display: 'none',
+          height: 8,
+          marginBottom: -2,
         },
         tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '600',
+          fontSize: 11,
+          fontWeight: '700',
+          letterSpacing: 0.15,
+          marginTop: 0,
         },
         tabBarStyle: {
-          backgroundColor: colors.surface,
+          backgroundColor: colors.backgroundRaised,
           borderTopColor: colors.border,
-          borderTopWidth: 1,
-          paddingTop: spacing.xs,
+          borderTopWidth: StyleSheet.hairlineWidth,
+          height: Platform.OS === 'ios' ? 78 : 64,
+          paddingTop: spacing.sm,
+          paddingBottom: Platform.OS === 'ios' ? spacing.lg : spacing.sm,
         },
       }}
     >
@@ -44,3 +52,17 @@ export default function AppTabsLayout() {
     </Tabs>
   );
 }
+
+
+const styles = StyleSheet.create({
+  marker: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    opacity: 0.45,
+  },
+  markerActive: {
+    width: 18,
+    opacity: 1,
+  },
+});

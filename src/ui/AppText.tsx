@@ -3,8 +3,8 @@ import { StyleSheet, Text, type TextProps } from 'react-native';
 
 import { colors, typography } from '@/theme/tokens';
 
-type TextVariant = 'display' | 'title' | 'body' | 'caption';
-type TextTone = 'primary' | 'secondary' | 'danger';
+type TextVariant = 'display' | 'headline' | 'title' | 'body' | 'caption' | 'micro';
+type TextTone = 'primary' | 'secondary' | 'tertiary' | 'accent' | 'success' | 'danger';
 
 type AppTextProps = PropsWithChildren<
   TextProps & {
@@ -24,7 +24,7 @@ export function AppText({
   return (
     <Text
       {...props}
-      accessibilityRole={accessibilityRole ?? (variant === 'display' ? 'header' : undefined)}
+      accessibilityRole={accessibilityRole ?? (variant === 'display' || variant === 'headline' ? 'header' : undefined)}
       style={[styles.base, variantStyles[variant], toneStyles[tone], style]}
     >
       {children}
@@ -41,11 +41,21 @@ const styles = StyleSheet.create({
 const variantStyles = StyleSheet.create({
   display: {
     fontSize: typography.display,
+    lineHeight: 42,
     fontWeight: '800',
+    letterSpacing: -1.2,
+  },
+  headline: {
+    fontSize: typography.headline,
+    lineHeight: 35,
+    fontWeight: '800',
+    letterSpacing: -0.7,
   },
   title: {
     fontSize: typography.title,
+    lineHeight: 27,
     fontWeight: '700',
+    letterSpacing: -0.25,
   },
   body: {
     fontSize: typography.body,
@@ -53,7 +63,14 @@ const variantStyles = StyleSheet.create({
   },
   caption: {
     fontSize: typography.caption,
-    lineHeight: 18,
+    lineHeight: 17,
+    letterSpacing: 0.15,
+  },
+  micro: {
+    fontSize: typography.micro,
+    lineHeight: 15,
+    letterSpacing: 0.55,
+    fontWeight: '700',
   },
 });
 
@@ -63,6 +80,15 @@ const toneStyles = StyleSheet.create({
   },
   secondary: {
     color: colors.textSecondary,
+  },
+  tertiary: {
+    color: colors.textTertiary,
+  },
+  accent: {
+    color: colors.accentLight,
+  },
+  success: {
+    color: colors.success,
   },
   danger: {
     color: colors.danger,

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { router } from 'expo-router';
+import { StyleSheet, View } from 'react-native';
 
 import { trackAnalyticsEvent } from '@/core/observability/analyticsService';
 import { useAuth } from '@/features/auth/AuthContext';
@@ -10,7 +11,9 @@ import { hasSavedOnboardingPlan } from '@/features/onboarding/onboardingModel';
 import type { OnboardingMood } from '@/features/onboarding/onboardingSchemas';
 import { completeOnboarding } from '@/features/onboarding/onboardingService';
 import type { Profile } from '@/features/profile/profile';
+import { spacing } from '@/theme/tokens';
 import { AppText } from '@/ui/AppText';
+import { BrandMark } from '@/ui/BrandMark';
 import { Screen } from '@/ui/Screen';
 
 type Step = 'journey' | 'plan' | 'mood';
@@ -33,7 +36,11 @@ export function OnboardingFlow() {
   if (!user || !profile) {
     return (
       <Screen>
-        <AppText tone="secondary">Preparing your Reclaim journey…</AppText>
+        <View style={styles.loading}>
+          <BrandMark />
+          <AppText variant="headline">Preparing your Reclaim journey…</AppText>
+          <AppText tone="secondary">Loading your private setup and progress.</AppText>
+        </View>
       </Screen>
     );
   }
@@ -108,3 +115,15 @@ export function OnboardingFlow() {
     </Screen>
   );
 }
+
+
+const styles = StyleSheet.create({
+  loading: {
+    flex: 1,
+    justifyContent: 'center',
+    gap: spacing.md,
+    width: '100%',
+    maxWidth: 500,
+    alignSelf: 'center',
+  },
+});

@@ -31,7 +31,7 @@ export function InsightsScreen() {
     <Screen>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.heading}>
-          <AppText variant="caption" tone="secondary">INSIGHTS</AppText>
+          <AppText variant="micro" tone="accent">INSIGHTS</AppText>
           <AppText variant="display">What your data is showing.</AppText>
           <AppText tone="secondary">
             Reclaim only surfaces patterns when your own logs provide enough evidence. These are observations, not diagnoses or guarantees.
@@ -39,7 +39,7 @@ export function InsightsScreen() {
         </View>
 
         {sourceQuery.isLoading ? (
-          <Card><AppText tone="secondary">Looking for useful patterns…</AppText></Card>
+          <Card tone="flat"><AppText tone="secondary">Looking for useful patterns…</AppText></Card>
         ) : sourceQuery.error ? (
           <ErrorCard
             message={sourceQuery.error instanceof Error ? sourceQuery.error.message : 'Could not load insights.'}
@@ -47,7 +47,7 @@ export function InsightsScreen() {
             onRetry={() => void sourceQuery.refetch()}
           />
         ) : insights.length === 0 ? (
-          <Card style={styles.emptyCard}>
+          <Card tone="accent" style={styles.emptyCard}>
             <AppText variant="title">Still learning your pattern.</AppText>
             <AppText tone="secondary">
               Keep logging cravings, smoking events, mood check-ins, and coping-tool feedback. Reclaim waits for repeated evidence instead of guessing from one or two entries.
@@ -57,15 +57,15 @@ export function InsightsScreen() {
             </AppText>
             <View style={styles.emptyActions}>
               <Button label="Log a check-in" onPress={() => router.push('/(app)/check-in')} />
-              <Button label="Open craving support" onPress={() => router.push('/(app)/craving')} />
+              <Button variant="secondary" label="Open craving support" onPress={() => router.push('/(app)/craving')} />
             </View>
           </Card>
         ) : (
           <View style={styles.list}>
             {insights.map((insight) => (
-              <Card key={insight.id} style={styles.insightCard}>
+              <Card key={insight.id} tone={insight.confidence === 'established' ? 'accent' : 'raised'} style={styles.insightCard}>
                 <View style={styles.insightHeader}>
-                  <AppText variant="caption" tone="secondary">
+                  <AppText variant="micro" tone={insight.confidence === 'established' ? 'accent' : 'tertiary'}>
                     {insight.confidence === 'established' ? 'REPEATED PATTERN' : 'EMERGING PATTERN'}
                   </AppText>
                   <AppText variant="title">{insight.title}</AppText>
@@ -73,6 +73,7 @@ export function InsightsScreen() {
                 <AppText tone="secondary">{insight.body}</AppText>
                 <AppText variant="caption" tone="secondary">Based on: {insight.evidence}</AppText>
                 <Button
+                  variant="secondary"
                   label={insight.action.label}
                   onPress={() => {
                     if (insight.action.route === '/(app)/craving' && insight.action.tool) {
@@ -90,8 +91,8 @@ export function InsightsScreen() {
           </View>
         )}
 
-        <Card style={styles.methodCard}>
-          <AppText variant="caption" tone="secondary">HOW THIS WORKS</AppText>
+        <Card tone="flat" style={styles.methodCard}>
+          <AppText variant="micro" tone="tertiary">HOW THIS WORKS</AppText>
           <AppText tone="secondary">
             Patterns are calculated only from your recent Reclaim logs. When the evidence is too thin, Reclaim stays quiet instead of filling in the gaps.
           </AppText>
@@ -113,10 +114,10 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   list: {
-    gap: spacing.sm,
+    gap: spacing.md,
   },
   insightCard: {
-    gap: spacing.sm,
+    gap: spacing.md,
   },
   insightHeader: {
     gap: spacing.xs,

@@ -46,11 +46,11 @@ export function CountrySelect({ value, onChange, disabled = false }: CountrySele
         <View style={styles.modal}>
           <View style={styles.modalHeader}>
             <View style={styles.modalHeading}>
-              <AppText variant="caption" tone="secondary">RECLAIM</AppText>
+              <AppText variant="micro" tone="accent">RECLAIM</AppText>
               <AppText variant="title">Choose your country</AppText>
             </View>
             <Pressable accessibilityRole="button" onPress={() => setOpen(false)} style={styles.done}>
-              <AppText>Done</AppText>
+              <AppText tone="accent">Done</AppText>
             </Pressable>
           </View>
 
@@ -78,7 +78,7 @@ export function CountrySelect({ value, onChange, disabled = false }: CountrySele
                       {country.currency} · {country.symbol}
                     </AppText>
                   </View>
-                  {isSelected ? <AppText>✓</AppText> : null}
+                  {isSelected ? <AppText tone="accent">✓</AppText> : null}
                 </Pressable>
               );
             })}
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceRaised,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     flexDirection: 'row',
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   optionSelected: {
-    borderColor: colors.textPrimary,
-    backgroundColor: colors.surfaceRaised,
+    borderColor: colors.accentMuted,
+    backgroundColor: colors.accentSoft,
   },
 });

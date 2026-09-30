@@ -23,6 +23,7 @@ export function Input({
   const inputRef = useRef<TextInput>(null);
   const lastEmittedValueRef = useRef<string | undefined>(undefined);
   const [initialValue] = useState(() => value ?? defaultValue ?? '');
+  const [focused, setFocused] = useState(false);
 
   useEffect(() => {
     if (value === undefined || value === lastEmittedValueRef.current) {
@@ -48,10 +49,18 @@ export function Input({
           lastEmittedValueRef.current = text;
           onChangeText?.(text);
         }}
+        onFocus={(event) => {
+          setFocused(true);
+          props.onFocus?.(event);
+        }}
+        onBlur={(event) => {
+          setFocused(false);
+          props.onBlur?.(event);
+        }}
         accessibilityLabel={accessibilityLabel ?? label}
         accessibilityHint={resolvedHint || undefined}
         placeholderTextColor={colors.textSecondary}
-        style={[styles.input, error ? styles.inputError : null, style]}
+        style={[styles.input, focused ? styles.inputFocused : null, error ? styles.inputError : null, style]}
       />
       {error ? (
         <AppText
@@ -76,11 +85,15 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceRaised,
     color: colors.textPrimary,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     fontSize: typography.body,
+  },
+  inputFocused: {
+    borderColor: colors.accent,
+    backgroundColor: colors.surfaceAccent,
   },
   inputError: {
     borderColor: colors.danger,

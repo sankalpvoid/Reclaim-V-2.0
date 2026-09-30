@@ -6,6 +6,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { createSessionFromAuthUrl } from '@/features/auth/authDeepLink';
 import { spacing } from '@/theme/tokens';
 import { AppText } from '@/ui/AppText';
+import { BrandMark } from '@/ui/BrandMark';
 import { Button } from '@/ui/Button';
 import { Screen } from '@/ui/Screen';
 
@@ -88,7 +89,10 @@ export default function AuthCallbackScreen() {
   return (
     <Screen>
       <View style={styles.container}>
-        <AppText variant="caption" tone="secondary">RECLAIM</AppText>
+        <BrandMark />
+        <AppText variant="micro" tone={error ? 'danger' : 'accent'}>
+          {error ? 'AUTH LINK' : 'SECURE SIGN-IN'}
+        </AppText>
         <AppText variant="display">{error ? 'Link not verified.' : 'Confirming your account…'}</AppText>
         <AppText tone={error ? 'danger' : 'secondary'}>
           {error ?? 'You will continue automatically when confirmation is complete.'}

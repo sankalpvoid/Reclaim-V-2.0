@@ -6,7 +6,7 @@
     "version": "0.1.0",
     "orientation": "portrait",
     "scheme": "reclaim",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "dark",
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "app.reclaim.mobile",

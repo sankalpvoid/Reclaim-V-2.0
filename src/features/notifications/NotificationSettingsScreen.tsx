@@ -9,6 +9,7 @@ import { checkinKeys, getCheckins } from '@/features/checkins/checkinService';
 import { cravingKeys, getCravingHistory } from '@/features/craving/cravingService';
 import { colors, radius, spacing } from '@/theme/tokens';
 import { AppText } from '@/ui/AppText';
+import { BackButton } from '@/ui/BackButton';
 import { Button } from '@/ui/Button';
 import { Card } from '@/ui/Card';
 import { ErrorCard } from '@/ui/ErrorCard';
@@ -167,20 +168,18 @@ export function NotificationSettingsScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Pressable accessibilityRole="button" onPress={() => router.back()} style={styles.backButton}>
-          <AppText tone="secondary">‹ Back</AppText>
-        </Pressable>
+        <BackButton label="Back" onPress={() => router.back()} />
 
         <View style={styles.heading}>
-          <AppText variant="caption" tone="secondary">REMINDERS</AppText>
+          <AppText variant="micro" tone="accent">REMINDERS</AppText>
           <AppText variant="display">Useful, not noisy.</AppText>
           <AppText tone="secondary">
             Reclaim reminders are optional and off by default. Times follow this device’s local clock.
           </AppText>
         </View>
 
-        <Card style={styles.stack}>
-          <AppText variant="caption" tone="secondary">DEVICE PERMISSION</AppText>
+        <Card tone="raised" style={styles.stack}>
+          <AppText variant="micro" tone="tertiary">DEVICE PERMISSION</AppText>
           <AppText variant="title">{permissionLabels[permission]}</AppText>
           <AppText tone="secondary">
             Permission is requested only when you enable a reminder or send a test.
@@ -191,8 +190,8 @@ export function NotificationSettingsScreen() {
         </Card>
 
         {draft && reminderSuggestion ? (
-          <Card style={styles.stack}>
-            <AppText variant="caption" tone="secondary">RECOMMENDED SETUP</AppText>
+          <Card tone="accent" style={styles.stack}>
+            <AppText variant="micro" tone="accent">RECOMMENDED SETUP</AppText>
             <AppText variant="title">{reminderSuggestion.title}</AppText>
             <AppText tone="secondary">{reminderSuggestion.body}</AppText>
             <AppText variant="caption" tone="secondary">Why: {reminderSuggestion.reason}</AppText>
@@ -212,14 +211,16 @@ export function NotificationSettingsScreen() {
           <Card><AppText tone="secondary">Loading reminder preferences…</AppText></Card>
         ) : (
           <>
-            <Card style={styles.stack}>
+            <Card tone="raised" style={styles.stack}>
               <View style={styles.toggleRow}>
                 <View style={styles.toggleCopy}>
-                  <AppText variant="caption" tone="secondary">DAILY CHECK-IN</AppText>
+                  <AppText variant="micro" tone="tertiary">DAILY CHECK-IN</AppText>
                   <AppText variant="title">A small daily pause</AppText>
                 </View>
                 <Switch
                   accessibilityLabel="Daily check-in reminder"
+                  trackColor={{ false: colors.borderStrong, true: colors.accentMuted }}
+                  thumbColor={draft.dailyCheckinEnabled ? colors.accentLight : colors.textSecondary}
                   value={draft.dailyCheckinEnabled}
                   onValueChange={(value) => {
                     setDraft((current) => current ? { ...current, dailyCheckinEnabled: value } : current);
@@ -230,7 +231,7 @@ export function NotificationSettingsScreen() {
               <AppText tone="secondary">
                 A short prompt to record how the day feels. No streak pressure or penalty for skipping.
               </AppText>
-              <AppText variant="caption" tone="secondary">TIME</AppText>
+              <AppText variant="micro" tone="tertiary">TIME</AppText>
               <View style={styles.choiceRow}>
                 {dailyTimePresets.map((preset) => {
                   const selected = draft.dailyCheckinHour === preset.hour && draft.dailyCheckinMinute === preset.minute;
@@ -256,11 +257,13 @@ export function NotificationSettingsScreen() {
             <Card style={styles.stack}>
               <View style={styles.toggleRow}>
                 <View style={styles.toggleCopy}>
-                  <AppText variant="caption" tone="secondary">WEEKLY REFLECTION</AppText>
+                  <AppText variant="micro" tone="tertiary">WEEKLY REFLECTION</AppText>
                   <AppText variant="title">Look at the week, not one day</AppText>
                 </View>
                 <Switch
                   accessibilityLabel="Weekly reflection reminder"
+                  trackColor={{ false: colors.borderStrong, true: colors.accentMuted }}
+                  thumbColor={draft.weeklyReflectionEnabled ? colors.accentLight : colors.textSecondary}
                   value={draft.weeklyReflectionEnabled}
                   onValueChange={(value) => {
                     setDraft((current) => current ? { ...current, weeklyReflectionEnabled: value } : current);
@@ -271,7 +274,7 @@ export function NotificationSettingsScreen() {
               <AppText tone="secondary">
                 A weekly prompt to review patterns Reclaim can actually support with your logged data.
               </AppText>
-              <AppText variant="caption" tone="secondary">DAY</AppText>
+              <AppText variant="micro" tone="tertiary">DAY</AppText>
               <View style={styles.choiceRow}>
                 {weeklyDayPresets.map((weekday) => (
                   <Choice
@@ -314,8 +317,8 @@ export function NotificationSettingsScreen() {
               onPress={() => saveMutation.mutate()}
             />
 
-            <Card style={styles.stack}>
-              <AppText variant="caption" tone="secondary">TEST REMINDERS</AppText>
+            <Card tone="flat" style={styles.stack}>
+              <AppText variant="micro" tone="tertiary">TEST REMINDERS</AppText>
               <AppText variant="title">Check this device</AppText>
               <AppText tone="secondary">
                 Send one test reminder in about three seconds. Your saved reminder schedule will not change.
@@ -415,6 +418,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
   },
   choiceSelected: {
-    borderColor: colors.textPrimary,
+    borderColor: colors.accentMuted,
+    backgroundColor: colors.accentSoft,
   },
 });
