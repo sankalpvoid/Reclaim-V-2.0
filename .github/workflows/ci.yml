@@ -1,7 +1,7 @@
 name: Reclaim V2 CI
 
 permissions:
-  contents: write
+  contents: read
 
 on:
   push:
@@ -26,19 +26,6 @@ jobs:
       - name: Generate approved brand assets
         run: node scripts/generate-brand-assets.mjs
 
-      - name: Commit generated brand assets
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: |
-          git add assets/branding/*.png
-          if git diff --cached --quiet; then
-            echo "Brand assets already current."
-          else
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git commit -m "chore: generate approved Reclaim brand assets [skip ci]"
-            git push
-          fi
-
       - name: Install dependencies
         run: npm ci
 
@@ -61,3 +48,34 @@ jobs:
 
       - name: Run tests
         run: npm test
+
+  persist-brand-assets:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Use Node.js 22.14.0
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22.14.0
+
+      - name: Generate approved brand assets
+        run: node scripts/generate-brand-assets.mjs
+
+      - name: Commit generated brand assets
+        run: |
+          git add assets/branding/*.png
+          if git diff --cached --quiet; then
+            echo "Brand assets already current."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "chore: generate approved Reclaim brand assets [skip ci]"
+            git push
+          fi
