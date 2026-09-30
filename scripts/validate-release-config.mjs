@@ -50,7 +50,8 @@ assert(
 assert(eas?.cli?.appVersionSource === 'remote', 'EAS version source must remain remote.');
 assert(
   eas?.build?.development?.developmentClient === true &&
-    eas?.build?.development?.distribution === 'internal',
+    eas?.build?.development?.distribution === 'internal' &&
+    eas?.build?.development?.environment === 'preview',
   'Development profile must remain an internal development-client build.',
 );
 assert(
@@ -60,6 +61,12 @@ assert(
 assert(
   eas?.build?.['preview-simulator']?.ios?.simulator === true,
   'preview-simulator must remain an iOS simulator build.',
+);
+assert(
+  eas?.build?.['development-simulator']?.extends === 'development' &&
+    eas?.build?.['development-simulator']?.environment === 'preview' &&
+    eas?.build?.['development-simulator']?.ios?.simulator === true,
+  'development-simulator must extend development and remain an iOS simulator build.',
 );
 assert(
   eas?.build?.production?.autoIncrement === true,
