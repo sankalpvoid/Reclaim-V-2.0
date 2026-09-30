@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { colors, radius, spacing } from '@/theme/tokens';
 import { AppText } from '@/ui/AppText';
+import { BrandMark } from '@/ui/BrandMark';
 
 type OnboardingHeaderProps = {
   step: 1 | 2 | 3;
@@ -14,6 +15,7 @@ type OnboardingHeaderProps = {
 export function OnboardingHeader({ step, eyebrow, title, body, onBack }: OnboardingHeaderProps) {
   return (
     <View style={styles.wrapper}>
+      <BrandMark compact />
       <View style={styles.topRow}>
         {onBack ? (
           <Pressable accessibilityRole="button" accessibilityLabel="Go back" onPress={onBack} style={styles.back}>
@@ -50,9 +52,9 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: radius.pill,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceRaised,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
+    borderColor: colors.borderStrong,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -71,9 +73,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.border,
   },
   progressSegmentActive: {
-    backgroundColor: colors.textPrimary,
+    backgroundColor: colors.accent,
   },
   copy: {
     gap: spacing.sm,
+    paddingTop: spacing.xs,
   },
 });
