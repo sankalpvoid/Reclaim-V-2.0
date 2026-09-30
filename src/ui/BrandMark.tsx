@@ -1,6 +1,5 @@
 import { Image, StyleSheet, View } from 'react-native';
 
-import { colors } from '@/theme/tokens';
 import { AppText } from '@/ui/AppText';
 
 type BrandMarkProps = {
