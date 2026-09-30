@@ -62,6 +62,11 @@ assert(
   'preview-simulator must remain an iOS simulator build.',
 );
 assert(
+  eas?.build?.['development-simulator']?.developmentClient === true &&
+    eas?.build?.['development-simulator']?.ios?.simulator === true,
+  'development-simulator must remain an iOS simulator development-client build.',
+);
+assert(
   eas?.build?.production?.autoIncrement === true,
   'Production builds must auto-increment developer-facing build numbers.',
 );
