@@ -529,7 +529,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: spacing.md,
-    borderTopWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.border,
     borderBottomWidth: StyleSheet.hairlineWidth,
     paddingVertical: spacing.md,
