@@ -130,7 +130,7 @@ function render({ size, background, foreground, scale = 1 }) {
 
 function write(name, options) {
   const rgba = render(options);
-  fs.writeFileSync(path.join(OUT_DIR, name), encodePng(options.size, options.size, rgba));
+  fs.writeFileSync(path.join(OUT_DIR, name), encodePng(options.size, rgba));
 }
 
 write('icon.png', {
@@ -154,11 +154,10 @@ write('monochrome-icon.png', {
   scale: 0.76,
 });
 
-write('splash-icon.png', {
-  size: 1024,
-  background: COLORS.transparent,
-  foreground: COLORS.purple,
-  scale: 0.62,
-});
+// Keep the splash artwork byte-for-byte identical to the approved app icon.
+fs.copyFileSync(
+  path.join(OUT_DIR, 'icon.png'),
+  path.join(OUT_DIR, 'splash-icon.png'),
+);
 
 console.log('Generated Reclaim v1 brand assets in assets/branding/.');
