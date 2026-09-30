@@ -59,8 +59,8 @@ export function JourneyModePicker({ value, onSelect }: JourneyStepProps) {
               <AppText variant="title">{option.icon}</AppText>
             </View>
             <View style={styles.copy}>
-              <AppText variant="title">{option.title}</AppText>
-              <AppText tone="secondary">{option.body}</AppText>
+              <AppText variant="micro" tone={selected ? 'accent' : 'tertiary'}>{option.title}</AppText>
+              <AppText variant="title">{option.body}</AppText>
             </View>
             <AppText tone="secondary">{selected ? '✓' : '›'}</AppText>
           </Pressable>
@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   card: {
-    minHeight: 116,
+    minHeight: 126,
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
@@ -113,8 +113,8 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   cardSelected: {
-    borderColor: colors.textPrimary,
-    backgroundColor: colors.surfaceRaised,
+    borderColor: colors.accentMuted,
+    backgroundColor: colors.surfaceAccent,
   },
   cardPressed: {
     opacity: 0.84,
@@ -123,12 +123,12 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: radius.md,
-    backgroundColor: colors.surfaceRaised,
+    backgroundColor: colors.backgroundRaised,
     alignItems: 'center',
     justifyContent: 'center',
   },
   iconSelected: {
-    backgroundColor: colors.border,
+    backgroundColor: colors.accentSoft,
   },
   copy: {
     flex: 1,
