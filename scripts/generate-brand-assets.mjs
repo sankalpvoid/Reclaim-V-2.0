@@ -130,7 +130,7 @@ function render({ size, background, foreground, scale = 1 }) {
 
 function write(name, options) {
   const rgba = render(options);
-  fs.writeFileSync(path.join(OUT_DIR, name), encodePng(options.size, rgba));
+  fs.writeFileSync(path.join(OUT_DIR, name), encodePng(options.size, options.size, rgba));
 }
 
 write('icon.png', {
