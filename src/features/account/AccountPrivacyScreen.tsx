@@ -51,7 +51,7 @@ export function AccountPrivacyScreen() {
         </Pressable>
 
         <View style={styles.heading}>
-          <AppText variant="caption" tone="secondary">PRIVACY & ACCOUNT</AppText>
+          <AppText variant="micro" tone="accent">PRIVACY & ACCOUNT</AppText>
           <AppText variant="display">Your data stays under your control.</AppText>
           <AppText tone="secondary">
             Reclaim uses your account data to power your quit journey. Account deletion permanently
@@ -59,8 +59,9 @@ export function AccountPrivacyScreen() {
           </AppText>
         </View>
 
-        <Card style={styles.card}>
-          <AppText variant="title">What Reclaim stores</AppText>
+        <Card tone="raised" style={styles.card}>
+          <AppText variant="micro" tone="tertiary">WHAT RECLAIM STORES</AppText>
+          <AppText variant="title">Your account-backed data</AppText>
           <AppText tone="secondary">
             Your profile, smoking and craving logs, check-ins, goals, learning progress,
             reminder preferences, and community activity are stored in Supabase so your
@@ -68,8 +69,8 @@ export function AccountPrivacyScreen() {
           </AppText>
         </Card>
 
-        <Card style={styles.card}>
-          <AppText variant="caption" tone="secondary">PUBLIC POLICY</AppText>
+        <Card tone="accent" style={styles.card}>
+          <AppText variant="micro" tone="accent">PUBLIC POLICY</AppText>
           <AppText variant="title">Read the full privacy policy.</AppText>
           <AppText tone="secondary">
             The public policy reflects the current Reclaim v1 data practices and account-deletion flow.
@@ -81,7 +82,8 @@ export function AccountPrivacyScreen() {
           />
         </Card>
 
-        <Card style={styles.card}>
+        <Card tone="raised" style={styles.card}>
+          <AppText variant="micro" tone="tertiary">DIAGNOSTICS</AppText>
           <AppText variant="title">Analytics & crash diagnostics</AppText>
           <AppText tone="secondary">
             V2 product analytics uses fixed event names such as screen views and completed
@@ -91,8 +93,8 @@ export function AccountPrivacyScreen() {
           </AppText>
         </Card>
 
-        <Card style={styles.card}>
-          <AppText variant="caption" tone="danger">DANGER ZONE</AppText>
+        <Card tone="danger" style={styles.card}>
+          <AppText variant="micro" tone="danger">DANGER ZONE</AppText>
           <AppText variant="title">Delete account</AppText>
           <AppText tone="secondary">
             This is permanent. Your Reclaim account and associated user data will be deleted.
@@ -142,6 +144,7 @@ export function AccountPrivacyScreen() {
               ) : null}
 
               <Button
+                variant="danger"
                 label={isDeleting ? 'Deleting account…' : 'Permanently delete account'}
                 accessibilityHint="Permanently deletes this Reclaim account and associated data"
                 disabled={!passwordPresent || !confirmationMatches || isDeleting}
@@ -197,6 +200,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.danger,
+    backgroundColor: colors.dangerSoft,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.lg,
