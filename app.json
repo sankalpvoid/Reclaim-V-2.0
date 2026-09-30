@@ -12,12 +12,15 @@
       "bundleIdentifier": "app.reclaim.mobile",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
-      }
+      },
+      "icon": "./assets/branding/icon.png"
     },
     "android": {
       "package": "app.reclaim.mobile",
       "adaptiveIcon": {
-        "backgroundColor": "#0A0A0A"
+        "foregroundImage": "./assets/branding/adaptive-icon.png",
+        "monochromeImage": "./assets/branding/monochrome-icon.png",
+        "backgroundColor": "#0A0A0F"
       }
     },
     "web": {
@@ -28,7 +31,10 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#0A0A0A"
+          "image": "./assets/branding/splash-icon.png",
+          "imageWidth": 180,
+          "resizeMode": "contain",
+          "backgroundColor": "#0A0A0F"
         }
       ],
       "expo-secure-store",
@@ -75,6 +81,7 @@
       "eas": {
         "projectId": "35a0891e-f3e8-4092-9cc3-75fd929a635f"
       }
-    }
+    },
+    "icon": "./assets/branding/icon.png"
   }
 }
