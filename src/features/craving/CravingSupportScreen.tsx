@@ -203,7 +203,7 @@ export function CravingSupportScreen() {
         {stage === 'choose' ? (
           <>
             <View style={styles.heading}>
-              <AppText variant="caption" tone="secondary">CRAVING SUPPORT</AppText>
+              <AppText variant="micro" tone="accent">CRAVING SUPPORT</AppText>
               <AppText variant="display">One urge. One small step.</AppText>
               <AppText tone="secondary">
                 Choose one action to create some space between the urge and what you do next.
@@ -211,8 +211,8 @@ export function CravingSupportScreen() {
             </View>
 
             {primaryToolInfo ? (
-              <Card style={styles.recommendationCard}>
-                <AppText variant="caption" tone="secondary">
+              <Card tone="accent" style={styles.recommendationCard}>
+                <AppText variant="micro" tone="accent">
                   {requestedTool ? 'FROM YOUR INSIGHT' : 'WORKED FOR YOU BEFORE'}
                 </AppText>
                 <AppText variant="title">
@@ -239,8 +239,8 @@ export function CravingSupportScreen() {
                 />
               </Card>
             ) : hardDay ? (
-              <Card style={styles.recommendationCard}>
-                <AppText variant="caption" tone="secondary">TODAY</AppText>
+              <Card tone="accent" style={styles.recommendationCard}>
+                <AppText variant="micro" tone="accent">TODAY</AppText>
                 <AppText variant="title">Keep the next step small.</AppText>
                 <AppText tone="secondary">
                   Your check-in says today has felt harder. Pick whichever support tool feels easiest to start.
@@ -260,9 +260,9 @@ export function CravingSupportScreen() {
                       startTool(tool.key);
                     }}
                   >
-                    <Card style={styles.toolCard}>
+                    <Card tone={tool.key === primaryTool ? 'raised' : 'default'} style={styles.toolCard}>
                       {tool.key === primaryTool ? (
-                        <AppText variant="caption">
+                        <AppText variant="micro" tone="accent">
                           {requestedTool ? 'FROM YOUR INSIGHT' : 'WORKED FOR YOU BEFORE'}
                         </AppText>
                       ) : null}
@@ -277,6 +277,7 @@ export function CravingSupportScreen() {
             </View>
 
             <Button
+              variant="ghost"
               label={recordMutation.isPending ? 'Logging…' : 'Log without exercise'}
               disabled={recordMutation.isPending}
               onPress={() => void logWithoutExercise()}
@@ -296,12 +297,12 @@ export function CravingSupportScreen() {
 
         {stage === 'feedback' ? (
           <View style={styles.stack}>
-            <AppText variant="caption" tone="secondary">OPTIONAL</AppText>
+            <AppText variant="micro" tone="accent">OPTIONAL</AppText>
             <AppText variant="display">Did that help?</AppText>
             <AppText tone="secondary">One tap helps Reclaim learn which support works for you.</AppText>
             <Button label="Yes" onPress={() => void submitFeedback('yes')} />
-            <Button label="A little" onPress={() => void submitFeedback('a_little')} />
-            <Button label="Not really" onPress={() => void submitFeedback('not_really')} />
+            <Button variant="secondary" label="A little" onPress={() => void submitFeedback('a_little')} />
+            <Button variant="ghost" label="Not really" onPress={() => void submitFeedback('not_really')} />
             <Pressable
               onPress={() => {
                 resetFlow();
@@ -358,7 +359,7 @@ function ToolStage({
 
   return (
     <View style={styles.toolStage}>
-      <AppText variant="caption" tone="secondary">SUPPORT TOOL</AppText>
+      <AppText variant="micro" tone="accent">SUPPORT TOOL</AppText>
       <AppText style={styles.toolValue}>{copy[tool].title}</AppText>
       <AppText tone="secondary">{copy[tool].body}</AppText>
       <Button
@@ -391,9 +392,12 @@ const styles = StyleSheet.create({
   },
   recommendationCard: {
     gap: spacing.md,
+    paddingVertical: spacing.lg,
   },
   toolCard: {
     gap: spacing.sm,
+    minHeight: 108,
+    justifyContent: 'center',
   },
   toolHeader: {
     flexDirection: 'row',
@@ -410,7 +414,7 @@ const styles = StyleSheet.create({
     fontSize: 56,
     lineHeight: 62,
     fontWeight: '800',
-    color: colors.textPrimary,
+    color: colors.accentLight,
   },
   skipButton: {
     alignSelf: 'center',
