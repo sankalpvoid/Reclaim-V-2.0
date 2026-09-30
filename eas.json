@@ -24,7 +24,8 @@
       "extends": "development",
       "ios": {
         "simulator": true
-      }
+      },
+      "environment": "preview"
     }
   },
   "submit": {
