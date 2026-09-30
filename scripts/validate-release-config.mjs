@@ -63,6 +63,7 @@ assert(
 );
 assert(
   eas?.build?.['development-simulator']?.extends === 'development' &&
+    eas?.build?.['development-simulator']?.environment === 'preview' &&
     eas?.build?.['development-simulator']?.ios?.simulator === true,
   'development-simulator must extend development and remain an iOS simulator build.',
 );
