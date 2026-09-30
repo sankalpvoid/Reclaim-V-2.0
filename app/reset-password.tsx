@@ -8,8 +8,9 @@ import {
   resetPasswordSchema,
 } from '@/features/auth/authSchemas';
 import { updatePassword } from '@/features/auth/authService';
-import { spacing } from '@/theme/tokens';
+import { colors, radius, spacing } from '@/theme/tokens';
 import { AppText } from '@/ui/AppText';
+import { BrandMark } from '@/ui/BrandMark';
 import { Button } from '@/ui/Button';
 import { Input } from '@/ui/Input';
 import { Screen } from '@/ui/Screen';
@@ -126,7 +127,8 @@ export default function ResetPasswordScreen() {
     <Screen>
       <View style={styles.container}>
         <View style={styles.header}>
-          <AppText variant="caption" tone="secondary">ACCOUNT RECOVERY</AppText>
+          <BrandMark />
+          <AppText variant="micro" tone="accent">ACCOUNT RECOVERY</AppText>
           <AppText variant="display">Choose a new password.</AppText>
           <AppText tone="secondary">
             This screen only works from a valid Reclaim password-recovery email.
@@ -134,13 +136,13 @@ export default function ResetPasswordScreen() {
         </View>
 
         {linkError ? (
-          <View style={styles.form}>
+          <View style={styles.formPanel}><View style={styles.formPanel}><View style={styles.form}>
             <AppText accessibilityRole="alert" tone="danger">{linkError}</AppText>
             <Button
               label="Back to sign in"
               onPress={() => router.replace('/(auth)')}
             />
-          </View>
+          </View></View>
         ) : isReady ? (
           <View style={styles.form}>
             <Input
@@ -175,7 +177,7 @@ export default function ResetPasswordScreen() {
               disabled={isSubmitting}
               onPress={() => void submit()}
             />
-          </View>
+          </View></View>
         ) : (
           <AppText tone="secondary">Verifying recovery link…</AppText>
         )}
@@ -195,6 +197,13 @@ const styles = StyleSheet.create({
   },
   header: {
     gap: spacing.sm,
+  },
+  formPanel: {
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+    borderWidth: 1,
+    borderRadius: radius.xl,
+    padding: spacing.lg,
   },
   form: {
     gap: spacing.md,
