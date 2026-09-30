@@ -1,9 +1,9 @@
 import { Tabs } from 'expo-router';
-import { Platform, StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View, type ColorValue } from 'react-native';
 
 import { colors, spacing } from '@/theme/tokens';
 
-const tabMarker = ({ color, focused }: { color: string; focused: boolean }) => (
+const tabMarker = ({ color, focused }: { color: ColorValue; focused: boolean }) => (
   <View style={[styles.marker, { backgroundColor: color }, focused ? styles.markerActive : null]} />
 );
 
