@@ -92,7 +92,7 @@ export function JourneySettingsScreen() {
         </Pressable>
 
         <View style={styles.heading}>
-          <AppText variant="caption" tone="secondary">YOUR JOURNEY</AppText>
+          <AppText variant="micro" tone="accent">YOUR JOURNEY</AppText>
           <AppText variant="display">Your pace can change.</AppText>
           <AppText tone="secondary">
             Pick the path that matches where you are now. Reclaim will adapt the active dashboard and calculations without erasing your history.
@@ -102,15 +102,15 @@ export function JourneySettingsScreen() {
         <JourneyModePicker value={mode} onSelect={setMode} />
 
         {mode === 'quit' ? (
-          <Card style={styles.detailCard}>
-            <AppText variant="caption" tone="secondary">ACTIVE QUIT TIMELINE</AppText>
+          <Card tone="accent" style={styles.detailCard}>
+            <AppText variant="micro" tone="accent">ACTIVE QUIT TIMELINE</AppText>
             <QuitDatePicker value={quitDate} onChange={setQuitDate} disabled={isSaving} />
           </Card>
         ) : null}
 
         {mode === 'reduce' && targetPreview !== null ? (
-          <Card style={styles.detailCard}>
-            <AppText variant="caption" tone="secondary">FRESH STARTING TARGET</AppText>
+          <Card tone="accent" style={styles.detailCard}>
+            <AppText variant="micro" tone="accent">FRESH STARTING TARGET</AppText>
             <AppText variant="title">{targetPreview} cigarettes / day</AppText>
             <AppText tone="secondary">
               Based on your saved baseline of {activeProfile.cigarettes_per_day} per day. This creates a new active reduction plan only when you switch into Smoke Less.
@@ -118,8 +118,8 @@ export function JourneySettingsScreen() {
           </Card>
         ) : null}
 
-        <Card style={styles.detailCard}>
-          <AppText variant="caption" tone="secondary">WHAT CHANGES</AppText>
+        <Card tone="flat" style={styles.detailCard}>
+          <AppText variant="micro" tone="tertiary">WHAT CHANGES</AppText>
           <AppText tone="secondary">
             {journeyTransitionCopy(activeProfile.journey_mode, mode)}
           </AppText>
