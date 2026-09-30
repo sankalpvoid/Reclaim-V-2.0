@@ -92,20 +92,20 @@ export function LearningScreen() {
     <Screen>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.heading}>
-          <AppText variant="caption" tone="secondary">LEARNING</AppText>
+          <AppText variant="micro" tone="accent">LEARNING</AppText>
           <AppText variant="display">Useful context, when you want it.</AppText>
           <AppText tone="secondary">
             Short explanations connected to the tools and data already inside Reclaim. No streaks for reading.
           </AppText>
         </View>
 
-        <Card style={styles.summaryCard}>
-          <AppText variant="caption" tone="secondary">YOUR LIBRARY</AppText>
+        <Card tone="accent" style={styles.summaryCard}>
+          <AppText variant="micro" tone="accent">YOUR LIBRARY</AppText>
           <AppText variant="title">{completedCount} completed · {savedCount} saved</AppText>
           <AppText tone="secondary">Articles shown here match your current journey.</AppText>
           {learningFocus ? (
             <View style={styles.focusCopy}>
-              <AppText variant="caption" tone="secondary">
+              <AppText variant="micro" tone="accent">
                 FIRST UP · {learningCategoryLabels[learningFocus.category].toUpperCase()}
               </AppText>
               <AppText tone="secondary">{learningFocus.reason}</AppText>
@@ -114,15 +114,15 @@ export function LearningScreen() {
         </Card>
 
         {articlesQuery.isLoading || progressQuery.isLoading ? (
-          <Card><AppText tone="secondary">Loading learning library…</AppText></Card>
+          <Card tone="flat"><AppText tone="secondary">Loading learning library…</AppText></Card>
         ) : null}
 
         {articleStates.map((article) => {
           const open = openArticleId === article.id;
           return (
-            <Card key={article.id} style={styles.articleCard}>
+            <Card key={article.id} tone={article.id === recommendedArticleId ? 'raised' : 'default'} style={styles.articleCard}>
               <View style={styles.articleMeta}>
-                <AppText variant="caption" tone="secondary">
+                <AppText variant="micro" tone={article.id === recommendedArticleId ? 'accent' : 'tertiary'}>
                   {article.id === recommendedArticleId ? 'FOR YOU NOW · ' : ''}
                   {learningCategoryLabels[article.category].toUpperCase()} · {article.estimatedMinutes} MIN
                 </AppText>
@@ -151,6 +151,7 @@ export function LearningScreen() {
 
               <View style={styles.actions}>
                 <Button
+                  variant={open ? 'ghost' : 'secondary'}
                   label={open ? 'Close' : 'Read'}
                   accessibilityHint={open ? 'Collapses this article' : 'Expands this article'}
                   onPress={() => setOpenArticleId((value) => (value === article.id ? null : article.id))}
@@ -213,7 +214,7 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     paddingTop: spacing.sm,
   },
-  articleCard: { gap: spacing.md },
+  articleCard: { gap: spacing.md, paddingVertical: spacing.lg },
   articleMeta: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing.md },
   reader: { gap: spacing.md },
   actions: { gap: spacing.sm },
