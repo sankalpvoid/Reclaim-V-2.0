@@ -53,7 +53,7 @@ export function MoodStep({ isSubmitting, error, onBack, onSelect }: MoodStepProp
             </View>
             <View style={styles.copy}>
               <AppText variant="title">{item.title}</AppText>
-              <AppText tone="secondary">{item.body}</AppText>
+              <AppText variant="caption" tone="secondary">{item.body}</AppText>
             </View>
             <AppText tone="secondary">›</AppText>
           </Pressable>
@@ -94,7 +94,8 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   cardPressed: {
-    backgroundColor: colors.surfaceRaised,
+    backgroundColor: colors.surfaceAccent,
+    borderColor: colors.accentMuted,
   },
   disabled: {
     opacity: 0.55,
@@ -103,7 +104,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: radius.md,
-    backgroundColor: colors.surfaceRaised,
+    backgroundColor: colors.accentSoft,
     alignItems: 'center',
     justifyContent: 'center',
   },
