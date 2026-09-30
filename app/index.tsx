@@ -4,7 +4,9 @@ import { StyleSheet, View } from 'react-native';
 import { useAuth } from '@/features/auth/AuthContext';
 import { spacing } from '@/theme/tokens';
 import { AppText } from '@/ui/AppText';
+import { BrandMark } from '@/ui/BrandMark';
 import { Button } from '@/ui/Button';
+import { ErrorCard } from '@/ui/ErrorCard';
 import { Screen } from '@/ui/Screen';
 
 export default function EntryScreen() {
@@ -21,10 +23,9 @@ export default function EntryScreen() {
     return (
       <Screen>
         <View style={styles.centered}>
-          <AppText variant="caption" tone="secondary">
-            RECLAIM V2
-          </AppText>
-          <AppText variant="title">Restoring your session…</AppText>
+          <BrandMark />
+          <AppText variant="micro" tone="accent">RETURNING TO YOUR SPACE</AppText>
+          <AppText variant="headline">Restoring your session…</AppText>
         </View>
       </Screen>
     );
@@ -34,7 +35,8 @@ export default function EntryScreen() {
     return (
       <Screen>
         <View style={styles.centered}>
-          <AppText variant="title">We couldn’t restore your session.</AppText>
+          <BrandMark />
+          <AppText variant="headline">We couldn’t restore your session.</AppText>
           <AppText tone="secondary">{authError.message}</AppText>
         </View>
       </Screen>
@@ -49,9 +51,10 @@ export default function EntryScreen() {
     return (
       <Screen>
         <View style={styles.centered}>
-          <AppText variant="title">Your profile couldn’t be loaded.</AppText>
-          <AppText tone="secondary">{profileError.message}</AppText>
-          <Button label="Try again" onPress={() => void refreshProfile()} />
+          <BrandMark />
+          <AppText variant="headline">Your profile couldn’t be loaded.</AppText>
+          <ErrorCard message={profileError.message} />
+          <Button variant="secondary" label="Try again" onPress={() => void refreshProfile()} />
         </View>
       </Screen>
     );
@@ -69,5 +72,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     gap: spacing.md,
+    width: '100%',
+    maxWidth: 500,
+    alignSelf: 'center',
   },
 });
