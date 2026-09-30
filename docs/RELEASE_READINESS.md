@@ -29,6 +29,11 @@ This document tracks the work required to move Reclaim V2 from a verified develo
 - Retryable accessible error states for the main data-heavy product surfaces
 - Journey-aware iOS widget data for Quit, Reduce and Track modes
 - Account deletion removes linked product analytics, including associated anonymous installation analytics
+- Approved v1 app icon, Android adaptive/monochrome assets and splash mark are generated and committed
+- Public privacy policy is deployed and linked from the in-app Privacy & account screen
+- Branded Supabase auth email templates are prepared for signup confirmation, recovery, email change and reauthentication
+- Owner-controlled Apple/Google store-access handoff is documented
+- Release-style physical iPhone/Android QA checklist is documented
 - EAS preview and production environments configured with client-safe Supabase values
 - Android parity smoke test completed on Pixel 9 Pro / Android 16
 - Android custom-scheme deep-link routing verified with `reclaim://auth-callback`
@@ -65,7 +70,7 @@ The privacy page intentionally leaves the support email unpublished until the de
 
 ### Auth email delivery
 
-Supabase's built-in email service is suitable for development testing, but production launch should use a custom SMTP provider and branded auth email templates.
+Branded auth email templates are prepared in `supabase/templates/`. Production launch still requires the account owner to choose/configure a custom SMTP provider, verify the sending domain, and apply the templates in the hosted Supabase dashboard.
 
 ### Platform QA
 
@@ -76,7 +81,7 @@ Before public submission:
 
 ### Store accounts and signing
 
-Production submission still requires valid Apple Developer / App Store Connect and Google Play Console credentials. EAS can manage signing once those accounts are connected.
+Production submission still requires active Apple Developer / App Store Connect and Google Play Console accounts owned by the project owner. The handoff sequence is documented in `docs/STORE_ACCESS_HANDOFF.md`; credentials and 2FA secrets should remain with the owner. EAS can manage signing once those accounts are authenticated/configured.
 
 ## Security status
 
@@ -86,13 +91,12 @@ The latest Supabase advisor pass (September 29, 2026) reports no RLS or database
 
 The deployed `delete-account` Edge Function is JWT-protected and currently on version 2.
 
-## Release sequence
+## Remaining release sequence
 
-1. Merge the approved brand configuration and confirm generated assets on `main`.
-2. Create the dedicated Reclaim support email and publish the support/contact page.
-3. Configure production SMTP and branded auth emails.
-4. Verify real-email auth deep links on iPhone and Android and test notifications on physical devices.
-5. Resolve any release-build-only defects.
-6. Set the intended public version (for example 1.0.0 when launch scope is approved).
-7. Enroll/connect store accounts and create production builds with EAS.
-8. Submit first to TestFlight / Play internal testing before public review.
+1. Create the dedicated Reclaim support email and publish the support/contact page.
+2. Choose/configure production SMTP, verify its sending domain, and apply the prepared branded auth templates.
+3. Verify real-email auth deep links and notifications on physical iPhone and Android devices using `docs/PHYSICAL_DEVICE_QA.md`.
+4. Resolve any release-build-only defects found by physical QA.
+5. Set the intended public version (for example 1.0.0 when launch scope is approved).
+6. Enroll/connect the owner-controlled store accounts using `docs/STORE_ACCESS_HANDOFF.md` and create EAS production builds.
+7. Submit first to TestFlight / Play internal testing before public review.
