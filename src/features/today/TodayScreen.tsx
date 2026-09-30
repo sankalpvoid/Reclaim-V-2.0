@@ -38,8 +38,8 @@ const journeyLabels = {
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
     <View style={styles.statCard}>
-      <AppText variant="caption" tone="secondary">{label}</AppText>
-      <AppText variant="title">{value}</AppText>
+      <AppText variant="micro" tone="tertiary">{label}</AppText>
+      <AppText variant="headline">{value}</AppText>
     </View>
   );
 }
@@ -59,7 +59,7 @@ function QuickAction({
         <AppText variant="title">{label}</AppText>
         <AppText variant="caption" tone="secondary">{detail}</AppText>
       </View>
-      <AppText variant="title" tone="secondary">›</AppText>
+      <AppText variant="title" tone="accent">↗</AppText>
     </Pressable>
   );
 }
@@ -230,20 +230,20 @@ export function TodayScreen({ now }: { now: Date }) {
       >
         <View style={styles.headerRow}>
           <View style={styles.headerCopy}>
-            <AppText variant="caption" tone="secondary">TODAY</AppText>
+            <AppText variant="micro" tone="accent">TODAY</AppText>
             <AppText variant="display">
               {profile.display_name ? `Namaste, ${profile.display_name}.` : 'Namaste.'}
             </AppText>
           </View>
           <View style={styles.pacePill}>
-            <AppText variant="caption">{journeyLabels[mode]}</AppText>
+            <AppText variant="micro" tone="accent">{journeyLabels[mode]}</AppText>
           </View>
         </View>
 
         {mode === 'quit' && quitSummary ? (
           <>
-            <Card style={styles.heroCard}>
-              <AppText variant="caption" tone="secondary">SMOKE-FREE</AppText>
+            <Card tone="accent" style={styles.heroCard}>
+              <AppText variant="micro" tone="accent">SMOKE-FREE</AppText>
               <AppText style={styles.heroValue}>{quitSummary.durationLabel}</AppText>
               <AppText tone="secondary">One decision at a time. Your progress is already adding up.</AppText>
             </Card>
@@ -255,8 +255,8 @@ export function TodayScreen({ now }: { now: Date }) {
             </View>
 
             {progressMoment ? (
-              <Card style={styles.momentCard}>
-                <AppText variant="caption" tone="secondary">{progressMoment.eyebrow}</AppText>
+              <Card tone="success" style={styles.momentCard}>
+                <AppText variant="micro" tone="success">{progressMoment.eyebrow}</AppText>
                 <AppText variant="title">{progressMoment.title}</AppText>
                 <AppText tone="secondary">{progressMoment.body}</AppText>
                 <AppText variant="caption" tone="secondary">{progressMoment.detail}</AppText>
@@ -271,8 +271,8 @@ export function TodayScreen({ now }: { now: Date }) {
               <Card><AppText tone="secondary">Loading your smoking history…</AppText></Card>
             ) : smokingSummary ? (
               <>
-                <Card style={styles.heroCard}>
-                  <AppText variant="caption" tone="secondary">
+                <Card tone="accent" style={styles.heroCard}>
+                  <AppText variant="micro" tone="accent">
                     {mode === 'reduce' ? 'TODAY · YOUR TARGET' : 'TODAY · LOGGED'}
                   </AppText>
                   <AppText style={styles.heroValue}>
@@ -306,10 +306,10 @@ export function TodayScreen({ now }: { now: Date }) {
                   />
                 </View>
 
-                <Card>
+                <Card tone="raised">
                   <View style={styles.sectionHeader}>
                     <View>
-                      <AppText variant="caption" tone="secondary">YOUR LAST 7 DAYS</AppText>
+                      <AppText variant="micro" tone="accent">YOUR LAST 7 DAYS</AppText>
                       <AppText variant="title">Pattern, not judgment.</AppText>
                     </View>
                     <AppText variant="caption" tone="secondary">
@@ -329,8 +329,8 @@ export function TodayScreen({ now }: { now: Date }) {
         ) : null}
 
         {personalizationLoading ? (
-          <Card style={styles.focusCard}>
-            <AppText variant="caption" tone="secondary">FOR YOU NOW</AppText>
+          <Card tone="accent" style={styles.focusCard}>
+            <AppText variant="micro" tone="accent">FOR YOU NOW</AppText>
             <AppText variant="title">Reading today’s context…</AppText>
             <AppText tone="secondary">
               Reclaim is checking today’s mood, cravings, and active goals before choosing what to surface.
@@ -338,8 +338,8 @@ export function TodayScreen({ now }: { now: Date }) {
           </Card>
         ) : (
           <>
-            <Card style={styles.focusCard}>
-              <AppText variant="caption" tone="secondary">{personalized.focus.eyebrow}</AppText>
+            <Card tone="accent" style={styles.focusCard}>
+              <AppText variant="micro" tone="accent">{personalized.focus.eyebrow}</AppText>
               <AppText variant="title">{personalized.focus.title}</AppText>
               <AppText tone="secondary">{personalized.focus.body}</AppText>
               <Button
@@ -357,7 +357,7 @@ export function TodayScreen({ now }: { now: Date }) {
             </Card>
 
             <View style={styles.signalSection}>
-              <AppText variant="caption" tone="secondary">TODAY AT A GLANCE</AppText>
+              <AppText variant="micro" tone="tertiary">TODAY AT A GLANCE</AppText>
               <View style={styles.statsGrid}>
                 <StatCard label="MOOD" value={personalized.moodLabel} />
                 <StatCard label="CRAVINGS LOGGED" value={String(personalized.cravingsToday)} />
@@ -377,8 +377,8 @@ export function TodayScreen({ now }: { now: Date }) {
           </>
         )}
 
-        <Card style={styles.exploreCard}>
-          <AppText variant="caption" tone="secondary">EXPLORE</AppText>
+        <View style={styles.exploreCard}>
+          <AppText variant="micro" tone="tertiary">EXPLORE</AppText>
           <QuickAction
             label="Craving support"
             detail="Short tools when an urge hits"
@@ -403,7 +403,7 @@ export function TodayScreen({ now }: { now: Date }) {
               onPress={() => router.push('/(app)/goals')}
             />
           ) : null}
-        </Card>
+        </View>
 
         {dataError ? (
           <ErrorCard
@@ -443,8 +443,8 @@ const styles = StyleSheet.create({
   pacePill: {
     alignSelf: 'flex-start',
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    borderColor: colors.accentMuted,
+    backgroundColor: colors.accentSoft,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderRadius: radius.pill,
@@ -469,7 +469,7 @@ const styles = StyleSheet.create({
     minWidth: 150,
     flexGrow: 1,
     flexBasis: '30%',
-    backgroundColor: colors.surface,
+    backgroundColor: colors.backgroundRaised,
     borderColor: colors.border,
     borderWidth: StyleSheet.hairlineWidth,
     borderRadius: radius.md,
@@ -502,7 +502,7 @@ const styles = StyleSheet.create({
   bar: {
     width: 14,
     borderRadius: radius.pill,
-    backgroundColor: colors.textPrimary,
+    backgroundColor: colors.accent,
   },
   barUnknown: {
     backgroundColor: colors.border,
@@ -519,6 +519,9 @@ const styles = StyleSheet.create({
   },
   exploreCard: {
     gap: spacing.sm,
+    paddingTop: spacing.sm,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.border,
   },
   quickAction: {
     minHeight: 56,
@@ -527,8 +530,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: spacing.md,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.border,
-    paddingVertical: spacing.sm,
+    borderBottomColor: colors.border,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    paddingVertical: spacing.md,
   },
   quickActionCopy: {
     flex: 1,
