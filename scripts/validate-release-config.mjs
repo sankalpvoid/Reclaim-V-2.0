@@ -17,12 +17,14 @@ assert(app?.name === 'Reclaim', 'Expo app name must remain Reclaim.');
 assert(app?.slug === 'reclaim-v2', 'Expo slug must remain reclaim-v2.');
 assert(app?.owner === 'sankalpvoid', 'Expo owner must remain sankalpvoid.');
 assert(app?.scheme === 'reclaim', 'Native auth scheme must remain reclaim.');
+assert(app?.userInterfaceStyle === 'dark', 'Reclaim v1 must keep the dark native appearance.');
 assert(/^\d+\.\d+\.\d+$/.test(app?.version ?? ''), 'App version must use x.y.z format.');
 
 assert(
   app?.ios?.bundleIdentifier === 'app.reclaim.mobile',
   'iOS bundle identifier must remain app.reclaim.mobile.',
 );
+assert(app?.ios?.supportsTablet === false, 'Reclaim v1 must remain iPhone-only on iOS.');
 assert(
   app?.android?.package === 'app.reclaim.mobile',
   'Android package must remain app.reclaim.mobile.',
