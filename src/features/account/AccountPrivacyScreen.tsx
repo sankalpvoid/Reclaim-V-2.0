@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 
 import { deleteCurrentAccount } from '@/features/account/accountService';
@@ -9,6 +9,8 @@ import { Button } from '@/ui/Button';
 import { Card } from '@/ui/Card';
 import { Input } from '@/ui/Input';
 import { Screen } from '@/ui/Screen';
+
+const PRIVACY_POLICY_URL = 'https://reclaim-app-tawny.vercel.app/privacy/';
 
 export function AccountPrivacyScreen() {
   const passwordRef = useRef('');
@@ -64,6 +66,19 @@ export function AccountPrivacyScreen() {
             reminder preferences, and community activity are stored in Supabase so your
             experience can work across sessions.
           </AppText>
+        </Card>
+
+        <Card style={styles.card}>
+          <AppText variant="caption" tone="secondary">PUBLIC POLICY</AppText>
+          <AppText variant="title">Read the full privacy policy.</AppText>
+          <AppText tone="secondary">
+            The public policy reflects the current Reclaim v1 data practices and account-deletion flow.
+          </AppText>
+          <Button
+            label="Open privacy policy"
+            accessibilityHint="Opens Reclaim's public privacy policy in your browser"
+            onPress={() => void Linking.openURL(PRIVACY_POLICY_URL)}
+          />
         </Card>
 
         <Card style={styles.card}>

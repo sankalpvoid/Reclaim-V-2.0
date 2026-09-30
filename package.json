@@ -13,7 +13,8 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "brand:generate": "node scripts/generate-brand-assets.mjs"
   },
   "dependencies": {
     "@expo/ui": "~57.0.21",

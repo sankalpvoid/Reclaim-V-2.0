@@ -14,6 +14,7 @@ This document tracks the work required to move Reclaim V2 from a verified develo
 - Production builds: auto-increment developer-facing build numbers
 - Native auth deep links: reclaim://**
 - Standalone Expo dev client remains the development target.
+- Public v1 platforms: iPhone and Android phones; iPad support is disabled for v1.
 
 ## Completed foundations
 
@@ -40,24 +41,27 @@ This document tracks the work required to move Reclaim V2 from a verified develo
 
 ### Branding assets
 
-The repository does not yet contain final release artwork. Before any store build, add and configure:
+The v1 icon direction is approved: a violet open-loop / outward-path mark on a near-black field. The repository now contains a deterministic generator for:
 
 - 1024x1024 app icon
 - Android adaptive-icon foreground artwork
 - Android monochrome icon for themed icons
-- splash-screen artwork, if Reclaim should show more than the current dark background
+- splash-screen mark
 
-Do not use placeholder artwork for a public submission.
+CI generates these assets before Expo validation and persists them to `main` after merge.
 
 ### Store and support URLs
 
-Public HTTPS URLs are still required for:
+Current public URL:
 
-- Privacy Policy
-- Support / contact page
+- Privacy Policy: https://reclaim-app-tawny.vercel.app/privacy/
+
+Still required before store submission:
+
+- Support / contact page and dedicated support email
 - optional product / marketing page
 
-These URLs should be stable before App Store Connect or Play Console metadata is finalized.
+The privacy page intentionally leaves the support email unpublished until the dedicated Reclaim address is created.
 
 ### Auth email delivery
 
@@ -68,8 +72,7 @@ Supabase's built-in email service is suitable for development testing, but produ
 Before public submission:
 
 - verify deep links from real email clients on both platforms
-- verify notifications and permissions on a physical device
-- decide whether iPad support remains enabled; if yes, include iPad QA and store assets
+- verify notifications and permissions on physical iPhone and Android devices
 
 ### Store accounts and signing
 
@@ -85,12 +88,11 @@ The deployed `delete-account` Edge Function is JWT-protected and currently on ve
 
 ## Release sequence
 
-1. Finalize app icon and splash assets.
-2. Publish privacy and support URLs.
+1. Merge the approved brand configuration and confirm generated assets on `main`.
+2. Create the dedicated Reclaim support email and publish the support/contact page.
 3. Configure production SMTP and branded auth emails.
-4. Verify real-email auth deep links on both platforms and notifications on a physical device.
-5. Decide iPad support and complete any required iPad QA/store assets.
-6. Resolve any release-build-only defects.
-7. Set the intended public version (for example 1.0.0 when launch scope is approved).
-8. Enroll/connect store accounts and create production builds with EAS.
-9. Submit first to TestFlight / Play internal testing before public review.
+4. Verify real-email auth deep links on iPhone and Android and test notifications on physical devices.
+5. Resolve any release-build-only defects.
+6. Set the intended public version (for example 1.0.0 when launch scope is approved).
+7. Enroll/connect store accounts and create production builds with EAS.
+8. Submit first to TestFlight / Play internal testing before public review.
