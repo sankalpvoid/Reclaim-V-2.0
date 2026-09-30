@@ -5,6 +5,7 @@ import { router } from 'expo-router';
 import { deleteCurrentAccount } from '@/features/account/accountService';
 import { colors, radius, spacing } from '@/theme/tokens';
 import { AppText } from '@/ui/AppText';
+import { BackButton } from '@/ui/BackButton';
 import { Button } from '@/ui/Button';
 import { Card } from '@/ui/Card';
 import { Input } from '@/ui/Input';
@@ -41,14 +42,7 @@ export function AccountPrivacyScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Back to More"
-          onPress={() => router.back()}
-          style={styles.backAction}
-        >
-          <AppText tone="secondary">‹ More</AppText>
-        </Pressable>
+        <BackButton label="More" onPress={() => router.back()} />
 
         <View style={styles.heading}>
           <AppText variant="micro" tone="accent">PRIVACY & ACCOUNT</AppText>
