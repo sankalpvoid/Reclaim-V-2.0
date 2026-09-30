@@ -19,6 +19,12 @@
       "ios": {
         "simulator": true
       }
+    },
+    "development-simulator": {
+      "extends": "development",
+      "ios": {
+        "simulator": true
+      }
     }
   },
   "submit": {
