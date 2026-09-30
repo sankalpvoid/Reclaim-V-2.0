@@ -136,50 +136,57 @@ export default function ResetPasswordScreen() {
         </View>
 
         {linkError ? (
-          <View style={styles.formPanel}><View style={styles.formPanel}><View style={styles.form}>
-            <AppText accessibilityRole="alert" tone="danger">{linkError}</AppText>
-            <Button
-              label="Back to sign in"
-              onPress={() => router.replace('/(auth)')}
-            />
-          </View></View>
+          <View style={styles.formPanel}>
+            <View style={styles.form}>
+              <AppText accessibilityRole="alert" tone="danger">{linkError}</AppText>
+              <Button
+                label="Back to sign in"
+                onPress={() => router.replace('/(auth)')}
+              />
+            </View>
+          </View>
         ) : isReady ? (
-          <View style={styles.form}>
-            <Input
-              label="New password"
-              value={password}
-              onChangeText={setPassword}
-              autoCapitalize="none"
-              autoCorrect={false}
-              autoComplete="new-password"
-              textContentType="newPassword"
-              secureTextEntry
-              editable={!isSubmitting}
-            />
-            <Input
-              label="Confirm new password"
-              value={confirmation}
-              onChangeText={setConfirmation}
-              autoCapitalize="none"
-              autoCorrect={false}
-              autoComplete="new-password"
-              textContentType="newPassword"
-              secureTextEntry
-              editable={!isSubmitting}
-            />
-            {formError ? (
-              <AppText accessibilityLiveRegion="polite" accessibilityRole="alert" tone="danger">
-                {formError}
-              </AppText>
-            ) : null}
-            <Button
-              label={isSubmitting ? 'Updating password…' : 'Update password'}
-              disabled={isSubmitting}
-              onPress={() => void submit()}
-            />
-          </View></View>
+          <View style={styles.formPanel}>
+            <View style={styles.form}>
+              <Input
+                label="New password"
+                value={password}
+                onChangeText={setPassword}
+                autoCapitalize="none"
+                autoCorrect={false}
+                autoComplete="new-password"
+                textContentType="newPassword"
+                secureTextEntry
+                editable={!isSubmitting}
+              />
+              <Input
+                label="Confirm new password"
+                value={confirmation}
+                onChangeText={setConfirmation}
+                autoCapitalize="none"
+                autoCorrect={false}
+                autoComplete="new-password"
+                textContentType="newPassword"
+                secureTextEntry
+                editable={!isSubmitting}
+              />
+              {formError ? (
+                <AppText accessibilityLiveRegion="polite" accessibilityRole="alert" tone="danger">
+                  {formError}
+                </AppText>
+              ) : null}
+              <Button
+                label={isSubmitting ? 'Updating password…' : 'Update password'}
+                disabled={isSubmitting}
+                onPress={() => void submit()}
+              />
+            </View>
+          </View>
         ) : (
-          <AppText tone="secondary">Verifying recovery link…</AppText>
+          <View style={styles.verifying}>
+            <AppText variant="headline">Checking your link…</AppText>
+            <AppText tone="secondary">This should only take a moment.</AppText>
+          </View>
         )}
       </View>
     </Screen>
@@ -207,5 +214,8 @@ const styles = StyleSheet.create({
   },
   form: {
     gap: spacing.md,
+  },
+  verifying: {
+    gap: spacing.sm,
   },
 });
