@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 
 import { trackAnalyticsEvent } from '@/core/observability/analyticsService';
