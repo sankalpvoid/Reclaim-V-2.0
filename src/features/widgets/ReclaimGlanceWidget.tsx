@@ -17,7 +17,7 @@ function ReclaimGlanceWidget(
   if (environment.widgetFamily === 'accessoryRectangular') {
     return (
       <VStack modifiers={[padding({ all: 4 })]}>
-        <Text modifiers={[font({ size: 12, weight: 'semibold' })]}>{props.eyebrow}</Text>
+        <Text modifiers={[font({ size: 12, weight: 'semibold' }), foregroundStyle('#A855F7')]}>{props.eyebrow}</Text>
         <Text modifiers={[font({ size: 20, weight: 'bold' })]}>{props.primary}</Text>
         <Text modifiers={[font({ size: 11 })]}>{props.secondary}</Text>
       </VStack>
@@ -29,7 +29,7 @@ function ReclaimGlanceWidget(
       <Text
         modifiers={[
           font({ size: 11, weight: 'semibold' }),
-          foregroundStyle('#8E8E93'),
+          foregroundStyle('#A855F7'),
         ]}
       >
         {props.eyebrow}
