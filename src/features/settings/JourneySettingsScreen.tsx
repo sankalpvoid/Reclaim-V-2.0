@@ -14,6 +14,7 @@ import {
 import { updateJourneySettings } from '@/features/settings/journeySettingsService';
 import { spacing } from '@/theme/tokens';
 import { AppText } from '@/ui/AppText';
+import { BackButton } from '@/ui/BackButton';
 import { Button } from '@/ui/Button';
 import { Card } from '@/ui/Card';
 import { Screen } from '@/ui/Screen';
@@ -87,9 +88,7 @@ export function JourneySettingsScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Pressable accessibilityRole="button" onPress={() => router.back()} style={styles.backButton}>
-          <AppText tone="secondary">‹ More</AppText>
-        </Pressable>
+        <BackButton label="More" onPress={() => router.back()} />
 
         <View style={styles.heading}>
           <AppText variant="micro" tone="accent">YOUR JOURNEY</AppText>
