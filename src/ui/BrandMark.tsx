@@ -1,6 +1,5 @@
-import { StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 
-import { colors, radius } from '@/theme/tokens';
 import { AppText } from '@/ui/AppText';
 
 type BrandMarkProps = {
@@ -9,26 +8,15 @@ type BrandMarkProps = {
 };
 
 export function BrandMark({ showWordmark = true, compact = false }: BrandMarkProps) {
-  const size = compact ? 28 : 38;
-  const stroke = compact ? 5 : 6;
+  const size = compact ? 30 : 46;
 
   return (
     <View style={styles.row}>
-      <View
-        accessibilityElementsHidden
-        importantForAccessibility="no"
-        style={[
-          styles.mark,
-          {
-            width: size,
-            height: size,
-            borderRadius: size / 2,
-            borderWidth: stroke,
-          },
-        ]}
-      >
-        <View style={[styles.exit, compact ? styles.exitCompact : null]} />
-      </View>
+      <Image
+        accessibilityLabel="Reclaim"
+        source={require('../../assets/branding/approved-icon-master.png')}
+        style={[styles.mark, { width: size, height: size, borderRadius: size * 0.24 }]}
+      />
       {showWordmark ? (
         <AppText variant={compact ? 'title' : 'headline'}>Reclaim</AppText>
       ) : null}
@@ -43,24 +31,6 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   mark: {
-    borderColor: colors.accent,
-    borderRightColor: 'transparent',
-    transform: [{ rotate: '-18deg' }],
-    position: 'relative',
-  },
-  exit: {
-    position: 'absolute',
-    width: 17,
-    height: 6,
-    borderRadius: radius.pill,
-    backgroundColor: colors.accent,
-    right: -10,
-    top: 0,
-    transform: [{ rotate: '-38deg' }],
-  },
-  exitCompact: {
-    width: 13,
-    height: 5,
-    right: -8,
+    resizeMode: 'contain',
   },
 });
