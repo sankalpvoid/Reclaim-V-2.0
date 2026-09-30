@@ -50,7 +50,8 @@ assert(
 assert(eas?.cli?.appVersionSource === 'remote', 'EAS version source must remain remote.');
 assert(
   eas?.build?.development?.developmentClient === true &&
-    eas?.build?.development?.distribution === 'internal',
+    eas?.build?.development?.distribution === 'internal' &&
+    eas?.build?.development?.environment === 'preview',
   'Development profile must remain an internal development-client build.',
 );
 assert(
