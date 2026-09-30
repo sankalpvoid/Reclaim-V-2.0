@@ -50,10 +50,10 @@ export function QuitDatePicker({ value, onChange, disabled = false }: QuitDatePi
         style={({ pressed }) => [styles.trigger, pressed && styles.pressed, disabled && styles.disabled]}
       >
         <View style={styles.copy}>
-          <AppText variant="caption" tone="secondary">QUIT STARTED</AppText>
+          <AppText variant="micro" tone="accent">QUIT STARTED</AppText>
           <AppText>{formatDateTime(value)}</AppText>
         </View>
-        <AppText tone="secondary">›</AppText>
+        <AppText tone="accent">›</AppText>
       </Pressable>
       {showAndroidPicker ? (
         <ExpoDateTimePicker
@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceRaised,
     paddingHorizontal: spacing.sm,
     justifyContent: 'center',
   },
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceRaised,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     flexDirection: 'row',
