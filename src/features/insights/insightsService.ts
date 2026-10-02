@@ -31,7 +31,7 @@ export async function getInsightSourceData(userId: string) {
       .select('smoked_at, event_type, cigarettes, toolkit, tool_feedback')
       .eq('user_id', userId)
       .gte('smoked_at', since)
-      .order('smoked_at', { ascending: true })
+      .order('smoked_at', { ascending: false })
       .limit(1000),
     supabase
       .from('daily_checkins')

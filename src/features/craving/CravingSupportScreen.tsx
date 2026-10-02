@@ -297,11 +297,11 @@ export function CravingSupportScreen() {
         {stage === 'feedback' ? (
           <View style={styles.stack}>
             <AppText variant="micro" tone="accent">OPTIONAL</AppText>
-            <AppText variant="display">Did that help?</AppText>
-            <AppText tone="secondary">One tap helps Reclaim learn which support works for you.</AppText>
-            <Button label="Yes" onPress={() => void submitFeedback('yes')} />
-            <Button variant="secondary" label="A little" onPress={() => void submitFeedback('a_little')} />
-            <Button variant="ghost" label="Not really" onPress={() => void submitFeedback('not_really')} />
+            <AppText variant="display">How strong is the urge now?</AppText>
+            <AppText tone="secondary">One tap helps Reclaim learn which support works for you. You can skip this.</AppText>
+            <Button label="Gone" accessibilityHint="The craving has passed" onPress={() => void submitFeedback('yes')} />
+            <Button variant="secondary" label="Weaker" accessibilityHint="Still there, but easier" onPress={() => void submitFeedback('a_little')} />
+            <Button variant="ghost" label="About the same or stronger" accessibilityHint="The craving has not eased yet" onPress={() => void submitFeedback('not_really')} />
             <Pressable
               onPress={() => {
                 resetFlow();
