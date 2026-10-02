@@ -43,7 +43,7 @@
         }
       ],
       "expo-secure-store",
-      "expo-notifications",
+      ["expo-notifications", { "icon": "./assets/branding/monochrome-icon.png", "color": "#A855F7" }],
       [
         "expo-build-properties",
         {
