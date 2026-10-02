@@ -95,3 +95,23 @@ Re-verified locally after fixes. All commands were run, not assumed.
 - Leaked-password protection is disabled (plan-gated).
 - The approved master icon has a baked rounded tile, so Android adaptive shows a tile inside the mask. Approved asset, left untouched.
 - Owner-only: real support email, custom SMTP and templates, store accounts and review timing, Apple device registration for iOS device builds.
+
+## Update — cross-user RLS isolation test (2026-10-02)
+
+Method: one atomic `DO` block against the live project, two synthetic users (`@example.invalid`,
+random UUIDs) inserted into `auth.users`, JWT claims + `SET LOCAL ROLE authenticated/anon` to
+impersonate each, finishing with a deliberate `RAISE EXCEPTION` so the whole statement rolled back.
+No schema or policy changes. Afterwards: `auth.users` 26 (unchanged), 0 synthetic users, 0 synthetic rows.
+
+Verified (tables: smoking_events, savings_goals, daily_checkins, notification_preferences, profiles):
+- User A can insert and read own rows.
+- User B sees 0 of A's rows on every table above.
+- User B UPDATE / DELETE against A's rows affects 0 rows.
+- User B INSERT with `user_id = A` is rejected by RLS (smoking_events, savings_goals, daily_checkins).
+- `anon` gets "permission denied" on smoking_events and profiles.
+- Trigger `guard_smoking_event` rejects a +2h `smoked_at` and cigarettes = 500 for a signed-in user.
+- A's rows were unchanged after B's attempts.
+
+Not covered: community tables (circle_posts, replies, reports, blocks), learning progress, reduction
+plans/reviews, analytics_events, the `delete-account` function, storage. Their policies were inspected
+but not write-tested.
