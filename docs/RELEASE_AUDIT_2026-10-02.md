@@ -223,3 +223,27 @@ by the owner (or the owner signs in on the simulator), after which I can drive t
 Notification delivery and permission prompts under real iOS rules, widget on real Lock Screen, keychain/SecureStore behaviour across reinstall,
 email confirmation and password-reset deep links from the Mail app, real network loss/reconnect, performance and battery, Dynamic Island/notch on real hardware,
 TestFlight/signing/App Group provisioning.
+
+### Signed-in iOS simulator pass (owner signed in; account "Test 2", quit mode)
+Note: the throwaway account is NOT blank. It carries pre-existing V1 history (13 days smoke-free, 264 avoided, 6 logged cravings,
+completed/saved Learn items, one savings goal). I did not record a lapse or delete it without explicit owner confirmation.
+
+**PASS (driven by taps and screenshots on the Release build):**
+- Mood check-in: save, then update the same day; saved confirmation shown; history 0/7 empty state renders correctly.
+- Today dashboard: ₹ formatting and metrics consistent (₹300/day x 13.2 days ≈ ₹3,967 shown as ₹3,968 after elapsed time).
+- Personalised "For you now" card reacts to the check-in and to a recent craving.
+- Craving flow end to end (Box breathing, then strength "Weaker"): count 0 to 1, recorded as resisted; history personalisation ("3 of 3 times").
+- Savings goals: existing goal renders as reached.
+- Learn: list, article expand, source shown. More screen: correct logo, Support row hidden (email unset by design).
+- Reminders: permission shown allowed; recommendation reacts to the craving; local test notification delivered with app icon.
+- Insights: patterns render with evidence counts. Community: story form renders, empty-feed message shown (nothing posted).
+- Lapse panel ("I had a cigarette"): opens with the keep-your-best-streak copy and date/time picker; Cancel closes it with no change to the account.
+
+**NOT executed (needs owner go-ahead or a fresh account):**
+- Lapse record/restart, smoking log and Undo, future-time rejection in the UI (logic covered by unit tests only), offline/reconnect, logout and widget reset.
+- Account deletion: first-ever run of the `delete-account` edge function; permanent. Only on this throwaway account and only on owner confirmation.
+- The other three craving tools; onboarding (needs a fresh account).
+- Logout was deliberately not done: I cannot type the password to sign back in.
+
+**Observations (not changed; audit only, no UI polish):**
+- The mood "saved" message and the savings "Goal reached" card render green/teal, which conflicts with the dark + purple brand rule (no green/teal/cyan). Candidate follow-up.
