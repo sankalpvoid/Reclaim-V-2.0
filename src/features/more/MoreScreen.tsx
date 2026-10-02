@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 
+import { supportEmail } from '@/core/config/support';
 import { useAuth } from '@/features/auth/AuthContext';
 import { signOut } from '@/features/auth/authService';
 import { colors, radius, spacing } from '@/theme/tokens';
@@ -115,6 +116,14 @@ export function MoreScreen() {
               detail="See what Reclaim stores and access permanent deletion."
               onPress={() => router.push('/(app)/privacy')}
             />
+            {supportEmail ? (
+              <SettingsRow
+                eyebrow="SUPPORT"
+                title="Contact support"
+                detail="Email the Reclaim team."
+                onPress={() => void Linking.openURL(`mailto:${supportEmail}`)}
+              />
+            ) : null}
           </Card>
         </View>
 
