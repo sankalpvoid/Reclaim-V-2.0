@@ -115,3 +115,82 @@ Verified (tables: smoking_events, savings_goals, daily_checkins, notification_pr
 Not covered: community tables (circle_posts, replies, reports, blocks), learning progress, reduction
 plans/reviews, analytics_events, the `delete-account` function, storage. Their policies were inspected
 but not write-tested.
+
+## Update — second RLS test, delete-account, app-area review, device checklist (2026-10-02)
+
+### Android build
+EAS build `fbdee04c-4ab9-4bee-ac42-2b0ab007bfc0`: **finished**. Preview profile (internal distribution APK), v1.0.0,
+versionCode 1, commit `ef1ab9a` (includes the contrast and sign-in fixes; later commits are docs plus the mood-history
+error state below). **Suitable for physical-device testing; it has not been installed or run by me.**
+APK: https://expo.dev/artifacts/eas/3fY9J1lW6vYsY2oVjNtSfb4jDAyhCAXCAuZ-gLjWN-U.apk
+Build `a0427447…` is stale (predates those fixes); ignore it. This build does not include the mood-history change; rebuild before the final device pass.
+
+### 1. VERIFIED (executed, with results)
+- `npx tsc --noEmit`, `npx eslint . --max-warnings=0`: pass. `npx vitest run`: 25 files / 111 tests pass.
+  `node scripts/validate-release-config.mjs`: pass. `node scripts/audit-gate.mjs`: pass (one accepted advisory above).
+- **RLS test 2** (same method as test 1: synthetic `@example.invalid` users, impersonated roles, whole run rolled back by a final
+  `RAISE EXCEPTION`; afterwards `auth.users` = 26, 0 synthetic users/circles/challenges/posts):
+  - User B (non-moderator) saw 0 rows of A's `saved_posts`, `community_reports`, `user_blocks`, `user_learning_progress`,
+    `reduction_plans`, `reduction_reviews`; `analytics_events` gave permission denied (no SELECT policy/grant).
+  - B's UPDATE/DELETE against A's posts, replies, cheers, saved posts, blocks, challenge completions, reports, learning progress,
+    plans and reviews affected 0 rows, including attempts to set a moderation status.
+  - B's INSERT with `user_id`/`reporter_id`/`blocker_id` = A was rejected by RLS on all of those tables and `analytics_events`.
+  - Legitimate B actions worked: own post, reply to A's post, report A's post, own analytics event. Invalid `event_name` rejected by CHECK.
+  - `anon`: can insert analytics only with `user_id IS NULL`; cannot insert as A; cannot read analytics, posts, replies,
+    saved posts, blocks, reports, plans, reviews, completions. `user_learning_progress`/`learning_articles` returned 0 rows (policy block, not grant block).
+  - Community posts/cheers/circles/challenges are readable across authenticated users by design.
+  - Deleting synthetic A from `auth.users` cascaded to 0 remaining rows in every owned table (DB cascade only).
+- Privacy policy URL used in-app responds HTTP 200.
+
+### 2. VERIFIED BY INSPECTION ONLY
+- **`delete-account` edge function**: `verify_jwt: true`, v2 ACTIVE; deployed source equals repo source; requires `{confirmation:'DELETE'}`;
+  admin client uses Supabase-injected service key (never in the app); deletes `analytics_events` (by anonymous_id link, then user_id),
+  then `auth.admin.deleteUser`; the rest cascades (verified in DB above). **Not runtime-verified**: it was never executed, because that
+  permanently deletes an account. Needs one run against a throwaway account created in the app.
+- App-side deletion (`accountService.ts`): re-authenticates with password, calls the function, parses `{deleted:true}`, cancels local reminders, local sign-out.
+- Reminders are local notifications only; permission is requested only when enabling or sending a test; routing from tap goes to check-in / insights.
+- Privacy copy matches reality: `expo-observe` is installed and wired, analytics uses fixed event names, no free text sent.
+- Learning: loading and error states with retry exist; sources are linked per article; no streak mechanics.
+- Mood check-in save is idempotent per local day (`user_id,client_id` upsert).
+- More screen hides the Support row when `EXPO_PUBLIC_SUPPORT_EMAIL` is unset (by design; no address invented).
+
+### 3. NOT TESTED
+- Any behaviour on a physical device or iOS at all (only old 0.1.0 simulator builds exist; no iOS device build).
+- Storage policies, Realtime, leaked-password protection (plan-gated, disabled).
+- Real email delivery, confirmation and password-reset deep links.
+- `delete-account` runtime (see above).
+
+### 4. BLOCKED / NEEDS MANUAL DEVICE TESTING
+- **Offline**: no NetInfo / `onlineManager` / offline banner anywhere. Offline writes fail with a generic error and reads show retry cards. Documented V1 limitation, behaviour must be observed on device.
+- iOS device build needs the owner's Apple account and registered device.
+- Real support email: not created; Support row stays hidden. Only matters if a store listing requires a contact (not required by `eas.json` or `validate-release-config.mjs`).
+- Custom SMTP/templates (default mail is rate-limited), store accounts and review timing.
+
+### Defects found in this pass
+- **FIXED (small, functional):** Mood check-in history query failure displayed "0/7 days checked in" and zero counts, which reads as real data. It now shows the existing ErrorCard with retry (`MoodCheckinScreen.tsx`). tsc/eslint/vitest re-run clean.
+- **Not fixed, documented:**
+  - Mood period buttons lack explicit role/selected state and a full 44pt target (accessibility polish).
+  - Learning: if the articles query succeeds with zero rows there is no empty message (blank list under the summary card). Saved/complete is read-then-upsert (benign race on double taps; buttons disable while pending).
+  - Quit mode: a lapse restarts the clock, so reclaimed money and avoided counts restart (known product behaviour; best streak is kept).
+  - Notification screen: if `profile` has not loaded, the suggestion card is simply absent (no error).
+- No schema or RLS defect found; none changed.
+
+### Physical-device test checklist (Android: Redmi A4 5G; iOS: any device once a build exists)
+Use a throwaway email account for everything involving deletion. Do not use your real account for the delete test.
+
+1. **Install**: install the APK; app icon and adaptive icon look right in the launcher; splash shows; app opens without crash.
+2. **Auth**: sign up, receive confirmation email, tap link (opens app); sign in; wrong password shows an error; forgot password email and reset link; kill and relaunch stays signed in; sign out returns to sign-in and a back gesture cannot re-enter.
+3. **Onboarding**: each journey (quit / reduce / track) completes; numbers accept sensible values and reject nonsense; relaunch mid-onboarding resumes correctly.
+4. **Smoking logging**: log a cigarette; Undo; Log earlier with a past time; future time cannot be chosen; count and ₹ spend correct with Indian grouping (e.g. ₹1,00,000); quit mode "I had a cigarette" restarts the clock, shows the attempt, keeps best streak; before-quit time rejected.
+5. **Dashboard**: Today numbers match logs; focus card changes after a check-in or craving; pull/relaunch keeps data; small screen shows no clipped text.
+6. **Cravings**: all four tools open and complete; "How strong is the urge now?" step then "Did that help?" saves; history shows on Today/Insights.
+7. **Mood**: save a check-in; saving again the same day updates rather than duplicates; period buttons 7/30 switch; airplane mode then open history shows the retry card (new fix; needs a rebuild).
+8. **Notifications**: enable daily reminder, Android permission prompt appears only then; test notification arrives in about 3s with the correct icon; deny permission shows "Blocked" and Open settings works; reminder at the chosen time fires; tapping it opens check-in (weekly opens Insights); sign out and confirm reminders no longer fire.
+9. **Savings**: create, edit and remove a goal (quit mode); progress matches reclaimed money; invalid amounts rejected.
+10. **Learning**: list loads; open an article; source link opens browser; Save and Complete persist after relaunch; unsaved state after sign-out and sign-in as another user is independent.
+11. **Offline / reconnect**: airplane mode on each main screen, confirm no crash and an understandable error; attempt to log offline and note what happens; reconnect and confirm retry or refresh recovers; confirm no duplicate logs after reconnect.
+12. **Logout / deletion**: sign out cleans state; then with the throwaway account: More, Privacy, Delete requires correct password and DELETE; account is removed and app returns to sign-in; signing in again fails; check in Supabase the user and rows are gone.
+13. **Permissions**: only notifications requested; nothing asked at launch; denying keeps every other feature working.
+14. **Privacy**: privacy policy button opens the page; screen text matches the app's behaviour; no personal text appears in analytics (spot check events); Support row appears only when the email env var is set.
+15. **Community** (two throwaway accounts): post, reply, report, block; the other account cannot see blocked content; cannot edit or delete the other's content.
+16. **General**: rotate, background and resume mid-flow; font scale large; dark mode only (brand); low-battery or data-saver does not break launch.

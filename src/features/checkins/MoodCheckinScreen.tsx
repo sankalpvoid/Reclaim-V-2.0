@@ -17,6 +17,7 @@ import { AppText } from '@/ui/AppText';
 import { BackButton } from '@/ui/BackButton';
 import { Button } from '@/ui/Button';
 import { Card } from '@/ui/Card';
+import { ErrorCard } from '@/ui/ErrorCard';
 import { Input } from '@/ui/Input';
 import { Screen } from '@/ui/Screen';
 
@@ -162,6 +163,12 @@ export function MoodCheckinScreen() {
 
           {historyQuery.isLoading ? (
             <AppText tone="secondary">Loading check-ins…</AppText>
+          ) : historyQuery.isError ? (
+            <ErrorCard
+              message="Your check-in history could not be loaded."
+              isRetrying={historyQuery.isFetching}
+              onRetry={() => void historyQuery.refetch()}
+            />
           ) : (
             <>
               <AppText tone="secondary">
