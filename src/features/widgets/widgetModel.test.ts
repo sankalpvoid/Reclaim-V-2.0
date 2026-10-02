@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import type { Profile } from '../profile/profile';
-import { buildReclaimWidgetSnapshot } from './widgetModel';
+import { buildReclaimWidgetSnapshot, signedOutWidgetSnapshot } from './widgetModel';
 
 const profile: Profile = {
   id: '00000000-0000-4000-8000-000000000001',
@@ -106,5 +106,11 @@ describe('Reclaim widget snapshot', () => {
       primary: 'Notice the pattern',
       secondary: 'Open Reclaim to log honestly',
     });
+  });
+});
+
+describe('signedOutWidgetSnapshot', () => {
+  it('carries no personal figures', () => {
+    expect(JSON.stringify(signedOutWidgetSnapshot)).not.toMatch(/\d|₹/);
   });
 });

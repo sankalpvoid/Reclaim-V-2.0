@@ -194,3 +194,32 @@ Use a throwaway email account for everything involving deletion. Do not use your
 14. **Privacy**: privacy policy button opens the page; screen text matches the app's behaviour; no personal text appears in analytics (spot check events); Support row appears only when the email env var is set.
 15. **Community** (two throwaway accounts): post, reply, report, block; the other account cannot see blocked content; cannot edit or delete the other's content.
 16. **General**: rotate, background and resume mid-flow; font scale large; dark mode only (brand); low-battery or data-saver does not break launch.
+
+## Update — iOS simulator pass (iPhone 18 Pro Max, iOS 27.0, Xcode 27.0)
+
+Build: `expo prebuild --platform ios --clean` then `expo run:ios --configuration Release` from commit `30bee3b` plus the widget fix below
+(Release = JS bundled, no Metro, no dev launcher UI). Simulator build only; unsigned. Old APK `fbdee04c` is NOT used as evidence.
+
+### Executed on the simulator: PASS
+- Release build succeeds; app installs and launches (twice, incl. after the widget change); process stays alive; no crash report.
+- Splash then sign-in screen render; canonical logo shown.
+- Sign-in: empty submit shows "Enter a valid email address". Create account: empty submit shows the same. Forgot-password screen renders correctly (not submitted).
+- Bundle metadata: version 1.0.0, build 1, `app.reclaim.mobile`, min iOS 16.4, `ITSAppUsesNonExemptEncryption=false`, ATS arbitrary loads off, `main.jsbundle` embedded, URL scheme `reclaim`.
+
+### NOT executed (blocked on a signed-in session)
+Everything past sign-in: onboarding, logging, dashboard, craving, mood, notifications, savings, learning, offline, logout, deletion.
+Reason: the app talks to the live shared Supabase project, so I do not create accounts or type passwords. A throwaway account must be created
+by the owner (or the owner signs in on the simulator), after which I can drive the rest.
+
+### New findings
+- **FIXED (privacy, small): widget kept the previous user's figures after sign-out.** The Home/Lock Screen widget snapshot (smoke-free time, money reclaimed, counts) was written only while signed in and never cleared, so logout or account deletion left it on screen. `AuthContext` now writes a neutral "Open Reclaim / Sign in to continue" snapshot whenever the session becomes null (covers sign-out, deletion, expired session). Unit test confirms the snapshot has no digits or currency. tsc/eslint/vitest (112) pass; app launches. **Widget display itself not verified on the simulator.**
+- **To review before store submission (config only, not changed):**
+  - `NSFaceIDUsageDescription` is present with Apple's generic text, but nothing in the app uses Face ID (no local-authentication). App Review can query unused permission strings.
+  - `NSLocalNetworkUsageDescription` says "Expo Dev Launcher…" because `expo-dev-client` is in the `app.json` plugins and lands in production builds too.
+  - A widget extension (`app.reclaim.mobile.widgets`, App Group `group.app.reclaim.mobile`) means a device/TestFlight build needs a second App ID and the App Group registered under the owner's Apple account.
+- Splash: the approved icon (baked rounded tile) is shown on a square, so the tile's corners show a faint lighter-purple square against `#0A0A0F`. Approved asset left untouched; flagged for your judgement.
+
+### Needs a physical iPhone (simulator cannot validate)
+Notification delivery and permission prompts under real iOS rules, widget on real Lock Screen, keychain/SecureStore behaviour across reinstall,
+email confirmation and password-reset deep links from the Mail app, real network loss/reconnect, performance and battery, Dynamic Island/notch on real hardware,
+TestFlight/signing/App Group provisioning.

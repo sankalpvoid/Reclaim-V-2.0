@@ -5,6 +5,8 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AppState, Platform } from 'react-native';
 
 import { supabase } from '@/core/supabase/client';
+import { signedOutWidgetSnapshot } from '@/features/widgets/widgetModel';
+import { syncReclaimGlanceWidget } from '@/features/widgets/widgetSync';
 import type { Profile } from '@/features/profile/profile';
 import {
   getProfile,
@@ -51,6 +53,11 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
       if (!nextSession) {
         queryClient.clear();
+        try {
+          syncReclaimGlanceWidget(signedOutWidgetSnapshot);
+        } catch {
+          // The widget is optional; never block sign-out on it.
+        }
       }
     });
 

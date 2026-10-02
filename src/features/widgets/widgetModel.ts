@@ -9,6 +9,13 @@ export type ReclaimWidgetSnapshot = {
   secondary: string;
 };
 
+export const signedOutWidgetSnapshot: ReclaimWidgetSnapshot = {
+  mode: 'track',
+  eyebrow: 'RECLAIM',
+  primary: 'Open Reclaim',
+  secondary: 'Sign in to continue',
+};
+
 export type ReclaimWidgetContext = {
   smokingEvents?: readonly SmokingEvent[] | undefined;
   reductionTarget?: number | null | undefined;
