@@ -1,4 +1,5 @@
 import { supabase } from '@/core/supabase/client';
+import { cancelAllReclaimReminders } from '@/features/notifications/notificationService';
 import {
   emailSchema,
   newPasswordSchema,
@@ -71,4 +72,6 @@ export async function updatePassword(password: ResetPasswordInput['password']): 
 export async function signOut() {
   const { error } = await supabase.auth.signOut();
   if (error) throw error;
+  // Reminders belong to the signed-in person; best-effort so a notification failure never blocks logout.
+  await cancelAllReclaimReminders().catch(() => undefined);
 }

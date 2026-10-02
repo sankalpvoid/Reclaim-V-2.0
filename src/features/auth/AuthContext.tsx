@@ -50,7 +50,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       setAuthError(null);
 
       if (!nextSession) {
-        queryClient.removeQueries({ queryKey: profileKeys.all });
+        queryClient.clear();
       }
     });
 
