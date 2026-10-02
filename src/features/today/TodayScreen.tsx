@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -15,11 +15,16 @@ import {
   buildQuitTodaySummary,
   buildSmokingTodaySummary,
   formatMoney,
+  formatSmokeFreeDuration,
 } from '@/features/today/todayModel';
+import { profileKeys } from '@/features/profile/profileService';
+import { SmokeLogger } from '@/features/today/SmokeLogger';
 import {
+  deleteSmokingEvent,
   getReductionPlan,
   getSmokingEvents,
   logCigarette,
+  recordLapse,
   todayKeys,
 } from '@/features/today/todayService';
 import { colors, radius, spacing } from '@/theme/tokens';
@@ -143,12 +148,47 @@ export function TodayScreen({ now }: { now: Date }) {
     [smokingEventsQuery.data],
   );
 
+  const [lastLoggedId, setLastLoggedId] = useState<string | null>(null);
+
   const logMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (smokedAt?: Date) => {
       if (!userId) throw new Error('Your session is not ready yet.');
-      await logCigarette(userId);
+      return logCigarette(userId, smokedAt ?? new Date());
+    },
+    onSuccess: async (eventId) => {
+      setLastLoggedId(eventId);
+      await queryClient.invalidateQueries({ queryKey: todayKeys.smokingEvents(userId) });
+      void trackAnalyticsEvent({
+        eventName: 'cigarette_logged',
+        userId,
+        journeyMode: profile?.journey_mode ?? null,
+      });
+    },
+  });
+
+  const undoMutation = useMutation({
+    mutationFn: async (eventId: string) => deleteSmokingEvent(userId, eventId),
+    onSuccess: async () => {
+      setLastLoggedId(null);
+      await queryClient.invalidateQueries({ queryKey: todayKeys.smokingEvents(userId) });
+    },
+  });
+
+  const lapseMutation = useMutation({
+    mutationFn: async (smokedAt: Date) => {
+      if (!userId || !profile) throw new Error('Your session is not ready yet.');
+      await recordLapse(
+        userId,
+        {
+          quitDate: profile.quit_date,
+          attemptNumber: profile.attempt_number,
+          bestStreakSeconds: profile.best_streak_seconds,
+        },
+        smokedAt,
+      );
     },
     onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: profileKeys.byUser(userId) });
       await queryClient.invalidateQueries({ queryKey: todayKeys.smokingEvents(userId) });
       void trackAnalyticsEvent({
         eventName: 'cigarette_logged',
@@ -201,7 +241,9 @@ export function TodayScreen({ now }: { now: Date }) {
     checkinsQuery.error ??
     cravingsQuery.error ??
     goalsQuery.error ??
-    logMutation.error;
+    logMutation.error ??
+    undoMutation.error ??
+    lapseMutation.error;
   const retryingTodayData =
     smokingEventsQuery.isFetching ||
     reductionPlanQuery.isFetching ||
@@ -211,6 +253,8 @@ export function TodayScreen({ now }: { now: Date }) {
 
   function retryTodayData() {
     logMutation.reset();
+    undoMutation.reset();
+    lapseMutation.reset();
     const retries: Promise<unknown>[] = [
       checkinsQuery.refetch(),
       cravingsQuery.refetch(),
@@ -246,6 +290,21 @@ export function TodayScreen({ now }: { now: Date }) {
               <AppText variant="micro" tone="accent">SMOKE-FREE</AppText>
               <AppText style={styles.heroValue}>{quitSummary.durationLabel}</AppText>
               <AppText tone="secondary">One decision at a time. Your progress is already adding up.</AppText>
+              {profile.best_streak_seconds > 0 || profile.attempt_number > 1 ? (
+                <AppText variant="caption" tone="secondary">
+                  {`Attempt ${profile.attempt_number}`}
+                  {profile.best_streak_seconds > 0
+                    ? ` · longest streak ${formatSmokeFreeDuration(profile.best_streak_seconds * 1000)}`
+                    : ''}
+                </AppText>
+              ) : null}
+              <SmokeLogger
+                kind="lapse"
+                busy={lapseMutation.isPending}
+                onSubmit={async (smokedAt) => {
+                  await lapseMutation.mutateAsync(smokedAt);
+                }}
+              />
             </Card>
 
             <View style={styles.statsGrid}>
@@ -290,8 +349,26 @@ export function TodayScreen({ now }: { now: Date }) {
                   <Button
                     label={logMutation.isPending ? 'Logging…' : '+ Log a cigarette'}
                     disabled={logMutation.isPending}
-                    onPress={() => logMutation.mutate()}
+                    onPress={() => logMutation.mutate(undefined)}
                   />
+                  <SmokeLogger
+                    kind="log"
+                    busy={logMutation.isPending}
+                    onSubmit={async (smokedAt) => {
+                      await logMutation.mutateAsync(smokedAt);
+                    }}
+                  />
+                  {lastLoggedId ? (
+                    <View style={styles.undoRow}>
+                      <AppText variant="caption" tone="secondary">Logged.</AppText>
+                      <Button
+                        label={undoMutation.isPending ? 'Undoing…' : 'Undo'}
+                        variant="ghost"
+                        disabled={undoMutation.isPending}
+                        onPress={() => undoMutation.mutate(lastLoggedId)}
+                      />
+                    </View>
+                  ) : null}
                 </Card>
 
                 <View style={styles.statsGrid}>
@@ -428,6 +505,11 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     gap: spacing.lg,
     paddingBottom: spacing.xxl,
+  },
+  undoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   centered: {
     flex: 1,

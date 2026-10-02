@@ -9,6 +9,7 @@ type QuitDatePickerProps = {
   value: Date;
   onChange: (value: Date) => void;
   disabled?: boolean;
+  label?: string;
 };
 
 function formatDateTime(value: Date) {
@@ -18,13 +19,18 @@ function formatDateTime(value: Date) {
   }).format(value);
 }
 
-export function QuitDatePicker({ value, onChange, disabled = false }: QuitDatePickerProps) {
+export function QuitDatePicker({
+  value,
+  onChange,
+  disabled = false,
+  label = 'Your quit date and time',
+}: QuitDatePickerProps) {
   const [showAndroidPicker, setShowAndroidPicker] = useState(false);
 
   if (Platform.OS === 'ios') {
     return (
       <View style={styles.field}>
-        <AppText variant="caption">Your quit date and time</AppText>
+        <AppText variant="caption">{label}</AppText>
         <View style={styles.iosPicker}>
           <ExpoDateTimePicker
             value={value}
@@ -42,7 +48,7 @@ export function QuitDatePicker({ value, onChange, disabled = false }: QuitDatePi
 
   return (
     <View style={styles.field}>
-      <AppText variant="caption">Your quit date and time</AppText>
+      <AppText variant="caption">{label}</AppText>
       <Pressable
         accessibilityRole="button"
         disabled={disabled}

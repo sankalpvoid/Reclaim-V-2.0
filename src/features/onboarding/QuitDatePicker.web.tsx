@@ -6,6 +6,7 @@ type QuitDatePickerProps = {
   value: Date;
   onChange: (value: Date) => void;
   disabled?: boolean;
+  label?: string;
 };
 
 function toLocalInput(value: Date) {
@@ -17,12 +18,17 @@ export function QuitDatePicker(props: QuitDatePickerProps) {
   return <QuitDatePickerDraft key={props.value.getTime()} {...props} />;
 }
 
-function QuitDatePickerDraft({ value, onChange, disabled = false }: QuitDatePickerProps) {
+function QuitDatePickerDraft({
+  value,
+  onChange,
+  disabled = false,
+  label = 'Your quit date and time',
+}: QuitDatePickerProps) {
   const [draft, setDraft] = useState(() => toLocalInput(value));
 
   return (
     <Input
-      label="Your quit date and time"
+      label={label}
       value={draft}
       editable={!disabled}
       placeholder="YYYY-MM-DDTHH:mm"
