@@ -1,3 +1,4 @@
+import { formatMoneyAmount } from '../../domain/format/money';
 import { calculateQuitMetrics } from '../../domain/smoking/quitMetrics';
 import {
   buildRecentDailySeries,
@@ -37,8 +38,7 @@ export function formatReclaimedMinutes(minutes: number): string {
 }
 
 export function formatMoney(currencySymbol: string, value: number): string {
-  const safeValue = Number.isFinite(value) ? Math.max(0, value) : 0;
-  return `${currencySymbol}${Math.round(safeValue).toLocaleString()}`;
+  return formatMoneyAmount(currencySymbol, value);
 }
 
 export function formatAvoidedCigarettes(value: number): string {

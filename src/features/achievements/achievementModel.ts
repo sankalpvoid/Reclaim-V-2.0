@@ -1,3 +1,4 @@
+import { formatMoneyAmount } from '../../domain/format/money';
 export type ProgressMomentInput = {
   elapsedDays: number;
   cigarettesAvoided: number;
@@ -24,7 +25,7 @@ function formatInteger(value: number): string {
 }
 
 function formatMoney(currencySymbol: string, value: number): string {
-  return `${currencySymbol}${formatInteger(value)}`;
+  return formatMoneyAmount(currencySymbol, value, 'floor');
 }
 
 function formatMinutes(minutes: number): string {
