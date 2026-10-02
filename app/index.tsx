@@ -1,4 +1,4 @@
-import { Redirect } from 'expo-router';
+import { Redirect, router } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
 import { useAuth } from '@/features/auth/AuthContext';
@@ -38,6 +38,7 @@ export default function EntryScreen() {
           <BrandMark />
           <AppText variant="headline">We couldn’t restore your session.</AppText>
           <AppText tone="secondary">{authError.message}</AppText>
+          <Button label="Go to sign in" onPress={() => router.replace('/(auth)')} />
         </View>
       </Screen>
     );
